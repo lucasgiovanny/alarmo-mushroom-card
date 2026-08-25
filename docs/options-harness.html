@@ -227,8 +227,13 @@ const CASES = [
         {sensors:{}, sensorCount:0});
       return !q(c,'.notice') || 'an empty sensor list has nothing to say'; }],
   ['show_skip_delay_option',false, () => { const c=card({show_skip_delay_option:false},'disarmed',{});
-      return (!q(c,'#opt-skip') && !q(c,'.arm-options'))
-        || 'the empty shortcut row should not be drawn at all'; }],
+      /* The key shares this row, and something is blocked here, so the row
+         itself stays — only the delay chip goes. */
+      return (!q(c,'#opt-skip') && !!q(c,'#bypass'))
+        || 'only the delay chip should go'; }],
+  [null,'an empty shortcut row is not drawn', () => {
+      const c=card({show_skip_delay_option:false,show_bypass_button:false},'disarmed',{});
+      return !q(c,'.arm-options') || 'a row with nothing in it should not exist'; }],
   ['max_sensor_chips',2, () => { const c=card({max_sensor_chips:2},'disarmed',{},null,'armed_away');
       return c.shadowRoot.querySelectorAll('.chip:not(.more)').length===2 && !!q(c,'.chip.more'); }],
   ['armed_away__button_label','Fora', () => q(card({states:{armed_away:{button_label:'Fora'}}},'disarmed',{}),'#mode-armed_away .label').textContent==='Fora'],

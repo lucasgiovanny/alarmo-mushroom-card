@@ -15,7 +15,7 @@
 
   const CARD_TYPE = 'alarmo-mushroom-card';
   const EDITOR_TYPE = 'alarmo-mushroom-card-editor';
-  const CARD_VERSION = '0.1.10';
+  const CARD_VERSION = '0.1.11';
   const DOCS_URL = 'https://github.com/lucasgiovanny/alarmo-mushroom-card';
 
   /* ------------------------------------------------------------------ */
@@ -154,7 +154,7 @@
         bypassed_other: '{n} sensors are not being watched',
         sensor_open: 'Open', sensor_closed: 'Closed', sensor_bypassed: 'Bypassed',
         sensor_missing: 'No longer in Home Assistant',
-        action_bypass: 'Arm anyway', action_bypass_on: 'Bypassing open sensors',
+        action_bypass: 'Arm anyway', action_bypass_on: 'Sensors bypassed',
         action_retry: 'Arm now', more: '+{n} more'
       },
       sheet: {
@@ -232,7 +232,7 @@
         bypassed_other: '{n} sensores não estão sendo vigiados',
         sensor_open: 'Aberto', sensor_closed: 'Fechado', sensor_bypassed: 'Ignorado',
         sensor_missing: 'Não existe mais no Home Assistant',
-        action_bypass: 'Armar mesmo assim', action_bypass_on: 'Ignorando sensores abertos',
+        action_bypass: 'Armar mesmo assim', action_bypass_on: 'Sensores ignorados',
         action_retry: 'Armar agora', more: 'mais {n}'
       },
       sheet: {
@@ -310,7 +310,7 @@
         bypassed_other: '{n} sensores não estão a ser vigiados',
         sensor_open: 'Aberto', sensor_closed: 'Fechado', sensor_bypassed: 'Ignorado',
         sensor_missing: 'Já não existe no Home Assistant',
-        action_bypass: 'Armar mesmo assim', action_bypass_on: 'A ignorar sensores abertos',
+        action_bypass: 'Armar mesmo assim', action_bypass_on: 'Sensores ignorados',
         action_retry: 'Armar agora', more: 'mais {n}'
       },
       sheet: {
@@ -388,7 +388,7 @@
         bypassed_other: '{n} sensores no se están vigilando',
         sensor_open: 'Abierto', sensor_closed: 'Cerrado', sensor_bypassed: 'Omitido',
         sensor_missing: 'Ya no existe en Home Assistant',
-        action_bypass: 'Armar de todos modos', action_bypass_on: 'Omitiendo sensores abiertos',
+        action_bypass: 'Armar de todos modos', action_bypass_on: 'Sensores omitidos',
         action_retry: 'Armar ahora', more: '+{n} más'
       },
       sheet: {
@@ -466,7 +466,7 @@
         bypassed_other: '{n} capteurs ne sont pas surveillés',
         sensor_open: 'Ouvert', sensor_closed: 'Fermé', sensor_bypassed: 'Ignoré',
         sensor_missing: "N'existe plus dans Home Assistant",
-        action_bypass: 'Armer quand même', action_bypass_on: 'Capteurs ouverts ignorés',
+        action_bypass: 'Armer quand même', action_bypass_on: 'Capteurs ignorés',
         action_retry: 'Armer maintenant', more: '+{n} autres'
       },
       sheet: {
@@ -544,7 +544,7 @@
         bypassed_other: '{n} Sensoren werden nicht überwacht',
         sensor_open: 'Offen', sensor_closed: 'Geschlossen', sensor_bypassed: 'Übergangen',
         sensor_missing: 'Existiert nicht mehr in Home Assistant',
-        action_bypass: 'Trotzdem aktivieren', action_bypass_on: 'Offene Sensoren werden übergangen',
+        action_bypass: 'Trotzdem aktivieren', action_bypass_on: 'Sensoren übergangen',
         action_retry: 'Jetzt aktivieren', more: '+{n} weitere'
       },
       sheet: {
@@ -622,7 +622,7 @@
         bypassed_other: '{n} sensori non sono sorvegliati',
         sensor_open: 'Aperto', sensor_closed: 'Chiuso', sensor_bypassed: 'Escluso',
         sensor_missing: 'Non esiste più in Home Assistant',
-        action_bypass: 'Inserisci comunque', action_bypass_on: 'Sensori aperti esclusi',
+        action_bypass: 'Inserisci comunque', action_bypass_on: 'Sensori esclusi',
         action_retry: 'Inserisci ora', more: '+{n} altri'
       },
       sheet: {
@@ -1036,16 +1036,10 @@
     @supports (background:color-mix(in srgb,red 10%,transparent)){
       .notice{background-color:color-mix(in srgb,rgb(var(--amc-notice-rgb)) 8%,transparent)}
     }
-    /* The action strip carries the kind too, so a panel that has gone green
-       does not sit above a button still tinted with the warning colour. */
-    .notice[data-kind="blocked"],.notice-actions[data-kind="blocked"]{
-      --amc-notice-rgb:var(--amc-rgb-warning)}
-    .notice[data-kind="triggered"],.notice-actions[data-kind="triggered"]{
-      --amc-notice-rgb:var(--amc-rgb-danger)}
-    .notice[data-kind="bypassed"],.notice-actions[data-kind="bypassed"]{
-      --amc-notice-rgb:var(--amc-rgb-warning)}
-    .notice[data-kind="ready"],.notice-actions[data-kind="ready"]{
-      --amc-notice-rgb:var(--amc-rgb-success)}
+    .notice[data-kind="blocked"]{--amc-notice-rgb:var(--amc-rgb-warning)}
+    .notice[data-kind="triggered"]{--amc-notice-rgb:var(--amc-rgb-danger)}
+    .notice[data-kind="bypassed"]{--amc-notice-rgb:var(--amc-rgb-warning)}
+    .notice[data-kind="ready"]{--amc-notice-rgb:var(--amc-rgb-success)}
 
     .notice-head{
       display:flex;align-items:flex-start;gap:6px;
@@ -1137,27 +1131,6 @@
        (nielsfaber/alarmo-card#157, closed unfixed). */
     .notice[data-quiet] .notice-chips{display:none}
 
-    /* ---- bypass action: a sibling of the notice, never a child ---- */
-    .notice-actions{
-      display:flex;gap:var(--amc-spacing);
-      margin:0 var(--amc-control-spacing) var(--amc-control-spacing);
-    }
-    .bypass{
-      flex:1 1 0;
-      background-color:rgba(var(--amc-notice-rgb,var(--amc-rgb-warning)),0.2);
-      color:rgb(var(--amc-notice-rgb,var(--amc-rgb-warning)));
-      overflow:hidden;
-    }
-    .bypass:hover{background-color:rgba(var(--amc-notice-rgb,var(--amc-rgb-warning)),0.28)}
-    /* Turned, the key reads as held down rather than as a fresh invitation.
-       Raising the tint rather than going solid: a solid fill needs a foreground
-       colour no Home Assistant theme defines, and every fixed guess failed
-       contrast in one of the two modes. */
-    .bypass[data-on]{
-      background-color:rgba(var(--amc-notice-rgb),0.38);
-      box-shadow:inset 0 0 0 1px rgba(var(--amc-notice-rgb),0.5);
-    }
-
     /* ---- arm options ---- */
     .arm-options{
       display:flex;gap:6px;flex-wrap:wrap;
@@ -1177,6 +1150,21 @@
     .opt[data-on]{
       background-color:rgba(var(--amc-rgb-warning),0.2);
       color:rgb(var(--amc-rgb-warning));
+    }
+    /* The key wears the warning colour whether or not it is turned: what it
+       sets aside is a warning, and a neutral chip beside an amber panel reads
+       as unrelated to it. Turned, it deepens and gains a ring rather than
+       going solid — a solid fill needs a foreground colour no Home Assistant
+       theme defines, and every fixed guess failed contrast in one mode or the
+       other. */
+    .opt.bypass{
+      background-color:rgba(var(--amc-rgb-warning),0.16);
+      color:rgb(var(--amc-rgb-warning));
+    }
+    .opt.bypass:hover{background-color:rgba(var(--amc-rgb-warning),0.24)}
+    .opt.bypass[data-on]{
+      background-color:rgba(var(--amc-rgb-warning),0.34);
+      box-shadow:inset 0 0 0 1px rgba(var(--amc-rgb-warning),0.5);
     }
 
     /* ---- code entry ---- */
@@ -2134,7 +2122,7 @@
       if (this._config.layout === 'horizontal') {
         return '<ha-card class="' + cls + '">'
           + '<div class="hrow">' + this._headerHtml() + this._actionsHtml() + '</div>'
-          + this._noticeHtml() + this._noticeActionsHtml() + this._armOptionsHtml()
+          + this._noticeHtml() + this._armOptionsHtml()
           + tail + '</ha-card>';
       }
       /* Everywhere else the reason comes before the buttons it is about:
@@ -2142,7 +2130,7 @@
          it too late. */
       return '<ha-card class="' + cls + '">'
         + this._headerHtml()
-        + this._noticeHtml() + this._noticeActionsHtml() + this._armOptionsHtml()
+        + this._noticeHtml() + this._armOptionsHtml()
         + this._actionsHtml()
         + tail + '</ha-card>';
     }
@@ -2283,18 +2271,24 @@
     _armOptionsHtml() {
       const stateObj = this._stateObj();
       if (!stateObj || stateObj.state !== 'disarmed') return '';
-      /* Only the delay shortcut is left. Bypassing open sensors has no
-         pre-emptive form any more: the reactive one names the sensors it is
-         about to ignore, which the chip never could. */
-      if (!this._config.show_skip_delay_option) return '';
+      /* The key and the delay shortcut are the same kind of thing — both say
+         something about the next arm rather than performing one — so they read
+         as one row of the same shape. The key keeps the warning colour, because
+         what it sets aside is a warning. */
+      const withKey = this._bypassAvailable();
+      const withSkip = this._config.show_skip_delay_option;
+      if (!withKey && !withSkip) return '';
       /* Upstream buried these in a kebab menu pinned to the corner, which it
-         then had to hide below 250px. Two toggles fit on a line. */
+         then had to hide below 250px. Two chips fit on a line. */
       return [
         '<div class="arm-options">',
-
-        '<button class="opt" id="opt-skip" data-act="opt" data-opt="skip_delay">',
-        '<ha-icon icon="mdi:timer-off-outline"></ha-icon>',
-        '<span>' + esc(this._t('arm_options.skip_delay')) + '</span></button>',
+        withKey ? '<button class="opt bypass" id="bypass" data-act="bypass"'
+          + (this._unlocked() ? ' data-on' : '') + '>'
+          + '<ha-icon id="bypass-icon" icon="mdi:shield-off-outline"></ha-icon>'
+          + '<span id="bypass-label"></span></button>' : '',
+        withSkip ? '<button class="opt" id="opt-skip" data-act="opt" data-opt="skip_delay">'
+          + '<ha-icon icon="mdi:timer-off-outline"></ha-icon>'
+          + '<span>' + esc(this._t('arm_options.skip_delay')) + '</span></button>' : '',
         '</div>'
       ].join('');
     }
@@ -2421,23 +2415,6 @@
         '<span class="notice-count" id="notice-count"></span>',
         '</div>',
         shown.length ? '<div class="notice-chips">' + chips + more + '</div>' : '',
-        '</div>'
-      ].join('');
-    }
-
-    /* The bypass action is a sibling of the panel, never a child of it, so
-       show_messages can silence the list without taking away the only way to
-       arm past an open door (nielsfaber/alarmo-card#157). */
-    _noticeActionsHtml() {
-      if (!this._bypassAvailable()) return '';
-      return [
-        '<div class="notice-actions" data-kind="'
-          + esc(this._noticeKind() || 'blocked') + '">',
-        '<button class="control bypass" id="bypass" data-act="bypass"',
-        this._unlocked() ? ' data-on' : '', '>',
-        '<ha-icon id="bypass-icon" icon="mdi:shield-off-outline"></ha-icon>',
-        '<span class="label" id="bypass-label"></span>',
-        '</button>',
         '</div>'
       ].join('');
     }

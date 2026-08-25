@@ -6,16 +6,26 @@ const has = (re, msg) => assert.ok(re.test(source), msg);
 /* ---- the #157 decoupling ---- */
 
 const noticeHtml = sliceFunction('_noticeHtml');
-const noticeActions = sliceFunction('_noticeActionsHtml');
+const armOptions = sliceFunction('_armOptionsHtml');
 const bypassAvailable = sliceFunction('_bypassAvailable');
 
 assert.ok(!/bypass/i.test(noticeHtml),
-  'the bypass action must not be built inside the message panel: welding the two '
-  + 'together is what made show_messages:false remove the only way to arm past an '
-  + 'open door (nielsfaber/alarmo-card#157)');
-assert.ok(!/show_messages/.test(noticeActions) && !/show_messages/.test(bypassAvailable),
-  'the bypass action must not be gated on show_messages');
-ok('the bypass action is independent of show_messages');
+  'the key must not be built inside the message panel: welding the two together '
+  + 'is what made show_messages:false remove the only way to arm past an open '
+  + 'door (nielsfaber/alarmo-card#157)');
+assert.ok(!/show_messages/.test(armOptions) && !/show_messages/.test(bypassAvailable),
+  'the key must not be gated on show_messages');
+ok('the key is independent of show_messages');
+
+/* The key and the delay shortcut both describe the next arm rather than
+   performing one, so they read as one row of the same shape. */
+assert.match(armOptions, /class="opt bypass"/,
+  'the key takes the same chip shape as the shortcut beside it');
+has(/\.opt\.bypass\{[^}]*rgba\(var\(--amc-rgb-warning\),0\.16\)/,
+  'and keeps the warning colour: a neutral chip beside an amber panel reads as '
+  + 'unrelated to it');
+has(/\.opt\.bypass\[data-on\]\{/, 'turned, it has to look turned');
+ok('the key is a chip in the warning colour');
 
 has(/\.notice\[data-quiet\] \.notice-chips\{display:none\}/,
   'show_messages:false must hide the sensor list and nothing else');

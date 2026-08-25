@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.11 - 2026-08-25
+
+- Changed the *Arm anyway* key from a full-width button into a chip beside *Arm without
+  delay*. The two are the same kind of thing — both say something about the next arm rather
+  than performing one — so they read as one row of the same shape. The key keeps the warning
+  colour: a neutral chip beside an amber panel reads as unrelated to it
+- The turned label is short enough not to push its neighbour onto a second line, so toggling
+  the key no longer changes the card's height
+
 ## 0.1.10 - 2026-08-25
 
 - Changed a mode that cannot be armed to be locked rather than left to fail. `blocked_modes`
