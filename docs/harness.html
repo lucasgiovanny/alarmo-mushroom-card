@@ -174,10 +174,21 @@ function makeHass(state, attrs){
         return [{ area_id: 'home', entity_id: 'alarm_control_panel.alarmo' }];
       }
       if (msg.type === 'alarmo/config') {
-        return { code_arm_required: false, code_disarm_required: true, code_format: 'number' };
+        return { code_arm_required: true, code_disarm_required: true, code_format: 'number' };
       }
       if (msg.type === 'alarmo/countdown') return { delay: 30, remaining: 21 };
       if (msg.type === 'alarmo/ready_to_arm_modes') return { modes: ['armed_home', 'armed_night'] };
+      if (msg.type === 'alarmo/sensors') {
+        return Object.keys(SENSORS).reduce((all, id) => (all[id] = { entity_id: id }, all), {});
+      }
+      if (msg.type === 'alarmo/areas') {
+        return { home: { modes: {
+          armed_away: { exit_time: 60, entry_time: 120 },
+          armed_home: { exit_time: 0, entry_time: 0 },
+          armed_night: { exit_time: 0, entry_time: 0 },
+          armed_vacation: { exit_time: 0, entry_time: 0 }
+        } } };
+      }
       throw new Error('unknown ' + msg.type);
     },
     callService: (d, s, p) => console.log('callService', d, s, p),
@@ -216,7 +227,10 @@ const CASES = [
   ['Vertical layout', 'disarmed', {}, { config: { layout: 'vertical' } }],
   ['Narrow (250px)', 'disarmed', { open_sensors: openMap(['binary_sensor.front_door']) },
     { failed: 'armed_away', narrow: true }],
-  ['Code sheet', 'armed_away', {}, { keypad: true, sheet: true }]
+  ['Code sheet — disarm', 'armed_away', {}, { keypad: true, sheet: true }],
+  ['Code sheet — arming away',
+    'disarmed', { open_sensors: openMap(['binary_sensor.front_door','binary_sensor.living_window']) },
+    { keypad: true, sheet: true, sheetMode: 'armed_away', sheetForce: true }]
 ];
 
 const grid = document.getElementById('grid');
@@ -229,21 +243,26 @@ for (const [title, state, attrs, opts] of CASES) {
     type: 'custom:alarmo-mushroom-card',
     entity: 'alarm_control_panel.alarmo'
   }, opts.config || {}));
+  /* The backend handshake runs for real against the fake callWS above rather
+     than being hand-stubbed: hand-set fields were being overwritten the moment
+     the async bootstrap resolved, which hid a missing answer instead of
+     showing it. */
+  card._codeRequiredOverride = !!opts.keypad;
   card.hass = makeHass(state, attrs);
-  /* Reach past the backend handshake: the harness has no websocket, so the
-     card is told what it would have learned. */
-  card._backendOk = true;
-  card._areaId = 'home';
-  card._alarmoConfig = { code_arm_required: !!opts.keypad, code_disarm_required: !!opts.keypad,
-    code_format: 'number' };
-  card._readyModes = ['armed_home', 'armed_night'];
-  /* Readiness only means anything when Alarmo has sensors to block with. */
-  card._sensorCount = 7;
-  if (opts.failed) card._pending = { mode: opts.failed, code: '', at: Date.now() };
-  if (opts.sheet) { card._sheetOpen = true; card._sheetMode = 'disarmed'; card._code = '12'; }
-  card._shellSig = null;
-  card._render();
   cell.appendChild(card);
+  /* One turn after the handshake resolves, put the card into the state this
+     cell is demonstrating and draw it. */
+  setTimeout(() => {
+    if (opts.failed) card._pending = { mode: opts.failed, code: '', at: Date.now() };
+    if (opts.sheet) {
+      card._sheetOpen = true;
+      card._sheetMode = opts.sheetMode || 'disarmed';
+      card._code = '12';
+      if (opts.sheetForce) card._armOptions = { force: true, skip_delay: false };
+    }
+    card._shellSig = null;
+    card._render();
+  }, 40);
   grid.appendChild(cell);
 }
 </script>

@@ -55,7 +55,10 @@ export function ok(name) {
 }
 
 /* Slice a function by name, braces balanced. Handles both a top-level
-   `function name(...)` declaration and a class method `name(...) {`. */
+   `function name(...)` declaration and a class method `name(...) {`.
+   Known limit: a quote character inside a regex literal (/'/g) reads as the
+   start of a string and throws "unbalanced braces". Stand the function in
+   rather than slicing it when that happens. */
 export function sliceFunction(name) {
   let start = source.indexOf(`function ${name}(`);
   if (start === -1) {

@@ -13,8 +13,10 @@ ok('submitting does not close the sheet');
 const onEvent = sliceFunction('_onAlarmoEvent');
 assert.ok(/_sheetOpen = false/.test(onEvent),
   'the sheet closes from the arm/disarm event, once the code is known good');
-assert.ok(/invalid_code_provided/.test(onEvent) && /no_code_provided/.test(onEvent),
+assert.ok(/REASON\.invalidCode/.test(onEvent),
   'a rejected code has to reach the card as an event, not be assumed');
+assert.ok(/BUS_EVENTS\.success/.test(onEvent),
+  'the sheet closes on the success event, not on a guess about timing');
 ok('the sheet closes only once the code is accepted');
 
 /* Re-adding a class an element already carries does not restart its animation,
@@ -64,3 +66,90 @@ assert.match(actionsHtml, /modes\.every\(function \(m\) \{ return !m\.label; \}\
 ok('button_content offers icon, name, or both');
 
 console.log('interaction.test.mjs passed');
+
+/* ---- the sheet summary, run for real ---- */
+
+/* The method is lifted out of the bundle and called against a stub `this`, so
+   these are its actual return values rather than a description of them. */
+import { sliceBalanced, evaluate } from './_extract.mjs';
+
+const I18N = evaluate(sliceBalanced('const I18N = Object.freeze(', '{', '}'));
+const preamble = `
+  const I18N = ${JSON.stringify(I18N)};
+  const SUPPORTED_LANGS = ['en','pt-br','pt-pt','es','fr','de','it'];
+  const DEFAULT_LANG = 'en';
+  const LANGUAGE_ALIASES = new Map([['pt','pt-pt']]);
+  /* Stood in rather than sliced: the real esc() holds /'/g and /"/g, and the
+     slicer reads the quote inside a regex literal as the start of a string.
+     Escaping is not what these assertions are about. */
+  const esc = (v) => String(v == null ? '' : v);
+`;
+const summaryFn = new Function(preamble
+  + sliceFunction('normalizeLanguageCode')
+  + sliceFunction('getByPath')
+  + sliceFunction('tLang')
+  + sliceFunction('tCount')
+  + sliceFunction('stateBlock')
+  /* The slice starts at the newline before the method, so it is trimmed
+     before the signature is rewritten into a plain function expression. */
+  + 'return ' + sliceFunction('_sheetSummaryHtml').trimStart()
+      .replace(/^_sheetSummaryHtml\s*\(\s*\)/, 'function ()')
+)();
+
+function summary(over) {
+  const ctx = Object.assign({
+    _config: { entity: 'alarm_control_panel.alarmo', states: {} },
+    _sheetMode: 'armed_away',
+    _modes: { armed_away: { exit_time: 60 }, armed_home: { exit_time: 0 } },
+    _armOptions: { force: false, skip_delay: false },
+    _lang: () => 'en',
+    _t: (k, f) => summaryFn && tOf(k, f),
+    _modeLabel: (s) => ({ armed_away: 'Away', armed_home: 'Home' })[s] || s,
+    _nameText: () => 'Alarmo',
+    _stateObj: () => ({ state: 'disarmed', attributes: { friendly_name: 'Alarmo' } }),
+    _openSensorList: () => []
+  }, over);
+  return summaryFn.call(ctx);
+}
+function tOf(key, fallback) {
+  const parts = key.split('.');
+  let cur = I18N.en;
+  for (const p of parts) cur = cur ? cur[p] : undefined;
+  return cur || fallback || key;
+}
+
+let out = summary({});
+assert.match(out, /Arming Alarmo · Away/, 'the summary must name the alarm and the mode');
+assert.match(out, /60 s to leave/, 'an exit delay is the thing most worth warning about');
+ok('the summary names the alarm, the mode and the exit delay');
+
+out = summary({ _armOptions: { force: false, skip_delay: true } });
+assert.match(out, /No exit delay/, 'skipping the delay changes what happens after the last digit');
+assert.doesNotMatch(out, /60 s/);
+ok('the summary reflects the no-delay shortcut');
+
+out = summary({ _sheetMode: 'armed_home' });
+assert.match(out, /Arming Alarmo · Home/);
+assert.doesNotMatch(out, /to leave/, 'a mode with no exit delay must not claim one');
+ok('a mode without an exit delay says nothing about one');
+
+out = summary({ _sheetMode: 'disarmed' });
+assert.match(out, /Disarming Alarmo/);
+assert.doesNotMatch(out, /to leave/, 'disarming has no exit delay to report');
+ok('disarming reads as disarming');
+
+out = summary({
+  _armOptions: { force: true, skip_delay: false },
+  _openSensorList: () => [{ id: 'a', clear: false }, { id: 'b', clear: false }, { id: 'c', clear: true }]
+});
+assert.match(out, /bypassing 2 sensors/,
+  'only sensors still open are being bypassed; one that closed again is not');
+ok('the summary counts only the sensors still open');
+
+out = summary({ _modes: null });
+assert.match(out, /Arming Alarmo · Away/,
+  'an Alarmo too old to answer alarmo/areas must still get a summary');
+assert.doesNotMatch(out, /to leave/);
+ok('a missing area config costs the delay line, not the summary');
+
+console.log('interaction.test.mjs sheet summary passed');

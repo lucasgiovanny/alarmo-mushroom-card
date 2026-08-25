@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.1.3 - 2026-08-25
+
+- Fixed the card subscribing to a websocket command Alarmo does not serve. Alarmo's only
+  websocket subscription is `alarmo_config_updated`, a bare ping with no event name and no
+  data meant for its own config panel; the events live on the Home Assistant bus as
+  `alarmo_failed_to_arm`, `alarmo_command_success` and `alarmo_ready_to_arm_modes_updated`.
+  Subscribing to the wrong thing failed silently and took every event-driven feature with it:
+  no wrong-code feedback, no bypass button after a failed arm, no live readiness
+- Fixed the readiness payload being read as a list. The bus event sends a boolean per
+  supported mode, keyed by state name
+- Added a summary to the code sheet — which alarm, which mode, the exit delay, and how many
+  sensors are being bypassed — so the prompt is not a code prompt for something you have to
+  remember you asked for
+- Changed the code sheet's prompt to 20px: it is the instruction for the thing under the
+  thumb, not a caption
+- Changed the bypass and no-delay shortcuts into two independent switches,
+  `show_force_option` and `show_skip_delay_option`. `show_arm_options` is migrated
+- Changed the mode buttons to stay on one row and drop their labels when the words stop
+  fitting, instead of wrapping to a second line — a wrap read as a mistake whenever the card
+  looked like it had room
+
 ## 0.1.2 - 2026-08-25
 
 - Fixed every arm button being disabled, and the card therefore unusable, in a house with no

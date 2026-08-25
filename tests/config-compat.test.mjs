@@ -118,11 +118,28 @@ ok('a real upstream config normalizes without loss');
 
 for (const [key, value] of Object.entries({
   layout: 'default', fill_container: false, icon_type: 'icon',
-  show_bypass_button: true, confirm_bypass: true, show_arm_options: true,
-  language: 'auto'
+  show_bypass_button: true, confirm_bypass: true,
+  show_force_option: true, show_skip_delay_option: true,
+  button_content: 'icon_and_name', language: 'auto'
 })) {
   assert.equal(DEFAULTS[key], value, `${key} must default to ${value}`);
 }
 ok('every added option defaults to the pre-existing behaviour');
+
+/* show_arm_options switched both shortcuts at once in 0.1.0 and 0.1.1. It is
+   migrated rather than kept, so a config written against it keeps behaving the
+   same without the card carrying two ways to say one thing. */
+cfg = normalizeConfig({ ...base, show_arm_options: false });
+assert.equal(cfg.show_force_option, false);
+assert.equal(cfg.show_skip_delay_option, false);
+assert.equal(cfg.show_arm_options, undefined, 'the superseded key must not survive');
+cfg = normalizeConfig({ ...base, show_arm_options: false, show_skip_delay_option: true });
+assert.equal(cfg.show_skip_delay_option, true, 'an explicit new key beats the old one');
+assert.equal(cfg.show_force_option, false);
+ok('show_arm_options migrates into the two independent switches');
+
+assert.equal(normalizeConfig({ ...base, button_content: 'nonsense' }).button_content,
+  'icon_and_name', 'an unknown button_content falls back rather than drawing nothing');
+ok('button_content is validated');
 
 console.log('config-compat.test.mjs passed');

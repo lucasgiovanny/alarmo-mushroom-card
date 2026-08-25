@@ -36,6 +36,10 @@ actually read.
 - Countdown ring driven by an absolute deadline, so a backgrounded tab comes back correct
 - A keypad with backspace instead of clear-everything, and code dots instead of a text field
   that drags up the on-screen keyboard
+- The code sheet says what it is about to do — which alarm, which mode, how long the exit
+  delay is, and whether anything is being bypassed — before asking for the code
+- Mode buttons stay on one row and drop their labels when the words stop fitting, rather than
+  wrapping to a second line or squeezing every label into an ellipsis
 - `default` / `horizontal` / `vertical` layouts, `fill_container`, and grid sizing
 - Seven languages: English, Portuguese (BR and PT), Spanish, French, German, Italian
 - Visual editor covering every state — including `triggered`, `arming` and `pending`, which
@@ -127,7 +131,8 @@ More in [`examples/`](examples/).
 | `confirm_bypass` | boolean | `true` | Require a second tap before bypassing |
 | `show_ready_indicator` | boolean | `true` | Readiness dot on each arm button |
 | `show_bypassed_sensors` | boolean | `true` | Show bypassed sensors while armed |
-| `show_arm_options` | boolean | `true` | The bypass / no-delay toggles while disarmed |
+| `show_force_option` | boolean | `true` | The bypass shortcut while disarmed |
+| `show_skip_delay_option` | boolean | `true` | The no-delay shortcut while disarmed |
 | `max_sensor_chips` | number | `6` | Chips shown before `+N more` |
 | `states` | object | `{}` | Per-state overrides, below |
 

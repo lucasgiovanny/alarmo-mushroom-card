@@ -15,7 +15,7 @@
 
   const CARD_TYPE = 'alarmo-mushroom-card';
   const EDITOR_TYPE = 'alarmo-mushroom-card-editor';
-  const CARD_VERSION = '0.1.2';
+  const CARD_VERSION = '0.1.3';
   const DOCS_URL = 'https://github.com/lucasgiovanny/alarmo-mushroom-card';
 
   /* ------------------------------------------------------------------ */
@@ -30,11 +30,29 @@
     entities: 'alarmo/entities',
     config: 'alarmo/config',
     sensors: 'alarmo/sensors',
+    areas: 'alarmo/areas',
     countdown: 'alarmo/countdown',
     readyModes: 'alarmo/ready_to_arm_modes'
   });
 
-  const EVENT_TOPIC = 'alarmo_updated';
+  /* Alarmo publishes on the Home Assistant event bus, not through a websocket
+     subscription. Its only websocket subscription is `alarmo_config_updated`,
+     a bare ping with no event name and no data, meant for its own config
+     panel — subscribing to anything else silently connects to nothing and
+     every event-driven feature quietly dies.
+     Read out of custom_components/alarmo/event.py at Alarmo 1.10.19. */
+  const BUS_EVENTS = Object.freeze({
+    /* Also carries command_not_allowed, invalid_code_provided and
+       no_code_provided; `reason` is what tells them apart. */
+    failed: 'alarmo_failed_to_arm',
+    success: 'alarmo_command_success',
+    readyModes: 'alarmo_ready_to_arm_modes_updated'
+  });
+  const REASON = Object.freeze({
+    openSensors: 'open_sensors',
+    notAllowed: 'not_allowed',
+    invalidCode: 'invalid_code'
+  });
   const DOMAIN = 'alarmo';
   const SERVICE = Object.freeze({ arm: 'arm', disarm: 'disarm', skipDelay: 'skip_delay' });
 
@@ -150,6 +168,11 @@
         action_bypass: 'Arm anyway', action_bypass_confirm: 'Tap again to confirm',
         action_retry: 'Arm now', more: '+{n} more'
       },
+      sheet: {
+        arming: 'Arming {name} · {mode}', disarming: 'Disarming {name}',
+        exit_delay: '{n} s to leave', no_exit_delay: 'No exit delay',
+        bypassing_one: 'bypassing {n} sensor', bypassing_other: 'bypassing {n} sensors'
+      },
       arm_options: { force: 'Bypass open sensors', skip_delay: 'Arm without delay' },
       ready: { ready: 'Ready to arm', not_ready: 'Sensors open' },
       errors: {
@@ -168,7 +191,8 @@
         fill_container: 'Fill container',
         button_scale_actions: 'Action button size', button_scale_keypad: 'Keypad size',
         show_ready_indicator: 'Show a ready-to-arm dot on each button',
-        show_arm_options: 'Show the bypass and no-delay toggles',
+        show_force_option: 'Show the bypass shortcut',
+        show_skip_delay_option: 'Show the no-delay shortcut',
         hide_keypad: 'Hide the keypad', keep_keypad_visible: 'Always keep the keypad on screen',
         keep_keypad_visible_help: 'Draw the keypad even when the current action needs no code.',
         use_code_dialog: 'Ask for the code in a sheet',
@@ -222,6 +246,11 @@
         action_bypass: 'Armar mesmo assim', action_bypass_confirm: 'Toque de novo para confirmar',
         action_retry: 'Armar agora', more: 'mais {n}'
       },
+      sheet: {
+        arming: 'Armando {name} · {mode}', disarming: 'Desarmando {name}',
+        exit_delay: '{n} s para sair', no_exit_delay: 'Sem tempo de saída',
+        bypassing_one: 'ignorando {n} sensor', bypassing_other: 'ignorando {n} sensores'
+      },
       arm_options: { force: 'Ignorar sensores abertos', skip_delay: 'Armar sem espera' },
       ready: { ready: 'Pronto para armar', not_ready: 'Sensores abertos' },
       errors: {
@@ -240,7 +269,8 @@
         fill_container: 'Preencher o espaço',
         button_scale_actions: 'Tamanho dos botões de ação', button_scale_keypad: 'Tamanho do teclado',
         show_ready_indicator: 'Mostrar um ponto de "pronto para armar" em cada botão',
-        show_arm_options: 'Mostrar os atalhos de ignorar sensores e armar sem espera',
+        show_force_option: 'Mostrar o atalho de ignorar sensores',
+        show_skip_delay_option: 'Mostrar o atalho de armar sem espera',
         hide_keypad: 'Esconder o teclado', keep_keypad_visible: 'Manter o teclado sempre na tela',
         keep_keypad_visible_help: 'Desenha o teclado mesmo quando a ação atual não pede código.',
         use_code_dialog: 'Pedir o código em uma folha',
@@ -294,6 +324,11 @@
         action_bypass: 'Armar mesmo assim', action_bypass_confirm: 'Toque novamente para confirmar',
         action_retry: 'Armar agora', more: 'mais {n}'
       },
+      sheet: {
+        arming: 'A armar {name} · {mode}', disarming: 'A desarmar {name}',
+        exit_delay: '{n} s para sair', no_exit_delay: 'Sem tempo de saída',
+        bypassing_one: 'a ignorar {n} sensor', bypassing_other: 'a ignorar {n} sensores'
+      },
       arm_options: { force: 'Ignorar sensores abertos', skip_delay: 'Armar sem espera' },
       ready: { ready: 'Pronto a armar', not_ready: 'Sensores abertos' },
       errors: {
@@ -312,7 +347,8 @@
         fill_container: 'Preencher o espaço',
         button_scale_actions: 'Tamanho dos botões de ação', button_scale_keypad: 'Tamanho do teclado',
         show_ready_indicator: 'Mostrar um ponto de "pronto a armar" em cada botão',
-        show_arm_options: 'Mostrar os atalhos de ignorar sensores e armar sem espera',
+        show_force_option: 'Mostrar o atalho de ignorar sensores',
+        show_skip_delay_option: 'Mostrar o atalho de armar sem espera',
         hide_keypad: 'Esconder o teclado', keep_keypad_visible: 'Manter o teclado sempre no ecrã',
         keep_keypad_visible_help: 'Desenha o teclado mesmo quando a ação atual não pede código.',
         use_code_dialog: 'Pedir o código numa folha',
@@ -366,6 +402,11 @@
         action_bypass: 'Armar de todos modos', action_bypass_confirm: 'Toca otra vez para confirmar',
         action_retry: 'Armar ahora', more: '+{n} más'
       },
+      sheet: {
+        arming: 'Armando {name} · {mode}', disarming: 'Desarmando {name}',
+        exit_delay: '{n} s para salir', no_exit_delay: 'Sin tiempo de salida',
+        bypassing_one: 'omitiendo {n} sensor', bypassing_other: 'omitiendo {n} sensores'
+      },
       arm_options: { force: 'Omitir sensores abiertos', skip_delay: 'Armar sin espera' },
       ready: { ready: 'Listo para armar', not_ready: 'Sensores abiertos' },
       errors: {
@@ -384,7 +425,8 @@
         fill_container: 'Rellenar el contenedor',
         button_scale_actions: 'Tamaño de los botones de acción', button_scale_keypad: 'Tamaño del teclado',
         show_ready_indicator: 'Mostrar un punto de "listo para armar" en cada botón',
-        show_arm_options: 'Mostrar los accesos de omitir sensores y armar sin espera',
+        show_force_option: 'Mostrar el acceso de omitir sensores',
+        show_skip_delay_option: 'Mostrar el acceso de armar sin espera',
         hide_keypad: 'Ocultar el teclado', keep_keypad_visible: 'Mantener el teclado siempre visible',
         keep_keypad_visible_help: 'Dibuja el teclado aunque la acción actual no pida código.',
         use_code_dialog: 'Pedir el código en una hoja',
@@ -438,6 +480,11 @@
         action_bypass: 'Armer quand même', action_bypass_confirm: 'Touchez à nouveau pour confirmer',
         action_retry: 'Armer maintenant', more: '+{n} autres'
       },
+      sheet: {
+        arming: 'Armement de {name} · {mode}', disarming: 'Désarmement de {name}',
+        exit_delay: '{n} s pour sortir', no_exit_delay: 'Sans délai de sortie',
+        bypassing_one: '{n} capteur ignoré', bypassing_other: '{n} capteurs ignorés'
+      },
       arm_options: { force: 'Ignorer les capteurs ouverts', skip_delay: 'Armer sans délai' },
       ready: { ready: 'Prêt à armer', not_ready: 'Capteurs ouverts' },
       errors: {
@@ -456,7 +503,8 @@
         fill_container: 'Remplir le conteneur',
         button_scale_actions: "Taille des boutons d'action", button_scale_keypad: 'Taille du clavier',
         show_ready_indicator: 'Afficher un point « prêt à armer » sur chaque bouton',
-        show_arm_options: 'Afficher les raccourcis ignorer et sans délai',
+        show_force_option: 'Afficher le raccourci d\'ignorer',
+        show_skip_delay_option: 'Afficher le raccourci sans délai',
         hide_keypad: 'Masquer le clavier', keep_keypad_visible: 'Toujours garder le clavier affiché',
         keep_keypad_visible_help: "Dessine le clavier même quand l'action en cours ne demande pas de code.",
         use_code_dialog: 'Demander le code dans une feuille',
@@ -510,6 +558,11 @@
         action_bypass: 'Trotzdem aktivieren', action_bypass_confirm: 'Zum Bestätigen erneut tippen',
         action_retry: 'Jetzt aktivieren', more: '+{n} weitere'
       },
+      sheet: {
+        arming: '{name} wird aktiviert · {mode}', disarming: '{name} wird deaktiviert',
+        exit_delay: '{n} s zum Verlassen', no_exit_delay: 'Ohne Verzögerung',
+        bypassing_one: '{n} Sensor übergangen', bypassing_other: '{n} Sensoren übergangen'
+      },
       arm_options: { force: 'Offene Sensoren übergehen', skip_delay: 'Ohne Verzögerung aktivieren' },
       ready: { ready: 'Bereit zum Aktivieren', not_ready: 'Sensoren offen' },
       errors: {
@@ -528,7 +581,8 @@
         fill_container: 'Container füllen',
         button_scale_actions: 'Größe der Aktionsschaltflächen', button_scale_keypad: 'Größe des Tastenfelds',
         show_ready_indicator: 'Bereitschaftspunkt auf jeder Schaltfläche anzeigen',
-        show_arm_options: 'Kurzbefehle zum Übergehen und ohne Verzögerung anzeigen',
+        show_force_option: 'Kurzbefehl zum Übergehen anzeigen',
+        show_skip_delay_option: 'Kurzbefehl ohne Verzögerung anzeigen',
         hide_keypad: 'Tastenfeld ausblenden', keep_keypad_visible: 'Tastenfeld immer anzeigen',
         keep_keypad_visible_help: 'Zeichnet das Tastenfeld auch, wenn die aktuelle Aktion keinen Code braucht.',
         use_code_dialog: 'Code in einem Blatt abfragen',
@@ -582,6 +636,11 @@
         action_bypass: 'Inserisci comunque', action_bypass_confirm: 'Tocca di nuovo per confermare',
         action_retry: 'Inserisci ora', more: '+{n} altri'
       },
+      sheet: {
+        arming: 'Inserimento di {name} · {mode}', disarming: 'Disinserimento di {name}',
+        exit_delay: '{n} s per uscire', no_exit_delay: 'Senza ritardo di uscita',
+        bypassing_one: '{n} sensore escluso', bypassing_other: '{n} sensori esclusi'
+      },
       arm_options: { force: 'Escludi i sensori aperti', skip_delay: 'Inserisci senza ritardo' },
       ready: { ready: 'Pronto per inserire', not_ready: 'Sensori aperti' },
       errors: {
@@ -600,7 +659,8 @@
         fill_container: 'Riempi il contenitore',
         button_scale_actions: 'Dimensione dei pulsanti di azione', button_scale_keypad: 'Dimensione del tastierino',
         show_ready_indicator: 'Mostra un punto "pronto per inserire" su ogni pulsante',
-        show_arm_options: 'Mostra le scorciatoie escludi e senza ritardo',
+        show_force_option: 'Mostra la scorciatoia di esclusione',
+        show_skip_delay_option: 'Mostra la scorciatoia senza ritardo',
         hide_keypad: 'Nascondi il tastierino', keep_keypad_visible: 'Tieni sempre il tastierino sullo schermo',
         keep_keypad_visible_help: "Disegna il tastierino anche quando l'azione corrente non chiede il codice.",
         use_code_dialog: 'Chiedi il codice in un foglio',
@@ -889,11 +949,15 @@
     }
     .control.icon-only{width:var(--amc-h,var(--amc-control-height));padding:0}
 
-    /* Wrapping, not squeezing. Four modes across a 320px card left every
-       label as "A…", "H…", "N…" — an icon row would have been more honest, so
-       the buttons take a second line instead and keep their words. */
-    .button-group{display:flex;flex-direction:row;flex-wrap:wrap;width:100%;gap:var(--amc-spacing)}
-    .button-group > .control{flex:1 1 108px;min-width:0}
+    /* One row, always. Wrapping to a second line reads as a mistake whenever
+       the card looks like it had room, and squeezing four labels into a narrow
+       card left every one of them as "A…", "H…", "N…". So when the words stop
+       fitting the row drops to icons instead of to two lines — _syncDensity()
+       measures and sets .compact. */
+    .button-group{display:flex;flex-direction:row;flex-wrap:nowrap;width:100%;gap:var(--amc-spacing)}
+    .button-group > .control{flex:1 1 0;min-width:0}
+    .button-group.compact > .control{padding:0}
+    .button-group.compact .label{display:none}
     .button-group.hug{justify-content:flex-end;flex-wrap:nowrap}
     .button-group.hug > .control{flex:0 0 auto}
 
@@ -1165,9 +1229,22 @@
       padding-top:var(--amc-control-spacing);
       padding-bottom:max(var(--amc-control-spacing),env(safe-area-inset-bottom));
     }
+    .sheet-summary{
+      text-align:center;padding:0 var(--amc-control-spacing) var(--amc-spacing);
+    }
+    .sheet-action{
+      font-size:var(--amc-primary-size);font-weight:600;
+      line-height:var(--amc-primary-line);color:var(--primary-text-color);
+    }
+    .sheet-detail{
+      font-size:var(--amc-secondary-size);line-height:var(--amc-secondary-line);
+      color:var(--secondary-text-color);margin-top:2px;
+    }
+    /* The prompt is the instruction for the thing under the thumb, so it is
+       sized like one rather than like a caption. */
     .sheet-title{
-      text-align:center;font-size:var(--amc-primary-size);font-weight:var(--amc-primary-weight);
-      color:var(--primary-text-color);padding-bottom:var(--amc-spacing);
+      text-align:center;font-size:20px;font-weight:600;line-height:28px;
+      color:var(--primary-text-color);padding-bottom:6px;
     }
     @media (min-width:600px){
       .sheet{align-items:center}
@@ -1233,12 +1310,6 @@
       .hrow .actions{padding-top:0}
     }
 
-    /* Below this width the labels stop fitting beside the icons and the row
-       reads as a smear; stacking keeps each mode legible. */
-    @media (max-width:280px){
-      .button-group{flex-direction:column}
-    }
-
     @media (prefers-reduced-motion:reduce){
       /* The pulse is how a triggered alarm distinguishes itself from an armed
          one at a glance, so it slows to a breath rather than stopping. The
@@ -1275,7 +1346,8 @@
     icon_type: 'icon',
     show_bypass_button: true,
     confirm_bypass: true,
-    show_arm_options: true,
+    show_force_option: true,
+    show_skip_delay_option: true,
     button_content: 'icon_and_name',
     max_sensor_chips: 6
   });
@@ -1307,6 +1379,14 @@
     if (!['icon_and_name', 'icon', 'name'].includes(config.button_content)) {
       config.button_content = 'icon_and_name';
     }
+    /* show_arm_options used to switch both shortcuts at once. It is migrated
+       rather than kept, so a config written against it keeps behaving the same
+       without the card carrying two ways to say one thing. */
+    if (raw && raw.show_arm_options === false) {
+      if (raw.show_force_option === undefined) config.show_force_option = false;
+      if (raw.show_skip_delay_option === undefined) config.show_skip_delay_option = false;
+    }
+    delete config.show_arm_options;
 
     /* States are rebuilt rather than passed through: a typo like
        states.armed_hom is silently accepted upstream and simply never applies,
@@ -1445,7 +1525,8 @@
       this._alarmoConfig = null;
       this._readyModes = null;
       this._sensorCount = null;
-      this._unsub = null;
+      this._modes = null;
+      this._unsubs = null;
       this._subscribing = false;
       this._code = '';
       this._codeError = false;
@@ -1507,6 +1588,7 @@
       this._alarmoConfig = null;
       this._readyModes = null;
       this._sensorCount = null;
+      this._modes = null;
       this._areaId = null;
       this._expanded = false;
       this._clearCode();
@@ -1549,6 +1631,12 @@
         }.bind(this), { threshold: 0 });
         this._observer.observe(this);
       }
+      if (typeof ResizeObserver !== 'undefined' && !this._resize) {
+        /* A card can be resized without any state changing — a sidebar opening,
+           a phone rotating — and the row has to re-decide then too. */
+        this._resize = new ResizeObserver(function () { this._syncDensity(); }.bind(this));
+        this._resize.observe(this);
+      }
       if (this._config && this._hass) this._bootstrap();
     }
 
@@ -1559,13 +1647,16 @@
         document.removeEventListener('visibilitychange', this._onVisibility);
       }
       if (this._observer) { this._observer.disconnect(); this._observer = null; }
+      if (this._resize) { this._resize.disconnect(); this._resize = null; }
       this._stopTick();
       clearTimeout(this._flashTimer); this._flashTimer = null;
       clearTimeout(this._confirmTimer); this._confirmTimer = null;
       clearTimeout(this._codeTimer); this._codeTimer = null;
-      if (this._unsub) {
-        try { this._unsub(); } catch (error) { /* the socket was already gone */ }
-        this._unsub = null;
+      if (this._unsubs) {
+        for (const off of this._unsubs) {
+          try { off(); } catch (error) { /* the socket was already gone */ }
+        }
+        this._unsubs = null;
       }
     }
 
@@ -1654,6 +1745,16 @@
         } catch (error) {
           this._sensorCount = null;
         }
+        try {
+          /* Per-mode exit delays live in the area config, not on the entity —
+             the entity only publishes `delay` once a countdown is already
+             running, which is too late to warn anyone about it. */
+          const areas = await this._hass.callWS({ type: WS.areas });
+          const area = areas && this._areaId ? areas[this._areaId] : null;
+          this._modes = (area && area.modes) || null;
+        } catch (error) {
+          this._modes = null;
+        }
         this._backendOk = true;
       } catch (error) {
         this._backendOk = false;
@@ -1679,59 +1780,70 @@
     }
 
     async _subscribe() {
-      if (this._unsub || this._subscribing || !this._hass) return;
-      /* connectedCallback can fire again while the await below is in flight.
+      if (this._unsubs || this._subscribing || !this._hass) return;
+      /* connectedCallback can fire again while the awaits below are in flight.
          Without this flag that produces two subscriptions and doubled events,
          which shows up as the code field clearing itself twice. */
       this._subscribing = true;
-      try {
-        this._unsub = await this._hass.connection.subscribeMessage(
-          this._onAlarmoEvent.bind(this), { type: EVENT_TOPIC }
-        );
-      } catch (error) {
-        this._unsub = null;
+      const handler = this._onAlarmoEvent.bind(this);
+      const unsubs = [];
+      for (const name of Object.keys(BUS_EVENTS)) {
+        try {
+          unsubs.push(await this._hass.connection.subscribeEvents(
+            handler, BUS_EVENTS[name]
+          ));
+        } catch (error) {
+          /* One event type refusing is not a reason to lose the others. */
+        }
       }
+      this._unsubs = unsubs.length ? unsubs : null;
       this._subscribing = false;
     }
 
     _onAlarmoEvent(ev) {
       const data = (ev && ev.data) || {};
-      if (this._areaId && data.area_id && data.area_id !== this._areaId) return;
-      switch (ev && ev.event) {
-        case 'arm':
-        case 'disarm':
+      /* Alarmo fires per area, naming the area's own entity. Matching either
+         field keeps the card working whether it points at an area panel or at
+         the master, whose area_id is not the one the event carries. */
+      if (data.entity_id && data.area_id
+          && data.entity_id !== this._config.entity
+          && data.area_id !== this._areaId) return;
+
+      switch (ev && ev.event_type) {
+        case BUS_EVENTS.success:
           this._clearPending();
           this._clearCode();
           /* The code was accepted, so the sheet has nothing left to ask. */
           this._sheetOpen = false;
           this._sheetMode = null;
           break;
-        case 'failed_to_arm':
-          /* command arrives as "arm_away"; the service wants "armed_away". */
-          this._pending = {
-            mode: String(data.command || '').replace(/^arm_/, 'armed_'),
-            code: this._code,
-            at: Date.now()
-          };
-          this._flashMessage(this._t('errors.failed_to_arm'));
-          this._code = '';
+
+        case BUS_EVENTS.failed:
+          /* One event carries four outcomes; `reason` is what separates them. */
+          if (data.reason === REASON.invalidCode) {
+            this._flashMessage(this._t('errors.invalid_pin'), true);
+            this._code = '';
+          } else if (data.reason === REASON.notAllowed) {
+            this._flashMessage(this._t('errors.not_allowed'), true);
+          } else {
+            /* command arrives as "arm_away"; the service wants "armed_away". */
+            this._pending = {
+              mode: String(data.command || '').replace(/^arm_/, 'armed_'),
+              code: this._code,
+              at: Date.now()
+            };
+            this._flashMessage(this._t('errors.failed_to_arm'));
+            this._code = '';
+          }
           break;
-        case 'no_code_provided':
-          this._flashMessage(this._t('errors.no_code'), true);
+
+        case BUS_EVENTS.readyModes:
+          /* Not a list: a boolean per supported mode, keyed by state name. */
+          this._readyModes = Object.keys(data).filter(function (key) {
+            return key.indexOf('armed_') === 0 && data[key] === true;
+          });
           break;
-        case 'invalid_code_provided':
-          this._flashMessage(this._t('errors.invalid_pin'), true);
-          this._code = '';
-          break;
-        case 'command_not_allowed':
-          this._flashMessage(this._t('errors.not_allowed'), true);
-          break;
-        case 'ready_to_arm_modes_changed':
-          /* The live half of the readiness dot. Upstream only ever set this
-             from the same event but never re-rendered off it, so the dot went
-             stale until the dashboard was reloaded (alarmo-card#161). */
-          this._readyModes = data.modes;
-          break;
+
         default:
           break;
       }
@@ -1771,7 +1883,8 @@
         this._config.button_content,
         this._codeVisible() + ':' + this._keypadVisible(),
         this._sheetOpen,
-        this._config.show_arm_options && state === 'disarmed'
+        this._config.show_force_option + ':' + this._config.show_skip_delay_option
+          + ':' + (state === 'disarmed')
       ].join('|');
     }
 
@@ -1951,11 +2064,12 @@
 
     _armOptionsHtml() {
       const stateObj = this._stateObj();
-      if (!this._config.show_arm_options) return '';
       if (!stateObj || stateObj.state !== 'disarmed') return '';
       /* While the bypass button is on screen it already offers the force path,
          and offering it twice invites the user to wonder how the two differ. */
-      const withForce = !this._bypassAvailable();
+      const withForce = this._config.show_force_option && !this._bypassAvailable();
+      const withSkip = this._config.show_skip_delay_option;
+      if (!withForce && !withSkip) return '';
       /* Upstream buried these in a kebab menu pinned to the corner, which it
          then had to hide below 250px. Two toggles fit on a line. */
       return [
@@ -1963,9 +2077,9 @@
         withForce ? '<button class="opt" id="opt-force" data-act="opt" data-opt="force">'
           + '<ha-icon icon="mdi:shield-off-outline"></ha-icon>'
           + '<span>' + esc(this._t('arm_options.force')) + '</span></button>' : '',
-        '<button class="opt" id="opt-skip" data-act="opt" data-opt="skip_delay">',
-        '<ha-icon icon="mdi:timer-off-outline"></ha-icon>',
-        '<span>' + esc(this._t('arm_options.skip_delay')) + '</span></button>',
+        withSkip ? '<button class="opt" id="opt-skip" data-act="opt" data-opt="skip_delay">'
+          + '<ha-icon icon="mdi:timer-off-outline"></ha-icon>'
+          + '<span>' + esc(this._t('arm_options.skip_delay')) + '</span></button>' : '',
         '</div>'
       ].join('');
     }
@@ -2187,12 +2301,59 @@
       return [
         '<div class="sheet" data-act="sheet-backdrop">',
         '<div class="sheet-panel" data-act="sheet-panel">',
+        this._sheetSummaryHtml(),
         '<div class="sheet-title">' + esc(this._t('keypad.enter_code')) + '</div>',
         '<div class="code"><div class="code-dots" id="sheet-dots"></div>',
         '<span class="code-hint" id="sheet-hint"></span></div>',
         '<div class="keypad">' + this._keysHtml(true) + '</div>',
         '</div></div>'
       ].join('');
+    }
+
+    /* A code prompt with no context is a code prompt for something you have to
+       remember you asked for. This says which alarm, which mode, how long the
+       exit delay is, and whether anything is being bypassed — the three things
+       that change what happens after the last digit. */
+    _sheetSummaryHtml() {
+      const stateObj = this._stateObj();
+      if (!stateObj) return '';
+      const mode = this._sheetMode;
+      const name = this._nameText(stateObj) || this._config.entity;
+      let action;
+      if (!mode || mode === 'disarmed') {
+        action = this._t('sheet.disarming').replace('{name}', name);
+      } else {
+        action = this._t('sheet.arming')
+          .replace('{name}', name)
+          .replace('{mode}', this._modeLabel(mode));
+      }
+
+      const details = [];
+      const modeCfg = this._modes && mode ? this._modes[mode] : null;
+      const exit = modeCfg ? Number(modeCfg.exit_time) : 0;
+      if (mode && mode !== 'disarmed' && exit > 0) {
+        details.push(this._armOptions.skip_delay
+          ? this._t('sheet.no_exit_delay')
+          : this._t('sheet.exit_delay').replace('{n}', String(exit)));
+      }
+      const open = this._openSensorList().filter(function (x) { return !x.clear; }).length;
+      if (mode && mode !== 'disarmed' && this._armOptions.force && open) {
+        details.push(tCount(this._lang(), 'sheet.bypassing', open));
+      }
+
+      return [
+        '<div class="sheet-summary">',
+        '<div class="sheet-action">' + esc(action) + '</div>',
+        details.length
+          ? '<div class="sheet-detail">' + esc(details.join(' · ')) + '</div>' : '',
+        '</div>'
+      ].join('');
+    }
+
+    _modeLabel(state) {
+      const block = stateBlock(this._config, state);
+      if (block.button_label) return block.button_label;
+      return this._t('button.' + state, state);
     }
 
     /* ---- DOM patch helpers ---- */
@@ -2326,6 +2487,7 @@
           ? this._t('ready.not_ready') : (mode.label || ''));
       }
 
+      this._syncDensity();
       this._paintNotice();
       this._paintArmOptions();
       this._paintCode();
@@ -2333,6 +2495,25 @@
 
       this._setAttr('#flash', 'hidden', this._flash ? null : '');
       if (this._flash) this._setText('#flash', this._flash);
+    }
+
+    /* CSS cannot ask how wide a word is, and the threshold depends on how many
+       buttons are sharing the row, so the measuring happens here. 92px is where
+       "Vacation" beside its icon starts to clip in the shipped font. */
+    _syncDensity() {
+      const group = this._q('.button-group');
+      if (!group) return;
+      const count = group.children.length;
+      if (!count) return;
+      /* Name-only buttons have nothing left once the label goes. */
+      if (this._config.button_content === 'name') {
+        group.classList.remove('compact');
+        return;
+      }
+      const width = group.clientWidth;
+      if (!width) return;   /* not laid out yet; the observer will call back */
+      const gap = 10 * (count - 1);
+      group.classList.toggle('compact', (width - gap) / count < 92);
     }
 
     _paintNotice() {
@@ -2923,7 +3104,8 @@
           { name: 'button_scale_actions', selector: {
             number: { min: MIN_SCALE, max: MAX_SCALE, step: 0.1, mode: 'slider' } } },
           { name: 'show_ready_indicator', selector: { boolean: {} } },
-          { name: 'show_arm_options', selector: { boolean: {} } }
+          { name: 'show_force_option', selector: { boolean: {} } },
+          { name: 'show_skip_delay_option', selector: { boolean: {} } }
         ] },
         { name: '', type: 'expandable', icon: 'mdi:dialpad', title: this._t('keypad'), schema: [
           { name: 'hide_keypad', selector: { boolean: {} } },

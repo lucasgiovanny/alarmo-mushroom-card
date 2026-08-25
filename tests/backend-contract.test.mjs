@@ -12,12 +12,50 @@ assert.deepEqual(WS, {
   entities: 'alarmo/entities',
   config: 'alarmo/config',
   sensors: 'alarmo/sensors',
+  areas: 'alarmo/areas',
   countdown: 'alarmo/countdown',
   readyModes: 'alarmo/ready_to_arm_modes'
 });
-ok('the five websocket commands are unchanged');
+ok('the six websocket commands are unchanged');
 
-assert.match(source, /const EVENT_TOPIC = 'alarmo_updated'/);
+/* Alarmo publishes on the Home Assistant event bus. Its ONLY websocket
+   subscription is `alarmo_config_updated`, which sends {id, type:"event"} with
+   no event name and no data — a bare ping for its own config panel
+   (custom_components/alarmo/websockets.py, handle_subscribe_updates).
+   Subscribing to any other command connects to nothing at all and fails
+   silently, which took every event-driven feature of this card down with it:
+   no wrong-code feedback, no bypass button, no live readiness.
+
+   The three bus events and their payloads are read out of
+   custom_components/alarmo/event.py at Alarmo 1.10.19. */
+const BUS = evaluate(sliceBalanced('const BUS_EVENTS = Object.freeze(', '{', '}'));
+assert.deepEqual(BUS, {
+  failed: 'alarmo_failed_to_arm',
+  success: 'alarmo_command_success',
+  readyModes: 'alarmo_ready_to_arm_modes_updated'
+});
+ok('the three bus events are unchanged');
+
+assert.ok(!/'alarmo_updated'/.test(source),
+  'alarmo_updated is not a command Alarmo serves; subscribing to it fails silently');
+assert.match(source, /subscribeEvents/,
+  'bus events are reached with subscribeEvents, not subscribeMessage');
+ok('the card subscribes to the bus, not to a command that does not exist');
+
+/* One event carries four outcomes and `reason` is what separates them. */
+const REASON = evaluate(sliceBalanced('const REASON = Object.freeze(', '{', '}'));
+assert.deepEqual(REASON, {
+  openSensors: 'open_sensors', notAllowed: 'not_allowed', invalidCode: 'invalid_code'
+});
+ok('the failure reasons are unchanged');
+
+/* Readiness arrives as a boolean per supported mode, keyed by state name —
+   not as a list, which is what the websocket command returns. */
+const onEvent = sliceFunction('_onAlarmoEvent');
+assert.ok(/key\.indexOf\('armed_'\) === 0 && data\[key\] === true/.test(onEvent),
+  'the readiness event is a boolean map, not an array');
+ok('the readiness event is read as a boolean map');
+
 assert.match(source, /const DOMAIN = 'alarmo'/);
 const SERVICE = evaluate(sliceBalanced('const SERVICE = Object.freeze(', '{', '}'));
 assert.deepEqual(SERVICE, { arm: 'arm', disarm: 'disarm', skipDelay: 'skip_delay' });
@@ -69,17 +107,9 @@ assert.match(source, /Object\.keys\(attrs\.open_sensors\)/,
   'open_sensors must be read for its keys, never for its stale values');
 ok('open_sensors is read for names only');
 
-for (const event of [
-  'failed_to_arm', 'invalid_code_provided', 'no_code_provided',
-  'command_not_allowed', 'ready_to_arm_modes_changed'
-]) {
-  assert.ok(source.includes("'" + event + "'"), `the ${event} event must be handled`);
-}
-ok('every Alarmo event the card depends on is handled');
-
 /* The ready dot going stale until a dashboard reload is upstream issue #161.
    The fix is that the live event repaints it, so the handler must exist. */
-assert.ok(/case 'ready_to_arm_modes_changed':[\s\S]{0,600}?this\._readyModes = data\.modes/.test(source),
+assert.ok(/case BUS_EVENTS\.readyModes:/.test(source),
   'the readiness dot must be repainted from the live event (alarmo-card#161)');
 ok('the readiness dot is driven by the live event');
 

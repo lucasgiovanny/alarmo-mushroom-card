@@ -45,6 +45,16 @@ every card that has done so has had to chase a rename roughly once a year.
 The sheet here is the card's own: same keypad, same behaviour, a backdrop you can tap to
 dismiss, and no dependency on a frontend internal.
 
+## The arm options are two switches
+
+`show_arm_options` switched both shortcuts at once in 0.1.0 and 0.1.1. It is migrated to
+`show_force_option` and `show_skip_delay_option`, which can be set independently:
+
+```yaml
+show_force_option: false        # keep only the no-delay shortcut
+show_skip_delay_option: true
+```
+
 ## The arm options are chips, not a kebab menu
 
 `force` and `skip_delay` were behind a three-dot menu pinned to the card's corner, which

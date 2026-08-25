@@ -150,7 +150,10 @@ const CASES = [
       return window.__calls.length===1 && window.__calls[0][2].force===true || 'no service call: '+JSON.stringify(window.__calls); }],
   ['show_ready_indicator',false, () => q(card({show_ready_indicator:false},'disarmed',{},{ready:['armed_home']}),'#ready-armed_away').hasAttribute('hidden')],
   ['show_bypassed_sensors',false, () => !q(card({show_bypassed_sensors:false},'armed_away',{bypassed_sensors:['binary_sensor.s1']}),'.notice')],
-  ['show_arm_options',false, () => !q(card({show_arm_options:false},'disarmed',{}),'.arm-options')],
+  ['show_force_option',false, () => !q(card({show_force_option:false},'disarmed',{}),'#opt-force')],
+  ['show_skip_delay_option',false, () => !q(card({show_skip_delay_option:false},'disarmed',{}),'#opt-skip')],
+  ['show_force_option',false, () => { const c=card({show_force_option:false,show_skip_delay_option:false},'disarmed',{});
+      return !q(c,'.arm-options') || 'the empty shortcut row should not be drawn at all'; }],
   ['max_sensor_chips',2, () => { const c=card({max_sensor_chips:2},'disarmed',{open_sensors:openN(7)},null,'armed_away');
       return c.shadowRoot.querySelectorAll('.chip:not(.more)').length===2 && !!q(c,'.chip.more'); }],
   ['armed_away__button_label','Fora', () => q(card({states:{armed_away:{button_label:'Fora'}}},'disarmed',{}),'#mode-armed_away .label').textContent==='Fora'],
