@@ -105,6 +105,19 @@ states:
 Upstream accepted this and silently never applied it. This card reports it as a
 configuration error instead.
 
+## Tapping the card no longer opens the entity dialog
+
+Upstream sent a tap on the card body to `hass-more-info`. That is easy to hit by accident on
+an alarm panel, and the dialog shows nothing the card is not already showing. A tap now does
+nothing, unless `use_code_dialog` is on — then it opens the keypad, which is the tap worth
+having. To get the old behaviour back:
+
+```yaml
+tap_action: more-info
+```
+
+Tapping the countdown ring still skips the exit delay regardless.
+
 ## `button_order` counts from where the button already is
 
 Upstream sorted every button carrying an order ahead of every button without one, so

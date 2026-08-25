@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { source, sliceBalanced, evaluate, sandbox, ok } from './_extract.mjs';
+import { source, sliceBalanced, sliceFunction, evaluate, sandbox, ok } from './_extract.mjs';
 
 const DEFAULTS = evaluate(sliceBalanced('const DEFAULTS = Object.freeze(', '{', '}'));
 const STATE_KEYS = evaluate(sliceBalanced('const STATE_KEYS = Object.freeze(', '[', ']'));
@@ -141,5 +141,66 @@ ok('show_arm_options migrates into the two independent switches');
 assert.equal(normalizeConfig({ ...base, button_content: 'nonsense' }).button_content,
   'icon_and_name', 'an unknown button_content falls back rather than drawing nothing');
 ok('button_content is validated');
+
+/* ---- editing a dashboard must not restart the handshake ---- */
+
+/* The dashboard editor calls setConfig on every keystroke. Clearing the
+   backend state each time made the keypad and the readiness dots vanish and
+   come back on every edit, because both depend on answers that only arrive
+   after a round trip — the card looked like it was fighting the person
+   configuring it. Only a different entity invalidates those answers. */
+const setConfigSrc = sliceFunction('setConfig').trimStart();
+const setConfig = new Function('normalizeConfig',
+  'return function ' + setConfigSrc.slice(setConfigSrc.indexOf('(')))(normalizeConfig);
+
+function editorCtx() {
+  return {
+    _config: null, _hass: {}, _shellSig: 'x',
+    _varCache: new Map(), _nodeCache: new Map(),
+    _backendOk: true, _alarmoConfig: { code_format: 'number' },
+    _readyModes: ['armed_home'], _sensorCount: 7, _modes: { armed_away: {} },
+    _areaId: 'home', _code: '1234',
+    _clearCode() { this._code = ''; },
+    _bootstrap() {}, _render() {}
+  };
+}
+
+/* The first setConfig is a fresh card, so it does clear everything; the
+   handshake answers are then filled in the way a real round trip would. */
+function settled() {
+  const ctx = editorCtx();
+  setConfig.call(ctx, { ...base });
+  Object.assign(ctx, {
+    _backendOk: true, _alarmoConfig: { code_format: 'number' },
+    _readyModes: ['armed_home'], _sensorCount: 7, _modes: { armed_away: {} },
+    _areaId: 'home'
+  });
+  return ctx;
+}
+
+let ctx = settled();
+for (const name of ['C', 'Ca', 'Cas']) setConfig.call(ctx, { ...base, name });
+assert.equal(ctx._backendOk, true, 'editing must not restart the handshake');
+assert.ok(ctx._alarmoConfig, 'the keypad depends on this and must not blink out');
+assert.deepEqual(ctx._readyModes, ['armed_home'], 'the readiness dots must not blink out');
+assert.equal(ctx._sensorCount, 7);
+assert.ok(ctx._modes, 'the sheet summary depends on this');
+ok('editing an option keeps everything the backend already answered');
+
+ctx = settled();
+ctx._code = '1234';
+setConfig.call(ctx, { ...base, entity: 'alarm_control_panel.other' });
+assert.equal(ctx._backendOk, null, 'a different entity has different answers');
+assert.equal(ctx._alarmoConfig, null);
+assert.equal(ctx._readyModes, null);
+assert.equal(ctx._modes, null);
+assert.equal(ctx._code, '', 'a code typed for one panel must not follow you to another');
+ok('changing the entity does invalidate the handshake');
+
+/* A rebuild is still forced every time: the config decides the markup. */
+ctx = settled();
+setConfig.call(ctx, { ...base, layout: 'vertical' });
+assert.equal(ctx._shellSig, null, 'a config change must still force a full re-render');
+ok('a config change still rebuilds the card');
 
 console.log('config-compat.test.mjs passed');

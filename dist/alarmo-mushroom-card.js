@@ -15,7 +15,7 @@
 
   const CARD_TYPE = 'alarmo-mushroom-card';
   const EDITOR_TYPE = 'alarmo-mushroom-card-editor';
-  const CARD_VERSION = '0.1.4';
+  const CARD_VERSION = '0.1.5';
   const DOCS_URL = 'https://github.com/lucasgiovanny/alarmo-mushroom-card';
 
   /* ------------------------------------------------------------------ */
@@ -210,6 +210,8 @@
         button_content: 'Mode buttons show',
         button_content_both: 'Icon and name',
         button_content_icon: 'Icon only', button_content_name: 'Name only',
+        tap_action: 'Tapping the card', tap_none: 'Does nothing',
+        tap_code: 'Asks for the code', tap_more_info: 'Opens the entity',
         section_state: 'State: {state}'
       }
     },
@@ -288,6 +290,8 @@
         button_content: 'Botões de modo mostram',
         button_content_both: 'Ícone e nome',
         button_content_icon: 'Só o ícone', button_content_name: 'Só o nome',
+        tap_action: 'Ao tocar no card', tap_none: 'Não faz nada',
+        tap_code: 'Pede o código', tap_more_info: 'Abre a entidade',
         section_state: 'Estado: {state}'
       }
     },
@@ -366,6 +370,8 @@
         button_content: 'Os botões de modo mostram',
         button_content_both: 'Ícone e nome',
         button_content_icon: 'Só o ícone', button_content_name: 'Só o nome',
+        tap_action: 'Ao tocar no card', tap_none: 'Não faz nada',
+        tap_code: 'Pede o código', tap_more_info: 'Abre a entidade',
         section_state: 'Estado: {state}'
       }
     },
@@ -444,6 +450,8 @@
         button_content: 'Los botones de modo muestran',
         button_content_both: 'Icono y nombre',
         button_content_icon: 'Solo el icono', button_content_name: 'Solo el nombre',
+        tap_action: 'Al tocar la tarjeta', tap_none: 'No hace nada',
+        tap_code: 'Pide el código', tap_more_info: 'Abre la entidad',
         section_state: 'Estado: {state}'
       }
     },
@@ -522,6 +530,8 @@
         button_content: 'Les boutons de mode affichent',
         button_content_both: 'Icône et nom',
         button_content_icon: 'Icône seule', button_content_name: 'Nom seul',
+        tap_action: 'Au toucher de la carte', tap_none: 'Ne fait rien',
+        tap_code: 'Demande le code', tap_more_info: 'Ouvre l\'entité',
         section_state: 'État : {state}'
       }
     },
@@ -600,6 +610,8 @@
         button_content: 'Modusschaltflächen zeigen',
         button_content_both: 'Symbol und Name',
         button_content_icon: 'Nur Symbol', button_content_name: 'Nur Name',
+        tap_action: 'Tippen auf die Karte', tap_none: 'Tut nichts',
+        tap_code: 'Fragt nach dem Code', tap_more_info: 'Öffnet die Entität',
         section_state: 'Zustand: {state}'
       }
     },
@@ -678,6 +690,8 @@
         button_content: 'I pulsanti di modo mostrano',
         button_content_both: 'Icona e nome',
         button_content_icon: 'Solo icona', button_content_name: 'Solo nome',
+        tap_action: 'Toccando la scheda', tap_none: 'Non fa nulla',
+        tap_code: 'Chiede il codice', tap_more_info: 'Apre l\'entità',
         section_state: 'Stato: {state}'
       }
     }
@@ -996,7 +1010,8 @@
 
     /* ---- header ---- */
     .header{padding:var(--amc-control-spacing);padding-bottom:var(--amc-spacing)}
-    .header .state-item{padding:0;cursor:pointer}
+    .header .state-item{padding:0}
+    .header .state-item.is-tappable{cursor:pointer}
     .hero{position:relative;flex:none;width:var(--amc-icon-size);height:var(--amc-icon-size)}
     .hero .shape{position:absolute;inset:0}
 
@@ -1349,6 +1364,8 @@
     show_force_option: true,
     show_skip_delay_option: true,
     button_content: 'icon_and_name',
+    /* Left unset so the default can depend on use_code_dialog — see _tapAction. */
+    tap_action: undefined,
     max_sensor_chips: 6
   });
 
@@ -1378,6 +1395,10 @@
     if (!['icon', 'none'].includes(config.icon_type)) config.icon_type = 'icon';
     if (!['icon_and_name', 'icon', 'name'].includes(config.button_content)) {
       config.button_content = 'icon_and_name';
+    }
+    if (config.tap_action !== undefined
+        && !['none', 'more-info', 'code'].includes(config.tap_action)) {
+      config.tap_action = undefined;
     }
     /* show_arm_options used to switch both shortcuts at once. It is migrated
        rather than kept, so a config written against it keeps behaving the same
@@ -1597,19 +1618,28 @@
     }
 
     setConfig(config) {
+      const before = this._config ? this._config.entity : null;
       this._config = normalizeConfig(config);
       this._shellSig = null;      /* force a full rebuild, styles included */
       this._varCache.clear();
       this._nodeCache.clear();
       this._trackedCache = null;
-      this._backendOk = null;
-      this._alarmoConfig = null;
-      this._readyModes = null;
-      this._sensorCount = null;
-      this._modes = null;
-      this._areaId = null;
       this._expanded = false;
-      this._clearCode();
+
+      /* Only a different entity invalidates what the backend told us. The
+         dashboard editor calls setConfig on every keystroke, and re-running the
+         handshake each time meant the keypad and the readiness dots vanished
+         and came back on every edit — the card looked like it was fighting the
+         person configuring it. */
+      if (before !== this._config.entity) {
+        this._backendOk = null;
+        this._alarmoConfig = null;
+        this._readyModes = null;
+        this._sensorCount = null;
+        this._modes = null;
+        this._areaId = null;
+        this._clearCode();
+      }
       if (this._hass) this._bootstrap();
       this._render();
     }
@@ -1691,6 +1721,39 @@
     _stateObj() {
       if (!this._hass || !this._config) return null;
       return this._hass.states[this._config.entity] || null;
+    }
+
+    /* Tapping an alarm panel used to open the more-info dialog, which is easy
+       to hit by accident on the one card you least want to fumble, and tells
+       you nothing the card is not already showing. Doing nothing is the
+       default; a house that asks for its code in a sheet gets the sheet
+       instead, which is the one tap actually worth having. */
+    _tapAction() {
+      const explicit = this._config.tap_action;
+      if (explicit) return explicit;
+      return this._config.use_code_dialog ? 'code' : 'none';
+    }
+
+    /* The action a tap on the card body would stand for. Disarming is the only
+       unambiguous one while armed; while disarmed it is only unambiguous when
+       a single arm mode is on offer. */
+    /* Whether a tap on the card body does anything at all. A header that looks
+       pressable and is not is worse than one that plainly is not. */
+    _headerTappable() {
+      const stateObj = this._stateObj();
+      if (stateObj && PENDING_STATES.includes(stateObj.state)) return true;
+      const action = this._tapAction();
+      if (action === 'more-info') return true;
+      if (action === 'code') return !!(this._tapMode() && this._codeRequired());
+      return false;
+    }
+
+    _tapMode() {
+      const stateObj = this._stateObj();
+      if (!stateObj) return null;
+      if (stateObj.state !== 'disarmed') return 'disarmed';
+      const arms = this._visibleModes().filter(function (m) { return m.arms; });
+      return arms.length === 1 ? arms[0].key : null;
     }
 
     _attrs() {
@@ -1899,6 +1962,7 @@
         this._noticeSensors().map(function (s) { return s.id; }).join(','),
         this._expanded,
         this._config.button_content,
+        this._headerTappable(),
         this._codeVisible() + ':' + this._keypadVisible(),
         this._sheetOpen,
         this._config.show_force_option + ':' + this._config.show_skip_delay_option
@@ -1972,9 +2036,12 @@
         '</div>'
       ].join('') : '';
       const vertical = this._config.layout === 'vertical' ? ' vertical' : '';
+      const tappable = this._headerTappable();
       return [
         '<div class="header">',
-        '<div class="state-item' + vertical + '" data-act="hero" role="button" tabindex="0">',
+        '<div class="state-item' + vertical + (tappable ? ' is-tappable' : '') + '"'
+          + ' data-act="hero"'
+          + (tappable ? ' role="button" tabindex="0"' : '') + '>',
         hero,
         '<div class="state-info">',
         '<span class="primary" id="primary"></span>',
@@ -2909,10 +2976,24 @@
       switch (act) {
         case 'hero': {
           const stateObj = this._stateObj();
+          /* The countdown ring is its own affordance and keeps its own job:
+             it visibly counts down and swaps to a skip glyph on hover. */
           if (stateObj && PENDING_STATES.includes(stateObj.state) && this._deadline) {
             this._skipDelay();
-          } else {
+            break;
+          }
+          const action = this._tapAction();
+          if (action === 'more-info') {
             fireEvent(this, 'hass-more-info', { entityId: this._config.entity });
+          } else if (action === 'code') {
+            const mode = this._tapMode();
+            /* A sheet that asks for a code nobody needs is a dead end. */
+            if (mode && this._codeRequired()) {
+              this._sheetMode = mode;
+              this._sheetOpen = true;
+              this._clearCode();
+              this._render();
+            }
           }
           break;
         }
@@ -3111,7 +3192,12 @@
               { value: 'none', label: this._t('icon_type_none') }
             ] } } }
           ] },
-          { name: 'fill_container', selector: { boolean: {} } }
+          { name: 'fill_container', selector: { boolean: {} } },
+          { name: 'tap_action', selector: { select: { mode: 'dropdown', options: [
+            { value: 'none', label: this._t('tap_none') },
+            { value: 'code', label: this._t('tap_code') },
+            { value: 'more-info', label: this._t('tap_more_info') }
+          ] } } }
         ] },
         { name: '', type: 'expandable', icon: 'mdi:gesture-tap-button', title: this._t('buttons'), schema: [
           { name: 'button_content', selector: { select: { mode: 'dropdown', options: [

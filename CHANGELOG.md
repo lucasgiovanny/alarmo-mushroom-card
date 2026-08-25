@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.5 - 2026-08-25
+
+- Changed tapping the card so it no longer opens the Home Assistant entity dialog, which is
+  easy to hit by accident on the one card you least want to fumble and shows nothing the card
+  is not already showing. A tap now does nothing by default; where the code is asked for in a
+  sheet, it opens the sheet instead. `tap_action` — `none`, `code`, `more-info` — decides, and
+  the header only looks pressable when a tap actually does something
+- Fixed the card restarting its whole backend handshake on every keystroke in the dashboard
+  editor, which made the keypad and the readiness dots blink out and come back on each edit.
+  Only a change of entity invalidates what the backend already answered
+- The countdown ring keeps its own job: tapping it still skips the exit delay, whatever
+  `tap_action` is set to
+
 ## 0.1.4 - 2026-08-25
 
 - Fixed the card overflowing its cell in a sections dashboard and drawing on top of the cards

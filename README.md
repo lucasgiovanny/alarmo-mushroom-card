@@ -36,6 +36,8 @@ actually read.
 - Countdown ring driven by an absolute deadline, so a backgrounded tab comes back correct
 - A keypad with backspace instead of clear-everything, and code dots instead of a text field
   that drags up the on-screen keyboard
+- Tapping the card does not open the entity dialog. It does nothing by default, or opens the
+  keypad where a code is asked for in a sheet — `tap_action` decides
 - The code sheet says what it is about to do — which alarm, which mode, how long the exit
   delay is, and whether anything is being bypassed — before asking for the code
 - Mode buttons stay on one row and drop their labels when the words stop fitting, rather than
@@ -121,6 +123,7 @@ More in [`examples/`](examples/).
 | `layout` | string | `default` | `default`, `horizontal`, `vertical` |
 | `fill_container` | boolean | `false` | Stretch to fill a grid or stack cell |
 | `icon_type` | string | `icon` | `icon` or `none` |
+| `tap_action` | string | `code` when `use_code_dialog`, else `none` | What tapping the card body does: `none`, `code` (open the keypad), `more-info` |
 | `button_content` | string | `icon_and_name` | What the mode buttons show: `icon_and_name`, `icon`, `name` |
 | `button_scale_actions` | number | `1` | 1.0 – 2.5 |
 | `button_scale_keypad` | number | `1` | 1.0 – 2.5 |

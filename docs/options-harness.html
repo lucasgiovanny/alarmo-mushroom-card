@@ -17,7 +17,7 @@
 <body>
 <pre id="report">running…</pre>
 <div id="host"></div>
-<script src="../dist/alarmo-mushroom-card.js"></script>
+<script>document.write('<script src="../dist/alarmo-mushroom-card.js?v=' + Date.now() + '"><\/script>');</script>
 <script>
 /* ---- Home Assistant element stand-ins ---- */
 class HaIcon extends HTMLElement {}
@@ -127,6 +127,16 @@ const CASES = [
   ['layout','vertical', () => !!q(card({layout:'vertical'},'disarmed',{}),'.state-item.vertical')],
   ['fill_container',true, () => !!q(card({fill_container:true},'disarmed',{}),'ha-card.fill')],
   ['icon_type','none', () => !q(card({icon_type:'none'},'disarmed',{}),'#hero-shape')],
+  ['tap_action','none', () => { const c=card({tap_action:'none',use_code_dialog:true},'armed_away',{},{code_disarm_required:true});
+      return !q(c,'.state-item.is-tappable') || 'the header still invites a tap that does nothing'; }],
+  ['tap_action','more-info', () => { let fired=false;
+      const c=card({tap_action:'more-info'},'disarmed',{});
+      c.addEventListener('hass-more-info', () => { fired = true; });
+      q(c,'.state-item').click();
+      return fired || 'no hass-more-info event'; }],
+  ['tap_action','code', () => { const c=card({tap_action:'code'},'armed_away',{},{code_disarm_required:true});
+      q(c,'.state-item').click();
+      return !!q(c,'.sheet') || 'the sheet did not open'; }],
   ['button_content','icon', () => !q(card({button_content:'icon'},'disarmed',{}),'#mode-armed_away .label')],
   ['button_content','name', () => { const b=q(card({button_content:'name'},'disarmed',{}),'#mode-armed_away');
       /* The readiness badge carries an ha-icon of its own, so only the
