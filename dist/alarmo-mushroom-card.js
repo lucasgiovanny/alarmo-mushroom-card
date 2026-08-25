@@ -15,7 +15,7 @@
 
   const CARD_TYPE = 'alarmo-mushroom-card';
   const EDITOR_TYPE = 'alarmo-mushroom-card-editor';
-  const CARD_VERSION = '0.1.7';
+  const CARD_VERSION = '0.1.8';
   const DOCS_URL = 'https://github.com/lucasgiovanny/alarmo-mushroom-card';
 
   /* ------------------------------------------------------------------ */
@@ -1058,6 +1058,14 @@
     .notice-title{flex:1;min-width:0}
     /* The count survives the chips scrolling out of view. Without it "3 of 7"
        reads as "3", and the user bypasses believing they closed everything. */
+    /* With no chips under it the headline is the whole panel, so it sits in the
+       middle of the bar rather than tucked into the left of a wide empty one.
+       A left-aligned line with a hand's width of nothing beside it reads as a
+       layout that went wrong. */
+    .notice[data-headline] .notice-head{justify-content:center;align-items:center}
+    .notice[data-headline] .notice-title{flex:0 1 auto;text-align:center}
+    .notice[data-headline] .notice-head > ha-icon{margin-top:0}
+
     .notice-count{
       flex:none;min-width:18px;height:18px;padding:0 5px;border-radius:9px;
       background-color:rgba(var(--amc-notice-rgb),0.18);
@@ -1077,8 +1085,10 @@
     .notice-chips::-webkit-scrollbar{height:0;background:transparent}
     .chip{
       scroll-snap-align:start;flex:none;
-      display:flex;align-items:center;gap:6px;
-      height:var(--amc-chip-height);padding:0 12px;max-width:190px;
+      display:flex;align-items:center;gap:8px;
+      /* Room to grow: a chip carrying the area under the name is two lines, and
+         a fixed height would clip the line that says which window it is. */
+      min-height:var(--amc-chip-height);padding:5px 12px;max-width:200px;
       border:none;border-radius:var(--amc-chip-radius);
       background-color:rgba(var(--amc-notice-rgb),0.16);
       color:rgb(var(--amc-notice-rgb));
@@ -1088,7 +1098,14 @@
       -webkit-tap-highlight-color:transparent;
     }
     .chip ha-icon{--mdc-icon-size:18px;flex:none;display:flex}
-    .chip .chip-label{min-width:0;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
+    .chip .chip-text{display:flex;flex-direction:column;min-width:0;text-align:left}
+    .chip .chip-label{min-width:0;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;
+      line-height:16px}
+    /* "Janela" names nothing in a house with four of them. The room does. */
+    .chip .chip-area{
+      min-width:0;text-overflow:ellipsis;overflow:hidden;white-space:nowrap;
+      font-size:11px;font-weight:400;line-height:14px;opacity:0.72;
+    }
     /* A sensor that closes while the panel is up keeps its chip and turns
        green in place. Removing it instead reflowed the row under the finger
        and changed the count mid-read — and the door just shut is precisely
@@ -1759,6 +1776,24 @@
       return out;
     }
 
+    /* Which room the sensor is in, from Home Assistant's own registries rather
+       than from Alarmo — Alarmo's `area` is its own grouping, and a chip
+       reading just "Janela" in a house with four of them names nothing. The
+       entity's own area wins over its device's, which is how Home Assistant
+       resolves it too. */
+    _areaNameFor(entityId) {
+      const hass = this._hass;
+      if (!hass || !hass.areas) return null;
+      const entry = hass.entities ? hass.entities[entityId] : null;
+      let areaId = entry ? entry.area_id : null;
+      if (!areaId && entry && entry.device_id && hass.devices) {
+        const device = hass.devices[entry.device_id];
+        areaId = device ? device.area_id : null;
+      }
+      const area = areaId ? hass.areas[areaId] : null;
+      return area && area.name ? area.name : null;
+    }
+
     _isOpenState(obj) {
       if (!obj) return false;
       return obj.state === 'on' || obj.state === 'open'
@@ -2282,6 +2317,7 @@
           id: id,
           name: obj && obj.attributes && obj.attributes.friendly_name
             ? obj.attributes.friendly_name : id.split('.').pop().replace(/_/g, ' '),
+          area: this._areaNameFor(id),
           icon: (obj && obj.attributes && obj.attributes.icon) || (isOpen ? pair[0] : pair[1]),
           sub: sub,
           clear: !!obj && !isOpen,
@@ -2318,24 +2354,31 @@
         const cls = 'chip' + (s.missing ? ' is-missing' : (s.clear ? ' is-clear' : ''));
         return [
           '<button class="' + cls + '" id="chip-' + i + '"',
-          ' data-act="sensor" data-entity="' + esc(s.id) + '" title="' + esc(s.name + ' — ' + s.sub) + '">',
+          ' data-act="sensor" data-entity="' + esc(s.id) + '"',
+          ' title="' + esc((s.area ? s.area + ' · ' : '') + s.name + ' — ' + s.sub) + '">',
           '<ha-icon id="chip-icon-' + i + '" icon="' + esc(s.icon) + '"></ha-icon>',
+          '<span class="chip-text">',
           '<span class="chip-label">' + esc(s.name) + '</span>',
+          s.area ? '<span class="chip-area">' + esc(s.area) + '</span>' : '',
+          '</span>',
           '</button>'
         ].join('');
       }).join('');
       const more = hidden > 0
-        ? '<button class="chip more" data-act="expand"><span class="chip-label">'
-          + esc(this._t('notice.more').replace('{n}', String(hidden))) + '</span></button>'
+        ? '<button class="chip more" data-act="expand"><span class="chip-text"><span class="chip-label">'
+          + esc(this._t('notice.more').replace('{n}', String(hidden))) + '</span></span></button>'
         : '';
       return [
-        '<div class="notice" id="notice" data-kind="' + esc(kind) + '"' + quiet + '>',
+        '<div class="notice" id="notice" data-kind="' + esc(kind) + '"' + quiet
+          /* Quiet hides the chips with CSS rather than dropping them, so it
+             leaves the same lone headline over the same empty bar. */
+          + (shown.length && this._config.show_messages ? '' : ' data-headline') + '>',
         '<div class="notice-head">',
         '<ha-icon id="notice-icon"></ha-icon>',
         '<span class="notice-title" id="notice-title"></span>',
         '<span class="notice-count" id="notice-count"></span>',
         '</div>',
-        '<div class="notice-chips">' + chips + more + '</div>',
+        shown.length ? '<div class="notice-chips">' + chips + more + '</div>' : '',
         '</div>'
       ].join('');
     }
@@ -2704,7 +2747,8 @@
           if (!chip) return;
           chip.classList.toggle('is-clear', s.clear && !s.missing);
           chip.classList.toggle('is-missing', s.missing);
-          chip.setAttribute('title', s.name + ' — ' + s.sub);
+    chip.setAttribute('title',
+            (s.area ? s.area + ' · ' : '') + s.name + ' — ' + s.sub);
           /* Watching the door glyph swap from open to closed is half of the
              "did shutting it work?" feedback, so the icon is patched live
              rather than only at the next shell rebuild. */

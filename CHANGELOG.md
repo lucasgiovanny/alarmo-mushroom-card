@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.8 - 2026-08-25
+
+- Added the room under each sensor's name in the open-sensor chips. *Window* names nothing in
+  a house with four of them. The area comes from Home Assistant's own registries — the
+  entity's area, falling back to its device's — not from Alarmo, whose `area` is its own
+  grouping of panels rather than the room the sensor is in
+- Fixed the headline sitting at the left of a full-width bar when there is nothing under it,
+  which read as a layout that had gone wrong rather than as a status. A panel with no chips —
+  the all-clear, or any panel with `show_messages: false` — centres its headline, and an empty
+  chip row is no longer drawn at all
+
 ## 0.1.7 - 2026-08-25
 
 - Changed the open-sensor panel from a post-mortem into a status. It used to exist only after

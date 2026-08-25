@@ -27,8 +27,9 @@ actually read.
   the card sits beside a Mushroom card without looking almost right
 - **The open-sensor panel is a status, not a post-mortem.** It says whether the alarm can be
   armed *right now* — computed from Alarmo's sensor config and the live entity states, not
-  from the aftermath of a failed attempt. The blocking sensors are chips you can scroll and
-  tap to open more-info, and they disappear as you shut the doors
+  from the aftermath of a failed attempt. The blocking sensors are chips naming the room each
+  one is in — *Window* alone says nothing in a house with four of them — which you can scroll
+  and tap to open more-info, and which disappear as you shut the doors
 - The per-button readiness dots read the same live answer the panel does, so the two can
   never disagree on screen
 - The bypass action is **separate from the message**, so `show_messages: false` no longer
@@ -176,6 +177,10 @@ Every option above is read the same way, including the legacy `button_scale`. Th
 behaviours differ on purpose — see [docs/MIGRATING.md](docs/MIGRATING.md).
 
 ## Screenshots
+
+Each blocking sensor names its room:
+
+![Sensor chips with their areas](docs/screenshots/04-chips.png)
 
 States, countdown ring and keypad:
 

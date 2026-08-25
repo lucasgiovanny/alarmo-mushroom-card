@@ -141,4 +141,54 @@ assert.ok(body.indexOf('font:inherit') < body.indexOf('font-size:'),
   + 'collapses to the document body size');
 ok('the font shorthand does not eat the icon size');
 
+/* ---- a lone headline sits in the middle of its bar ---- */
+
+/* With nothing under it, the headline is the whole panel. Tucked into the left
+   of a full-width bar with a hand's width of nothing beside it, it reads as a
+   layout that went wrong rather than as a status. */
+has(/\.notice\[data-headline\] \.notice-head\{justify-content:center/,
+  'a panel with no chips must centre its headline');
+has(/\.notice\[data-headline\] \.notice-title\{flex:0 1 auto;text-align:center\}/,
+  'the title must stop filling the row, or centring the row moves nothing');
+assert.match(noticeHtml, /shown\.length && this\._config\.show_messages \? '' : ' data-headline'/,
+  'quiet hides the chips with CSS rather than dropping them, so it leaves the '
+  + 'same lone headline over the same empty bar and has to be centred too');
+assert.match(noticeHtml, /shown\.length \? '<div class="notice-chips">/,
+  'an empty chip row must not be drawn at all');
+ok('a headline with nothing under it is centred');
+
+/* ---- a sensor is named by its room, not only by itself ---- */
+
+/* "Window" names nothing in a house with four of them. The area does. It comes
+   from Home Assistant's own registries rather than from Alarmo, whose `area` is
+   its own grouping of panels and not the room the sensor is in. */
+const areaFn = new Function(
+  'return function ' + sliceFunction('_areaNameFor').trimStart().slice('_areaNameFor'.length)
+)();
+const hass = {
+  areas: { living: { area_id: 'living', name: 'Living room' },
+           hall: { area_id: 'hall', name: 'Hallway' } },
+  entities: {
+    'binary_sensor.a': { entity_id: 'binary_sensor.a', area_id: 'living' },
+    'binary_sensor.b': { entity_id: 'binary_sensor.b', device_id: 'd1' },
+    'binary_sensor.c': { entity_id: 'binary_sensor.c' }
+  },
+  devices: { d1: { id: 'd1', area_id: 'hall' } }
+};
+assert.equal(areaFn.call({ _hass: hass }, 'binary_sensor.a'), 'Living room');
+assert.equal(areaFn.call({ _hass: hass }, 'binary_sensor.b'), 'Hallway',
+  "a sensor with no area of its own falls back to its device's, as Home Assistant does");
+assert.equal(areaFn.call({ _hass: hass }, 'binary_sensor.c'), null,
+  'an unplaced sensor gets no second line rather than an empty one');
+assert.equal(areaFn.call({ _hass: {} }, 'binary_sensor.a'), null,
+  'a Home Assistant too old to publish the registries must not throw');
+ok('the area comes from the entity, then its device, then nothing');
+
+assert.match(noticeHtml, /s\.area \? '<span class="chip-area">/,
+  'the second line is only drawn when there is a room to name');
+has(/\.chip \.chip-area\{/, 'the area line needs its own quieter treatment');
+has(/\.chip\{[^}]*min-height:var\(--amc-chip-height\)/,
+  'a fixed chip height would clip the line that says which window it is');
+ok('the chip carries the room under the name');
+
 console.log('notice-panel.test.mjs passed');

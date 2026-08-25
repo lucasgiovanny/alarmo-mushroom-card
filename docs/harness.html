@@ -134,15 +134,18 @@ function toggleMushroomTheme(){
 }
 
 /* ---- fake hass ---- */
+/* name, device_class, state, Home Assistant area */
+const AREAS = { hall: 'Hallway', living: 'Living room', kitchen: 'Kitchen',
+                garage: 'Garage', office: 'Office', garden: 'Garden' };
 const SENSORS = {
-  'binary_sensor.front_door':   ['Front door', 'door', 'on'],
-  'binary_sensor.back_door':    ['Back door', 'door', 'on'],
-  'binary_sensor.living_window':['Living room window', 'window', 'on'],
-  'binary_sensor.kitchen_window':['Kitchen window', 'window', 'on'],
-  'binary_sensor.hall_motion':  ['Hallway motion', 'motion', 'on'],
-  'binary_sensor.garage':       ['Garage door', 'garage_door', 'on'],
-  'binary_sensor.office_window':['Office window', 'window', 'on'],
-  'binary_sensor.shed':         ['Shed door', 'door', 'off']
+  'binary_sensor.front_door':   ['Front door', 'door', 'on', 'hall'],
+  'binary_sensor.back_door':    ['Back door', 'door', 'on', 'garden'],
+  'binary_sensor.living_window':['Window', 'window', 'on', 'living'],
+  'binary_sensor.kitchen_window':['Window', 'window', 'on', 'kitchen'],
+  'binary_sensor.hall_motion':  ['Motion', 'motion', 'on', 'hall'],
+  'binary_sensor.garage':       ['Garage door', 'garage_door', 'on', 'garage'],
+  'binary_sensor.office_window':['Window', 'window', 'on', 'office'],
+  'binary_sensor.shed':         ['Shed door', 'door', 'off', 'garden']
 };
 
 function makeHass(state, attrs, allClosed, openIds){
@@ -165,8 +168,15 @@ function makeHass(state, attrs, allClosed, openIds){
       attributes: { friendly_name: SENSORS[id][0], device_class: SENSORS[id][1] }
     };
   }
+  const areas = {};
+  for (const key of Object.keys(AREAS)) areas[key] = { area_id: key, name: AREAS[key] };
+  const entities = {};
+  for (const id of Object.keys(SENSORS)) entities[id] = { entity_id: id, area_id: SENSORS[id][3] };
   return {
     states: states,
+    areas: areas,
+    entities: entities,
+    devices: {},
     language: 'en',
     locale: { language: 'en' },
     themes: { theme: 'default', darkMode: false },
