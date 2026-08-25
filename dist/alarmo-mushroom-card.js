@@ -15,7 +15,7 @@
 
   const CARD_TYPE = 'alarmo-mushroom-card';
   const EDITOR_TYPE = 'alarmo-mushroom-card-editor';
-  const CARD_VERSION = '0.1.13';
+  const CARD_VERSION = '0.1.14';
   const DOCS_URL = 'https://github.com/lucasgiovanny/alarmo-mushroom-card';
 
   /* ------------------------------------------------------------------ */
@@ -174,6 +174,8 @@
         layout: 'Layout', layout_default: 'Default', layout_horizontal: 'Horizontal',
         layout_vertical: 'Vertical',
         icon_type: 'Icon', icon_type_icon: 'Show', icon_type_none: 'Hide',
+        animations: 'Movement', anim_subtle: 'Restrained',
+        anim_full: 'Emphatic', anim_none: 'None',
         state_outline: 'Ring the card when',
         outline_none: 'Never', outline_triggered: 'Triggered',
         outline_armed: 'Armed', outline_both: 'Armed or triggered',
@@ -255,6 +257,8 @@
         layout: 'Layout', layout_default: 'Padrão', layout_horizontal: 'Horizontal',
         layout_vertical: 'Vertical',
         icon_type: 'Ícone', icon_type_icon: 'Mostrar', icon_type_none: 'Esconder',
+        animations: 'Movimento', anim_subtle: 'Contido',
+        anim_full: 'Enfático', anim_none: 'Nenhum',
         state_outline: 'Contornar o card quando',
         outline_none: 'Nunca', outline_triggered: 'Disparado',
         outline_armed: 'Armado', outline_both: 'Armado ou disparado',
@@ -336,6 +340,8 @@
         layout: 'Disposição', layout_default: 'Predefinida', layout_horizontal: 'Horizontal',
         layout_vertical: 'Vertical',
         icon_type: 'Ícone', icon_type_icon: 'Mostrar', icon_type_none: 'Esconder',
+        animations: 'Movimento', anim_subtle: 'Contido',
+        anim_full: 'Enfático', anim_none: 'Nenhum',
         state_outline: 'Contornar o card quando',
         outline_none: 'Nunca', outline_triggered: 'Disparado',
         outline_armed: 'Armado', outline_both: 'Armado ou disparado',
@@ -417,6 +423,8 @@
         layout: 'Diseño', layout_default: 'Predeterminado', layout_horizontal: 'Horizontal',
         layout_vertical: 'Vertical',
         icon_type: 'Icono', icon_type_icon: 'Mostrar', icon_type_none: 'Ocultar',
+        animations: 'Movimiento', anim_subtle: 'Contenido',
+        anim_full: 'Enfático', anim_none: 'Ninguno',
         state_outline: 'Bordear la tarjeta cuando',
         outline_none: 'Nunca', outline_triggered: 'Disparada',
         outline_armed: 'Armada', outline_both: 'Armada o disparada',
@@ -498,6 +506,8 @@
         layout: 'Disposition', layout_default: 'Par défaut', layout_horizontal: 'Horizontale',
         layout_vertical: 'Verticale',
         icon_type: 'Icône', icon_type_icon: 'Afficher', icon_type_none: 'Masquer',
+        animations: 'Mouvement', anim_subtle: 'Sobre',
+        anim_full: 'Appuyé', anim_none: 'Aucun',
         state_outline: 'Encadrer la carte quand',
         outline_none: 'Jamais', outline_triggered: 'Déclenchée',
         outline_armed: 'Armée', outline_both: 'Armée ou déclenchée',
@@ -579,6 +589,8 @@
         layout: 'Layout', layout_default: 'Standard', layout_horizontal: 'Horizontal',
         layout_vertical: 'Vertikal',
         icon_type: 'Symbol', icon_type_icon: 'Anzeigen', icon_type_none: 'Ausblenden',
+        animations: 'Bewegung', anim_subtle: 'Zurückhaltend',
+        anim_full: 'Nachdrücklich', anim_none: 'Keine',
         state_outline: 'Karte umranden, wenn',
         outline_none: 'Nie', outline_triggered: 'Ausgelöst',
         outline_armed: 'Aktiviert', outline_both: 'Aktiviert oder ausgelöst',
@@ -660,6 +672,8 @@
         layout: 'Layout', layout_default: 'Predefinito', layout_horizontal: 'Orizzontale',
         layout_vertical: 'Verticale',
         icon_type: 'Icona', icon_type_icon: 'Mostra', icon_type_none: 'Nascondi',
+        animations: 'Movimento', anim_subtle: 'Sobrio',
+        anim_full: 'Marcato', anim_none: 'Nessuno',
         state_outline: 'Contornare la scheda quando',
         outline_none: 'Mai', outline_triggered: 'Scattato',
         outline_armed: 'Inserito', outline_both: 'Inserito o scattato',
@@ -1007,7 +1021,25 @@
     ha-card[data-outline]{
       outline:2px solid rgb(var(--amc-state-rgb));
       outline-offset:-2px;
+      transition:outline-color 280ms ease-in-out;
     }
+    /* The one loop worth having: a ring breathing while the alarm is actually
+       going off, readable from across a room. Slow, and only when asked for —
+       anything looping that is not an alarm condition becomes wallpaper within
+       a day and then hides the day it matters. */
+    :host([data-anim="full"][data-state="triggered"]) ha-card[data-outline]{
+      animation:amc-ring 1.6s ease-in-out infinite;
+    }
+    @keyframes amc-ring{
+      0%,100%{outline-color:rgb(var(--amc-state-rgb))}
+      50%{outline-color:rgba(var(--amc-state-rgb),0.25)}
+    }
+
+    /* Off means off: no pulse, no shake, no sweeping ring. Colour still
+       changes, because an instant colour swap is not motion. */
+    :host([data-anim="none"]) .shape{animation:none !important}
+    :host([data-anim="none"]) .notice-head > ha-icon{animation:none !important}
+    :host([data-anim="none"]) .ring .arc{transition:none}
     :host([data-layout="grid"]) ha-card{height:100%}
 
     /* ---- header ---- */
@@ -1193,7 +1225,7 @@
       padding:0 var(--amc-control-spacing) var(--amc-control-spacing);
     }
     .code-dots{display:flex;gap:10px;height:20px;align-items:center}
-    .code-dots.shake{animation:amc-shake 0.2s ease-in-out 2}
+    .code-dots.shake,.code.shake,.sheet-panel.shake{animation:amc-shake 0.2s ease-in-out 2}
     .code-dot{
       width:10px;height:10px;border-radius:50%;
       background-color:rgba(var(--amc-rgb-text),0.18);
@@ -1331,11 +1363,11 @@
 
     @media (prefers-reduced-motion:reduce){
       /* The pulse is how a triggered alarm distinguishes itself from an armed
-         one at a glance, so it slows to a breath rather than stopping. The
-         drain bar keeps its speed: it is a four-second timer, not decoration. */
+         one at a glance, so it slows to a breath rather than stopping. */
       .shape,.notice-head > ha-icon{animation-duration:3s !important}
+      ha-card[data-outline]{animation-duration:4s !important}
       .ring .arc{transition:none}
-      .code-dots.shake{animation:none}
+      .code-dots.shake,.code.shake,.sheet-panel.shake{animation:none}
     }
   `;
 
@@ -1364,6 +1396,7 @@
     fill_container: false,
     icon_type: 'icon',
     state_outline: 'none',
+    animations: 'subtle',
     show_bypass_button: true,
     show_ready_notice: true,
     show_sensor_count: true,
@@ -1399,6 +1432,7 @@
     if (!['none', 'triggered', 'armed', 'both'].includes(config.state_outline)) {
       config.state_outline = 'none';
     }
+    if (!['none', 'subtle', 'full'].includes(config.animations)) config.animations = 'subtle';
     if (!['icon_and_name', 'icon', 'name'].includes(config.button_content)) {
       config.button_content = 'icon_and_name';
     }
@@ -2039,6 +2073,7 @@
         case BUS_EVENTS.success:
           this._clearPending();
           this._clearCode();
+          this._clearFlash();
           /* The code was accepted, so the sheet has nothing left to ask. */
           this._sheetOpen = false;
           this._sheetMode = null;
@@ -2671,6 +2706,7 @@
       const rgb = toRgbTriplet(block.color) || stateColorVar(state);
       this.style.setProperty('--amc-state-rgb', rgb);
       this._setAttr('ha-card', 'data-outline', this._outlined(state) ? '' : null);
+      this.setAttribute('data-anim', config.animations);
 
       /* hero */
       if (config.icon_type !== 'none') {
@@ -2835,12 +2871,19 @@
           /* Re-adding a class the element already carries does not restart
              its animation, so the second wrong code in a row sat perfectly
              still. Dropping the class and forcing a reflow rewinds it. */
-          if (this._codeError) {
-            dots.classList.remove('shake');
-            void dots.offsetWidth;
-            dots.classList.add('shake');
-          } else {
-            dots.classList.remove('shake');
+          const shakers = [dots];
+          /* At full, the whole panel moves rather than four small dots — a
+             rejected code is worth more than a twitch you can miss. */
+          if (this._config.animations === 'full') {
+            const panel = this._q(prefix === '#sheet' ? '.sheet-panel' : '.code');
+            if (panel) shakers.push(panel);
+          }
+          for (const node of shakers) {
+            node.classList.remove('shake');
+            if (this._codeError && this._config.animations !== 'none') {
+              void node.offsetWidth;
+              node.classList.add('shake');
+            }
           }
         }
         const hintNode = this._q(prefix + '-hint');
@@ -3105,6 +3148,18 @@
       }.bind(this), FLASH_MS);
     }
 
+    /* The flash carries its own four-second timer, so a message from a moment
+       ago outlives the thing it was about. On a wrong code in the overlay
+       followed by a right one, the overlay closed and the card behind it then
+       showed "wrong code" for the rest of that timer — a complaint about a
+       code that had just been accepted. */
+    _clearFlash() {
+      this._flash = '';
+      this._codeError = false;
+      clearTimeout(this._flashTimer);
+      this._flashTimer = null;
+    }
+
     _clearCode() {
       this._code = '';
       this._codeError = false;
@@ -3156,6 +3211,7 @@
               this._sheetMode = mode;
               this._sheetOpen = true;
               this._clearCode();
+              this._clearFlash();
               this._render();
             }
           }
@@ -3166,6 +3222,7 @@
             this._sheetMode = node.dataset.mode;
             this._sheetOpen = true;
             this._clearCode();
+            this._clearFlash();
             this._render();
           } else {
             this._handleMode(node.dataset.mode);
@@ -3238,6 +3295,8 @@
       this._sheetOpen = false;
       this._sheetMode = null;
       this._clearCode();
+      /* Dismissing the overlay dismisses what it was saying with it. */
+      this._clearFlash();
       this._render();
     }
   }
@@ -3348,6 +3407,11 @@
             ] } } }
           ] },
           { name: 'fill_container', selector: { boolean: {} } },
+          { name: 'animations', selector: { select: { mode: 'dropdown', options: [
+            { value: 'subtle', label: this._t('anim_subtle') },
+            { value: 'full', label: this._t('anim_full') },
+            { value: 'none', label: this._t('anim_none') }
+          ] } } },
           { name: 'state_outline', selector: { select: { mode: 'dropdown', options: [
             { value: 'none', label: this._t('outline_none') },
             { value: 'triggered', label: this._t('outline_triggered') },

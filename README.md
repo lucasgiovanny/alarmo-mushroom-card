@@ -43,7 +43,9 @@ actually read.
 - Ready-to-arm dots that actually update live, and a not-ready button that cannot be tapped
   into a failed arm
 - An optional ring around the whole card while armed or triggered, in the state colour, so
-  the dashboard says so from across the room
+  the dashboard says so from across the room — and, at `animations: full`, breathing while the
+  alarm is actually going off
+- One setting for how much the card moves, and a reduced-motion preference that outranks it
 - Countdown ring driven by an absolute deadline, so a backgrounded tab comes back correct
 - A keypad with backspace instead of clear-everything, and code dots instead of a text field
   that drags up the on-screen keyboard
@@ -138,6 +140,7 @@ More in [`examples/`](examples/).
 | `fill_container` | boolean | `false` | Stretch to fill a grid or stack cell |
 | `icon_type` | string | `icon` | `icon` or `none` |
 | `state_outline` | string | `none` | Ring the whole card in the state colour: `none`, `triggered`, `armed`, `both` |
+| `animations` | string | `subtle` | How much the card moves: `subtle`, `full`, `none`. The system's reduced-motion preference outranks it |
 | `tap_action` | string | `code` when `use_code_dialog`, else `none` | What tapping the card body does: `none`, `code` (open the keypad), `more-info` |
 | `button_content` | string | `icon_and_name` | What the mode buttons show: `icon_and_name`, `icon`, `name` |
 | `button_scale_actions` | number | `1` | 1.0 – 2.5 |

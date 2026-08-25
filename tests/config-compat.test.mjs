@@ -118,6 +118,7 @@ ok('a real upstream config normalizes without loss');
 
 for (const [key, value] of Object.entries({
   layout: 'default', fill_container: false, icon_type: 'icon',
+  animations: 'subtle', state_outline: 'none',
   show_bypass_button: true, show_ready_notice: true, show_sensor_count: true,
   blocked_modes: 'disable', show_skip_delay_option: true,
   button_content: 'icon_and_name'
@@ -147,6 +148,10 @@ assert.equal(normalizeConfig({ ...base, confirm_bypass: false }).confirm_bypass,
 assert.doesNotThrow(() => normalizeConfig({ ...base, max_sensor_chips: 4 }));
 assert.equal(normalizeConfig({ ...base, max_sensor_chips: 4 }).max_sensor_chips, undefined,
   'the retired cap must not linger: the row scrolls instead');
+assert.equal(normalizeConfig({ ...base, animations: 'nonsense' }).animations, 'subtle',
+  'an unknown movement level falls back to the restrained one');
+assert.equal(normalizeConfig({ ...base, state_outline: 'nonsense' }).state_outline, 'none',
+  'an unknown outline setting falls back to no ring');
 assert.equal(normalizeConfig({ ...base, blocked_modes: 'nonsense' }).blocked_modes, 'disable',
   'an unknown blocked_modes falls back rather than drawing nothing');
 assert.doesNotThrow(() => normalizeConfig({ ...base, language: 'pt-br' }));

@@ -153,6 +153,11 @@ const CASES = [
   ['layout','vertical', () => !!q(card({layout:'vertical'},'disarmed',{}),'.state-item.vertical')],
   ['fill_container',true, () => !!q(card({fill_container:true},'disarmed',{}),'ha-card.fill')],
   ['icon_type','none', () => !q(card({icon_type:'none'},'disarmed',{}),'#hero-shape')],
+  ['animations','full', () => { const c=card({animations:'full'},'disarmed',{});
+      return c.getAttribute('data-anim')==='full' || 'the level must reach the DOM'; }],
+  ['animations','none', () => { const c=card({animations:'none'},'triggered',
+        {arm_mode:'armed_away',open_sensors:{'binary_sensor.s1':'on'}});
+      return c.getAttribute('data-anim')==='none'; }],
   ['state_outline','both', () => { const c=card({state_outline:'both'},'armed_away',{},null,null);
       return q(c,'ha-card').hasAttribute('data-outline') || 'armed must be ringed'; }],
   [null,'the ring stays off unless asked for', () => {

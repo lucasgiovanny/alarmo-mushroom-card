@@ -37,6 +37,56 @@ assert.ok(/this\._flash && !this\._sheetOpen/.test(paintFn),
   'the card must not repeat a message the sheet is already showing in place');
 ok('the message is said once, where it was typed');
 
+/* ---- a message must not outlive what it was about ---- */
+
+/* The flash carries its own four-second timer. A wrong code in the overlay
+   followed by a right one closed the overlay and then showed "wrong code" on
+   the card behind it for the rest of that timer — a complaint about a code
+   that had just been accepted. */
+const onEventFn = sliceFunction('_onAlarmoEvent');
+assert.ok(/case BUS_EVENTS\.success:[\s\S]{0,300}?_clearFlash\(\)/.test(onEventFn),
+  'an accepted code must take the previous complaint with it');
+const closeSheet = sliceFunction('_closeSheet');
+assert.ok(/_clearFlash\(\)/.test(closeSheet),
+  'dismissing the overlay dismisses what it was saying');
+const clearFlash = sliceFunction('_clearFlash');
+assert.ok(/clearTimeout\(this\._flashTimer\)/.test(clearFlash),
+  'the timer has to go too, or it fires later over whatever is on screen then');
+assert.ok(/_codeError = false/.test(clearFlash),
+  'and the shake state with it');
+ok('a stale message cannot outlive the code it was about');
+
+/* ---- how much the card is allowed to move ---- */
+
+/* One control, three levels, because the question a person actually has is
+   "how much movement do I want", not "which of six things may twitch". */
+const codePaint = sliceFunction('_paintCode');
+assert.ok(/animations === 'full'/.test(codePaint),
+  'at full, a rejected code moves the whole panel — four small dots is a twitch '
+  + 'you can miss');
+assert.ok(/animations !== 'none'/.test(codePaint),
+  'and at none, nothing shakes at all');
+assert.match(source, /\.code-dots\.shake,\.code\.shake,\.sheet-panel\.shake\{animation:amc-shake/,
+  'the panel and the dots must share the one shake');
+ok('the wrong-code shake scales with the movement setting');
+
+assert.match(source, /:host\(\[data-anim="full"\]\[data-state="triggered"\]\) ha-card\[data-outline\]\{\s*animation:amc-ring/,
+  'the one loop worth having is a ring breathing while the alarm is going off');
+assert.ok(!/animation:amc-ring[\s\S]{0,200}armed_/.test(source),
+  'nothing that is not an alarm condition may loop: a card that always moves '
+  + 'becomes wallpaper within a day, and then hides the day it matters');
+ok('only a triggered alarm loops, and only when asked');
+
+assert.match(source, /:host\(\[data-anim="none"\]\) \.shape\{animation:none !important\}/,
+  'off must mean off, including the pulse the card ships with');
+assert.match(source, /:host\(\[data-anim="none"\]\) \.ring \.arc\{transition:none\}/);
+ok('none stops the movement the card ships with');
+
+/* Whatever the setting says, the system preference still wins. */
+assert.match(source, /@media \(prefers-reduced-motion:reduce\)\{[\s\S]*?\.code-dots\.shake,\.code\.shake,\.sheet-panel\.shake\{animation:none\}/,
+  'a reader who has asked their system for less motion gets it regardless');
+ok('the system preference outranks the setting');
+
 /* ---- the sheet keypad is a keypad ---- */
 
 const keys = sliceFunction('_keysHtml');

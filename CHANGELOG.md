@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.1.14 - 2026-08-25
+
+- Fixed a rejected code being reported again after a good one. The flash carries its own
+  four-second timer, so a wrong code in the overlay followed by a right one closed the overlay
+  and then showed *Wrong code* on the card behind it for the rest of that timer — a complaint
+  about a code that had just been accepted
+- Added `animations`, one setting for how much the card moves: `subtle` (the default, and what
+  it did before), `full`, or `none`
+- At `full`, a rejected code shakes the whole panel rather than four small dots, and a ringed
+  card breathes while the alarm is actually going off
+- At `none`, nothing moves at all — no pulse, no shake, no sweeping countdown. Colour still
+  changes, because an instant colour swap is not motion
+- Whatever the setting says, a reader whose system asks for reduced motion still gets it
+
 ## 0.1.13 - 2026-08-25
 
 - Added `state_outline`: a ring around the whole card in the state colour while armed,
