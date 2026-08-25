@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.1.1 - 2026-08-25
+
+- Fixed every control inside a collapsible section of the visual editor silently
+  refusing to save. Home Assistant's `ha-form` reads a section's value as
+  `data[schema.name]` and emits it back as `{[schema.name]: value}` unless the name is
+  empty, so the named sections handed the editor `{keypad: {hide_keypad: true}}`, the flat
+  lookup missed it, and Home Assistant re-applied the previous config a moment later — on
+  screen, a switch that flipped itself back. Sections are now unnamed and carry their
+  heading in `title`
+- Fixed the editor rebuilding its whole form on every state change in the house, which
+  closed the section being edited and dropped half-typed fields
+- Added `tests/editor.test.mjs` and `docs/editor-harness.html`, which exercises the editor
+  against a stand-in for `ha-form` that reproduces Home Assistant's own value-nesting rules
+
 ## 0.1.0 - 2026-08-25
 
 - Added `alarmo-mushroom-card`, a Lovelace card for the Alarmo alarm panel drawn in the

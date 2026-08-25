@@ -179,8 +179,10 @@ node --check dist/alarmo-mushroom-card.js
 for f in tests/*.test.mjs; do node "$f"; done
 ```
 
-`docs/harness.html` mounts one card per state against a fake `hass`, with light/dark and
-Mushroom-theme toggles, so the CSS can be iterated on without a Home Assistant instance:
+Two harness pages run against a fake `hass`, so the card can be worked on without a Home
+Assistant instance. `docs/harness.html` mounts one card per state with light/dark and
+Mushroom-theme toggles; `docs/editor-harness.html` drives the visual editor through a
+stand-in for `ha-form` that reproduces Home Assistant's own value-nesting rules.
 
 ```bash
 python3 -m http.server 8777

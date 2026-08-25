@@ -15,7 +15,7 @@
 
   const CARD_TYPE = 'alarmo-mushroom-card';
   const EDITOR_TYPE = 'alarmo-mushroom-card-editor';
-  const CARD_VERSION = '0.1.0';
+  const CARD_VERSION = '0.1.1';
   const DOCS_URL = 'https://github.com/lucasgiovanny/alarmo-mushroom-card';
 
   /* ------------------------------------------------------------------ */
@@ -2722,6 +2722,11 @@
       this._hass = hass;
       if (this._form) this._form.hass = hass;
       if (first) this._loadEntities();
+      /* set hass fires on every state change in the house. Handing ha-form a
+         freshly built schema array each time makes it re-render the whole
+         form, which loses a half-typed field and closes the section being
+         edited. Only rebuild when something the form is actually made of has
+         changed. */
       this._update();
     }
 
@@ -2765,6 +2770,13 @@
       return tLang(this._lang(), 'state.' + state, state);
     }
 
+    /* Every section here is deliberately unnamed. ha-form reads a section's
+       value as `data[schema.name]` and emits it back as
+       `{[schema.name]: value}` unless the name is empty — so a named
+       "keypad" section would hand this editor {keypad: {hide_keypad: true}},
+       the flat lookup would miss it, and Home Assistant would re-apply the old
+       config a moment later. On screen that reads as a switch that flips back
+       by itself. The title carries the heading instead of the name. */
     _schema() {
       const entitySelector = { domain: 'alarm_control_panel' };
       if (this._alarmoIds && this._alarmoIds.length) {
@@ -2780,7 +2792,7 @@
           { name: 'name', selector: { text: {} } },
           { name: 'language', selector: { select: { mode: 'dropdown', options: langOptions } } }
         ] },
-        { name: 'appearance', type: 'expandable', icon: 'mdi:palette', schema: [
+        { name: '', type: 'expandable', icon: 'mdi:palette', title: this._t('appearance'), schema: [
           { name: '', type: 'grid', schema: [
             { name: 'layout', selector: { select: { mode: 'dropdown', options: [
               { value: 'default', label: this._t('layout_default') },
@@ -2794,20 +2806,20 @@
           ] },
           { name: 'fill_container', selector: { boolean: {} } }
         ] },
-        { name: 'buttons', type: 'expandable', icon: 'mdi:gesture-tap-button', schema: [
+        { name: '', type: 'expandable', icon: 'mdi:gesture-tap-button', title: this._t('buttons'), schema: [
           { name: 'button_scale_actions', selector: {
             number: { min: MIN_SCALE, max: MAX_SCALE, step: 0.1, mode: 'slider' } } },
           { name: 'show_ready_indicator', selector: { boolean: {} } },
           { name: 'show_arm_options', selector: { boolean: {} } }
         ] },
-        { name: 'keypad', type: 'expandable', icon: 'mdi:dialpad', schema: [
+        { name: '', type: 'expandable', icon: 'mdi:dialpad', title: this._t('keypad'), schema: [
           { name: 'hide_keypad', selector: { boolean: {} } },
           { name: 'keep_keypad_visible', selector: { boolean: {} } },
           { name: 'use_code_dialog', selector: { boolean: {} } },
           { name: 'button_scale_keypad', selector: {
             number: { min: MIN_SCALE, max: MAX_SCALE, step: 0.1, mode: 'slider' } } }
         ] },
-        { name: 'notices', type: 'expandable', icon: 'mdi:door-open', schema: [
+        { name: '', type: 'expandable', icon: 'mdi:door-open', title: this._t('notices'), schema: [
           { name: 'show_messages', selector: { boolean: {} } },
           { name: 'show_bypass_button', selector: { boolean: {} } },
           { name: 'confirm_bypass', selector: { boolean: {} } },
@@ -2846,7 +2858,7 @@
             number: { min: 0, max: 20, step: 1, mode: 'box' } } });
         }
         return {
-          name: 'state_' + state,
+          name: '',
           type: 'expandable',
           icon: state === 'disarmed' ? DISARM_ICON : this._stateIconFor(state),
           title: this._t('section_state').replace('{state}', this._stateLabel(state)),
@@ -2886,12 +2898,31 @@
         this._form = document.createElement('ha-form');
         this._form.addEventListener('value-changed', this._valueChanged.bind(this));
         this.appendChild(this._form);
+        this._form.computeLabel = this._computeLabel.bind(this);
+        this._form.computeHelper = this._computeHelper.bind(this);
       }
       this._form.hass = this._hass;
-      this._form.data = this._formData();
-      this._form.schema = this._schema();
-      this._form.computeLabel = this._computeLabel.bind(this);
-      this._form.computeHelper = this._computeHelper.bind(this);
+
+      const data = this._formData();
+      const dataSig = JSON.stringify(data);
+      if (dataSig !== this._dataSig) {
+        this._dataSig = dataSig;
+        this._form.data = data;
+      }
+
+      /* The schema only depends on these; the entity decides which arm modes
+         get a section, and the language decides every label. */
+      const stateObj = this._stateObj();
+      const schemaSig = [
+        this._lang(),
+        this._config.entity,
+        stateObj ? stateObj.attributes.supported_features : '',
+        this._alarmoIds ? this._alarmoIds.join(',') : ''
+      ].join('|');
+      if (schemaSig !== this._schemaSig) {
+        this._schemaSig = schemaSig;
+        this._form.schema = this._schema();
+      }
     }
 
     _computeLabel(schema) {

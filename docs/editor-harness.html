@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>alarmo-mushroom-card — editor harness</title>
+<!--
+  Not shipped. Exercises the visual editor's round-trip against a stand-in for
+  ha-form that copies Home Assistant's own semantics:
+
+    getValue  = obj ? (!item.name || item.flatten ? obj : obj[item.name]) : undefined
+    newValue  = !schema.name || schema.flatten ? value : { [schema.name]: value }
+
+  (src/components/ha-form/ha-form.ts). Those two lines are the whole reason a
+  named "keypad" section silently swallowed every switch inside it, so the
+  stand-in reproduces them exactly rather than approximating.
+-->
+<style>
+  body{margin:0;padding:24px;font-family:Roboto,-apple-system,sans-serif;background:#f4f5f7;color:#212121}
+  h1{font-size:16px;margin:0 0 16px}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start}
+  .panel{background:#fff;border:1px solid #e0e0e0;border-radius:12px;padding:16px}
+  fieldset{border:1px solid #e0e0e0;border-radius:8px;margin:0 0 12px;padding:10px}
+  legend{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:#727272}
+  label{display:flex;align-items:center;gap:8px;font-size:13px;margin:4px 0}
+  label > span{flex:1}
+  input[type=text],select,input[type=number]{flex:1;min-width:0;padding:4px 6px;font:inherit;font-size:13px}
+  pre{background:#1c1c1c;color:#e1e1e1;padding:12px;border-radius:8px;font-size:12px;overflow:auto;margin:0}
+  .log{font-size:12px;color:#727272;margin-top:8px}
+  .bad{color:#c62828;font-weight:600}
+  .good{color:#2e7d32;font-weight:600}
+</style>
+</head>
+<body>
+<h1>Editor harness — toggle something and watch the emitted config</h1>
+<div class="cols">
+  <div class="panel" id="editor-host"></div>
+  <div>
+    <div class="panel"><strong style="font-size:13px">config-changed payload</strong>
+      <pre id="out">(nothing yet)</pre>
+      <div class="log" id="verdict"></div>
+    </div>
+  </div>
+</div>
+
+<script src="../dist/alarmo-mushroom-card.js"></script>
+<script>
+/* --- ha-form stand-in, semantics copied from ha-form.ts --- */
+const getValue = (obj, item) =>
+  obj ? (!item.name || item.flatten ? obj : obj[item.name]) : undefined;
+
+class HaFormStub extends HTMLElement {
+  set schema(v){ this._schema = v; this._render(); }
+  set data(v){ this._data = v; this._render(); }
+  set hass(v){ this._hass = v; }
+  _label(item){
+    return (this.computeLabel && this.computeLabel(item)) || item.name || '';
+  }
+  _render(){
+    if (!this._schema || !this._data) return;
+    this.innerHTML = '';
+    this.appendChild(this._build(this._schema, this._data, (patch) => {
+      this._data = Object.assign({}, this._data, patch);
+      this.dispatchEvent(new CustomEvent('value-changed', {
+        detail: { value: this._data }, bubbles: true, composed: true
+      }));
+    }));
+  }
+  _build(schema, data, emit){
+    const frag = document.createDocumentFragment();
+    for (const item of schema) {
+      if (item.type === 'expandable' || item.type === 'grid') {
+        const value = getValue(data, item);
+        const box = document.createElement('fieldset');
+        if (item.type === 'expandable') {
+          const lg = document.createElement('legend');
+          lg.textContent = item.title || this._label(item);
+          box.appendChild(lg);
+        }
+        box.appendChild(this._build(item.schema, value || {}, (patch) => {
+          /* The line that mattered. */
+          emit(!item.name || item.flatten ? patch : { [item.name]: patch });
+        }));
+        frag.appendChild(box);
+        continue;
+      }
+      const sel = item.selector || {};
+      const row = document.createElement('label');
+      const text = document.createElement('span');
+      text.textContent = this._label(item);
+      const current = data ? data[item.name] : undefined;
+      let field;
+      if ('boolean' in sel) {
+        field = document.createElement('input');
+        field.type = 'checkbox';
+        field.checked = !!current;
+        field.dataset.name = item.name;
+        field.onchange = () => emit({ [item.name]: field.checked });
+      } else if ('select' in sel) {
+        field = document.createElement('select');
+        for (const o of sel.select.options) {
+          const opt = document.createElement('option');
+          opt.value = o.value; opt.textContent = o.label;
+          field.appendChild(opt);
+        }
+        if (current !== undefined) field.value = current;
+        field.onchange = () => emit({ [item.name]: field.value });
+      } else if ('number' in sel) {
+        field = document.createElement('input');
+        field.type = 'number';
+        field.step = sel.number.step || 1;
+        field.value = current === undefined ? '' : current;
+        field.onchange = () => emit({ [item.name]: Number(field.value) });
+      } else {
+        field = document.createElement('input');
+        field.type = 'text';
+        field.value = current === undefined ? '' : current;
+        field.onchange = () => emit({ [item.name]: field.value });
+      }
+      field.id = 'f-' + item.name;
+      row.appendChild(text); row.appendChild(field);
+      frag.appendChild(row);
+    }
+    return frag;
+  }
+}
+customElements.define('ha-form', HaFormStub);
+
+/* --- a fake hass, enough for the editor --- */
+const hass = {
+  states: {
+    'alarm_control_panel.alarmo': {
+      entity_id: 'alarm_control_panel.alarmo', state: 'disarmed',
+      attributes: { friendly_name: 'Alarmo', supported_features: 1 | 2 | 4 | 32 }
+    }
+  },
+  language: 'en', locale: { language: 'en' },
+  callWS: async (m) => m.type === 'alarmo/entities'
+    ? [{ area_id: 'home', entity_id: 'alarm_control_panel.alarmo' }] : {},
+  localize: () => ''
+};
+
+const editor = document.createElement('alarmo-mushroom-card-editor');
+document.getElementById('editor-host').appendChild(editor);
+editor.setConfig({ type: 'custom:alarmo-mushroom-card', entity: 'alarm_control_panel.alarmo' });
+editor.hass = hass;
+
+const out = document.getElementById('out');
+const verdict = document.getElementById('verdict');
+window.lastConfig = null;
+editor.addEventListener('config-changed', (ev) => {
+  window.lastConfig = ev.detail.config;
+  out.textContent = JSON.stringify(ev.detail.config, null, 2);
+  /* Home Assistant would now call setConfig with what came back; doing the
+     same here is what makes a value that fails to round-trip visibly snap
+     back, exactly as it does in a real dashboard. */
+  editor.setConfig(ev.detail.config);
+  const f = editor.querySelector('#f-hide_keypad');
+  if (f) {
+    const stuck = !!ev.detail.config.hide_keypad !== f.checked;
+    verdict.innerHTML = stuck
+      ? '<span class="bad">hide_keypad did not round-trip — the switch will snap back</span>'
+      : '<span class="good">hide_keypad round-trips correctly</span>';
+  }
+});
+</script>
+</body>
+</html>
