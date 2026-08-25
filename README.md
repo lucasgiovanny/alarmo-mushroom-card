@@ -116,6 +116,7 @@ More in [`examples/`](examples/).
 | `layout` | string | `default` | `default`, `horizontal`, `vertical` |
 | `fill_container` | boolean | `false` | Stretch to fill a grid or stack cell |
 | `icon_type` | string | `icon` | `icon` or `none` |
+| `button_content` | string | `icon_and_name` | What the mode buttons show: `icon_and_name`, `icon`, `name` |
 | `button_scale_actions` | number | `1` | 1.0 – 2.5 |
 | `button_scale_keypad` | number | `1` | 1.0 – 2.5 |
 | `hide_keypad` | boolean | `false` | Keep the code field, drop the digits |
@@ -141,7 +142,7 @@ States: `disarmed`, `arming`, `pending`, `triggered`, `armed_away`, `armed_home`
 | `color` | string | all | A Home Assistant colour name, an `r, g, b` triplet, or any CSS colour |
 | `button_label` | string | button states | Replaces the button text. Empty on every button gives an icon-only row |
 | `button_icon` | string | button states | Replaces the button icon |
-| `button_order` | number | button states | Ascending. Buttons with an order sort ahead of those without |
+| `button_order` | number | button states | Ascending. A button without one keeps its natural position, so `button_order: 9` on a single mode puts it ninth rather than first |
 | `hide` | string \| boolean | button states | `never`, `always`, `disarmed` (hidden while disarmed), `armed` (hidden while armed). `true`/`false` also accepted |
 
 An unknown key under `states` is reported as a config error rather than silently ignored — a

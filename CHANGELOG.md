@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.1.2 - 2026-08-25
+
+- Fixed every arm button being disabled, and the card therefore unusable, in a house with no
+  sensors configured in Alarmo. Alarmo starts `_ready_to_arm_modes` empty and only recomputes
+  it when a sensor changes state, so a house with no sensors reports `[]` forever — the same
+  answer it gives when every mode really is blocked. An empty list is now read as "unknown",
+  and `alarmo/sensors` supplies the count that tells the two apart
+- Fixed the code sheet closing the moment you pressed confirm, which put a rejected-code
+  message on the card behind it. The sheet now stays up until the backend answers, shakes and
+  says `Wrong code` in place, and closes only once the code is accepted
+- Fixed a second wrong code in a row not shaking, because re-adding a class an element
+  already carries does not restart its animation
+- Fixed `button_order` sending a button to the front instead of to the position its number
+  names. A button without an order now keeps its natural place instead of being pushed behind
+  every button that has one
+- Added `button_content` — the mode buttons can show `icon_and_name` (default), `icon`, or
+  `name`. Icon-only no longer has to be asked for by blanking every label
+- Changed the code sheet's keypad to a real keypad: keys sized for a thumb with a fill of
+  their own, backspace bottom-left, zero centre, and a green confirm bottom-right
+- Added `docs/options-harness.html`, which checks every option twice — that the visual editor
+  round-trips it, and that setting it visibly changes what the card renders
+
 ## 0.1.1 - 2026-08-25
 
 - Fixed every control inside a collapsible section of the visual editor silently

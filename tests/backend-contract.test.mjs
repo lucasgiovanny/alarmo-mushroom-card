@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { source, sliceBalanced, evaluate, ok } from './_extract.mjs';
+import { source, sliceBalanced, sliceFunction, evaluate, ok } from './_extract.mjs';
 
 /* This file is the tripwire for an Alarmo-side rename. Every string below is
    part of a contract with an integration this card does not ship, so a change
@@ -11,10 +11,11 @@ const WS = evaluate(sliceBalanced('const WS = Object.freeze(', '{', '}'));
 assert.deepEqual(WS, {
   entities: 'alarmo/entities',
   config: 'alarmo/config',
+  sensors: 'alarmo/sensors',
   countdown: 'alarmo/countdown',
   readyModes: 'alarmo/ready_to_arm_modes'
 });
-ok('the four websocket commands are unchanged');
+ok('the five websocket commands are unchanged');
 
 assert.match(source, /const EVENT_TOPIC = 'alarmo_updated'/);
 assert.match(source, /const DOMAIN = 'alarmo'/);
@@ -86,5 +87,20 @@ ok('the readiness dot is driven by the live event');
 assert.ok(/_loadReadyModes\(\) \{[\s\S]{0,1200}?catch[\s\S]{0,600}?this\._readyModes = null/.test(source),
   'a missing ready_to_arm_modes must degrade to no dot, not to no card');
 ok('an older Alarmo degrades gracefully');
+
+/* Alarmo initialises _ready_to_arm_modes to [] and only recomputes it when a
+   sensor changes state (custom_components/alarmo/sensors.py). A house with no
+   sensors configured therefore reports [] forever — the very same answer it
+   gives when every mode is genuinely blocked. Reading the two alike greyed out
+   every arm button in a house with nothing able to block it and, because a
+   blocked button is not clickable, left no way to arm at all. */
+const modeReady = sliceFunction('_modeReady');
+assert.ok(/!this\._readyModes\.length/.test(modeReady),
+  'an empty readiness list must be treated as unknown, not as "everything is blocked"');
+assert.ok(/_sensorCount/.test(modeReady),
+  'readiness is meaningless when Alarmo has no sensors, so the count has to gate it');
+assert.match(source, /type: WS\.sensors/,
+  'the sensor count comes from alarmo/sensors');
+ok('an empty readiness list cannot disable the card');
 
 console.log('backend-contract.test.mjs passed');

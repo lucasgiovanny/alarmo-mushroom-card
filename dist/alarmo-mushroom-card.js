@@ -15,7 +15,7 @@
 
   const CARD_TYPE = 'alarmo-mushroom-card';
   const EDITOR_TYPE = 'alarmo-mushroom-card-editor';
-  const CARD_VERSION = '0.1.1';
+  const CARD_VERSION = '0.1.2';
   const DOCS_URL = 'https://github.com/lucasgiovanny/alarmo-mushroom-card';
 
   /* ------------------------------------------------------------------ */
@@ -29,6 +29,7 @@
   const WS = Object.freeze({
     entities: 'alarmo/entities',
     config: 'alarmo/config',
+    sensors: 'alarmo/sensors',
     countdown: 'alarmo/countdown',
     readyModes: 'alarmo/ready_to_arm_modes'
   });
@@ -182,6 +183,9 @@
         color: 'Colour', button_order: 'Order',
         hide: 'Show this button', hide_never: 'Always', hide_always: 'Never',
         hide_disarmed: 'Only while armed', hide_armed: 'Only while disarmed',
+        button_content: 'Mode buttons show',
+        button_content_both: 'Icon and name',
+        button_content_icon: 'Icon only', button_content_name: 'Name only',
         section_state: 'State: {state}'
       }
     },
@@ -251,6 +255,9 @@
         color: 'Cor', button_order: 'Ordem',
         hide: 'Mostrar este botão', hide_never: 'Sempre', hide_always: 'Nunca',
         hide_disarmed: 'Só quando armado', hide_armed: 'Só quando desarmado',
+        button_content: 'Botões de modo mostram',
+        button_content_both: 'Ícone e nome',
+        button_content_icon: 'Só o ícone', button_content_name: 'Só o nome',
         section_state: 'Estado: {state}'
       }
     },
@@ -320,6 +327,9 @@
         color: 'Cor', button_order: 'Ordem',
         hide: 'Mostrar este botão', hide_never: 'Sempre', hide_always: 'Nunca',
         hide_disarmed: 'Só quando armado', hide_armed: 'Só quando desarmado',
+        button_content: 'Os botões de modo mostram',
+        button_content_both: 'Ícone e nome',
+        button_content_icon: 'Só o ícone', button_content_name: 'Só o nome',
         section_state: 'Estado: {state}'
       }
     },
@@ -389,6 +399,9 @@
         color: 'Color', button_order: 'Orden',
         hide: 'Mostrar este botón', hide_never: 'Siempre', hide_always: 'Nunca',
         hide_disarmed: 'Solo cuando está armado', hide_armed: 'Solo cuando está desarmado',
+        button_content: 'Los botones de modo muestran',
+        button_content_both: 'Icono y nombre',
+        button_content_icon: 'Solo el icono', button_content_name: 'Solo el nombre',
         section_state: 'Estado: {state}'
       }
     },
@@ -458,6 +471,9 @@
         color: 'Couleur', button_order: 'Ordre',
         hide: 'Afficher ce bouton', hide_never: 'Toujours', hide_always: 'Jamais',
         hide_disarmed: "Seulement quand c'est armé", hide_armed: "Seulement quand c'est désarmé",
+        button_content: 'Les boutons de mode affichent',
+        button_content_both: 'Icône et nom',
+        button_content_icon: 'Icône seule', button_content_name: 'Nom seul',
         section_state: 'État : {state}'
       }
     },
@@ -527,6 +543,9 @@
         color: 'Farbe', button_order: 'Reihenfolge',
         hide: 'Diese Schaltfläche zeigen', hide_never: 'Immer', hide_always: 'Nie',
         hide_disarmed: 'Nur wenn aktiviert', hide_armed: 'Nur wenn deaktiviert',
+        button_content: 'Modusschaltflächen zeigen',
+        button_content_both: 'Symbol und Name',
+        button_content_icon: 'Nur Symbol', button_content_name: 'Nur Name',
         section_state: 'Zustand: {state}'
       }
     },
@@ -596,6 +615,9 @@
         color: 'Colore', button_order: 'Ordine',
         hide: 'Mostra questo pulsante', hide_never: 'Sempre', hide_always: 'Mai',
         hide_disarmed: 'Solo quando è inserito', hide_armed: 'Solo quando è disinserito',
+        button_content: 'I pulsanti di modo mostrano',
+        button_content_both: 'Icona e nome',
+        button_content_icon: 'Solo icona', button_content_name: 'Solo nome',
         section_state: 'Stato: {state}'
       }
     }
@@ -1152,6 +1174,31 @@
       .sheet-panel{border-radius:var(--amc-card-radius);padding-bottom:var(--amc-control-spacing)}
     }
 
+    /* In the sheet the keypad is the whole point of the screen, so the keys
+       are sized for a thumb and given a fill of their own. At the card's own
+       5% tint they read as empty space with a number floating in it — fine
+       inside a dense card, wrong when the keypad is the only thing there. */
+    .sheet .keypad{
+      --amc-h:calc(60px * var(--amc-scale-keypad,1));
+      gap:12px;max-width:312px;
+    }
+    .sheet .keypad .control{
+      background-color:rgba(var(--amc-rgb-text),0.08);
+      font-size:var(--amc-h);
+    }
+    .sheet .keypad .control:hover{background-color:rgba(var(--amc-rgb-text),0.14)}
+    .sheet .keypad .control:active{background-color:rgba(var(--amc-rgb-text),0.2)}
+    .sheet .keypad .digit{font-size:calc(var(--amc-h) * 0.4);font-weight:500}
+    .sheet .keypad ha-icon{--mdc-icon-size:calc(var(--amc-h) * 0.42)}
+    /* Confirm reads as the way out, backspace as a correction — the one green,
+       the other quiet, so the two never get hit for each other. */
+    .key-submit{
+      background-color:rgba(var(--amc-rgb-success),0.2) !important;
+      color:rgb(var(--amc-rgb-success));
+    }
+    .key-submit:hover{background-color:rgba(var(--amc-rgb-success),0.28) !important}
+    .key-back{color:var(--secondary-text-color)}
+
     /* ---- messages ---- */
     .message{
       display:flex;align-items:center;gap:var(--amc-spacing);
@@ -1229,6 +1276,7 @@
     show_bypass_button: true,
     confirm_bypass: true,
     show_arm_options: true,
+    button_content: 'icon_and_name',
     max_sensor_chips: 6
   });
 
@@ -1256,6 +1304,9 @@
 
     if (!['default', 'horizontal', 'vertical'].includes(config.layout)) config.layout = 'default';
     if (!['icon', 'none'].includes(config.icon_type)) config.icon_type = 'icon';
+    if (!['icon_and_name', 'icon', 'name'].includes(config.button_content)) {
+      config.button_content = 'icon_and_name';
+    }
 
     /* States are rebuilt rather than passed through: a typo like
        states.armed_hom is silently accepted upstream and simply never applies,
@@ -1393,6 +1444,7 @@
       this._backendOk = null;   /* null = still handshaking */
       this._alarmoConfig = null;
       this._readyModes = null;
+      this._sensorCount = null;
       this._unsub = null;
       this._subscribing = false;
       this._code = '';
@@ -1454,6 +1506,7 @@
       this._backendOk = null;
       this._alarmoConfig = null;
       this._readyModes = null;
+      this._sensorCount = null;
       this._areaId = null;
       this._expanded = false;
       this._clearCode();
@@ -1593,6 +1646,14 @@
         }
         this._areaId = mine.area_id;
         this._alarmoConfig = await this._hass.callWS({ type: WS.config });
+        /* How many sensors Alarmo knows about at all. Without this the
+           readiness list below cannot be read — see _modeReady. */
+        try {
+          const sensors = await this._hass.callWS({ type: WS.sensors });
+          this._sensorCount = sensors ? Object.keys(sensors).length : 0;
+        } catch (error) {
+          this._sensorCount = null;
+        }
         this._backendOk = true;
       } catch (error) {
         this._backendOk = false;
@@ -1641,6 +1702,9 @@
         case 'disarm':
           this._clearPending();
           this._clearCode();
+          /* The code was accepted, so the sheet has nothing left to ask. */
+          this._sheetOpen = false;
+          this._sheetMode = null;
           break;
         case 'failed_to_arm':
           /* command arrives as "arm_away"; the service wants "armed_away". */
@@ -1704,6 +1768,7 @@
         this._noticeKind(),
         this._noticeSensors().map(function (s) { return s.id; }).join(','),
         this._expanded,
+        this._config.button_content,
         this._codeVisible() + ':' + this._keypadVisible(),
         this._sheetOpen,
         this._config.show_arm_options && state === 'disarmed'
@@ -1833,18 +1898,24 @@
         });
       }
 
-      /* Buttons carrying an explicit order sort ahead of those without, and
-         ties keep the declaration order above — a stable sort, so a partial
-         button_order in YAML only moves what it names. */
+      /* A button without an order keeps its natural position rather than being
+         pushed behind everything that has one. Setting button_order: 9 on a
+         single mode has to put it ninth — sorting every ordered item ahead of
+         every unordered one instead sent it to the front, which is the exact
+         opposite of what the number says. Where the visual editor has written
+         an order for every button the two rules agree. */
       return list
-        .map(function (item, index) { return { item: item, index: index }; })
+        .map(function (item, index) {
+          const raw = Number(item.order);
+          return {
+            item: item,
+            index: index,
+            key: (item.order !== undefined && isFinite(raw)) ? raw : index
+          };
+        })
         .sort(function (a, b) {
-          const ao = a.item.order, bo = b.item.order;
-          const aHas = ao !== undefined && !isNaN(ao);
-          const bHas = bo !== undefined && !isNaN(bo);
-          if (aHas && bHas && ao !== bo) return ao - bo;
-          if (aHas !== bHas) return aHas ? -1 : 1;
-          return a.index - b.index;
+          if (a.key !== b.key) return a.key - b.key;
+          return a.index - b.index;   /* stable: ties keep declaration order */
         })
         .map(function (w) { return w.item; });
     }
@@ -1853,18 +1924,22 @@
       const modes = this._visibleModes();
       if (!modes.length) return '';
       const horizontal = this._config.layout === 'horizontal';
-      /* Every label empty is how upstream asked for an icon-only row, and the
-         config keeps working here: square buttons, no text column.
-         Horizontal joins them by force — the hero, the name and four labelled
-         modes do not fit on one line, and letting them try pushed the last
-         button clean off the card. */
-      const iconOnly = horizontal || modes.every(function (m) { return !m.label; });
+      const content = this._config.button_content;
+      /* Every label empty is how upstream asked for an icon-only row, and that
+         config keeps working here. Horizontal joins them by force unless the
+         config says otherwise — the hero, the name and four labelled modes do
+         not fit on one line, and letting them try pushed the last button clean
+         off the card. */
+      const iconOnly = content === 'icon'
+        || (content === 'icon_and_name'
+            && (horizontal || modes.every(function (m) { return !m.label; })));
+      const nameOnly = content === 'name';
       const hug = horizontal ? ' hug' : '';
       const buttons = modes.map(function (m) {
         return [
           '<button class="control' + (iconOnly ? ' icon-only' : '') + '"',
           ' id="mode-' + esc(m.key) + '" data-act="mode" data-mode="' + esc(m.key) + '">',
-          '<ha-icon icon="' + esc(m.icon) + '"></ha-icon>',
+          nameOnly ? '' : '<ha-icon icon="' + esc(m.icon) + '"></ha-icon>',
           iconOnly ? '' : '<span class="label">' + esc(m.label) + '</span>',
           '<span class="badge" id="ready-' + esc(m.key) + '" hidden>',
           '<ha-icon icon="mdi:circle-medium"></ha-icon></span>',
@@ -2075,15 +2150,26 @@
       return '<div class="keypad">' + this._keysHtml() + '</div>';
     }
 
-    _keysHtml() {
-      const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'back'];
+    _keysHtml(withSubmit) {
+      /* The sheet gets the phone-keypad bottom row — backspace, zero, confirm —
+         so the commit key sits under the thumb on the right instead of hanging
+         off a fifth row on its own. Inline has no confirm: pressing a mode
+         button is what submits there. */
+      const keys = withSubmit
+        ? ['1', '2', '3', '4', '5', '6', '7', '8', '9', 'back', '0', 'submit']
+        : ['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'back'];
       return keys.map(function (key) {
         if (key === '') return '<button class="control blank" tabindex="-1"></button>';
+        if (key === 'submit') {
+          return '<button class="control key-submit" data-act="submit"'
+            + ' aria-label="' + esc(this._t('keypad.submit')) + '">'
+            + '<ha-icon icon="mdi:check"></ha-icon></button>';
+        }
         if (key === 'back') {
           /* Backspace, not clear-all. Upstream only offered clear, which after
              a mistyped fourth digit throws away three correct ones. Hold to
              wipe the whole code is kept for the people who want that. */
-          return '<button class="control" data-act="key" data-key="back"'
+          return '<button class="control key-back" data-act="key" data-key="back"'
             + ' aria-label="' + esc(this._t('keypad.backspace')) + '">'
             + '<ha-icon icon="mdi:backspace-outline"></ha-icon></button>';
         }
@@ -2104,10 +2190,7 @@
         '<div class="sheet-title">' + esc(this._t('keypad.enter_code')) + '</div>',
         '<div class="code"><div class="code-dots" id="sheet-dots"></div>',
         '<span class="code-hint" id="sheet-hint"></span></div>',
-        '<div class="keypad">' + this._keysHtml(),
-        '<button class="control" data-act="submit" aria-label="'
-          + esc(this._t('keypad.submit')) + '"><ha-icon icon="mdi:check"></ha-icon></button>',
-        '</div>',
+        '<div class="keypad">' + this._keysHtml(true) + '</div>',
         '</div></div>'
       ].join('');
     }
@@ -2325,7 +2408,16 @@
             if (i < this._code.length) dot.setAttribute('data-filled', '');
             else dot.removeAttribute('data-filled');
           }.bind(this));
-          dots.classList.toggle('shake', this._codeError);
+          /* Re-adding a class the element already carries does not restart
+             its animation, so the second wrong code in a row sat perfectly
+             still. Dropping the class and forcing a reflow rewinds it. */
+          if (this._codeError) {
+            dots.classList.remove('shake');
+            void dots.offsetWidth;
+            dots.classList.add('shake');
+          } else {
+            dots.classList.remove('shake');
+          }
         }
         const hintNode = this._q(prefix + '-hint');
         if (hintNode) {
@@ -2389,9 +2481,22 @@
       return stateObj.state;
     }
 
+    /* true = ready, false = blocked, null = do not know, say nothing.
+       Alarmo starts _ready_to_arm_modes as [] and only recomputes it when a
+       sensor changes state (sensors.py). A house with no sensors configured
+       therefore reports [] forever — the same answer it gives when every mode
+       really is blocked. Reading those two alike greyed out every arm button
+       in a house that had nothing capable of blocking it, and, because a
+       blocked button is not clickable, left no way to arm at all.
+
+       An empty list is treated as "unknown" for that reason: when everything
+       genuinely is blocked, letting the tap through costs one failed arm and
+       the panel then names the sensors, which is far better than a card that
+       cannot arm and will not say why. */
     _modeReady(mode) {
       if (!mode.arms) return null;
-      if (!Array.isArray(this._readyModes)) return null;
+      if (!Array.isArray(this._readyModes) || !this._readyModes.length) return null;
+      if (!this._sensorCount) return null;
       /* Alarmo reports readiness as full state names — 'armed_away', not
          'away'. Its own debug log strips the prefix, which is an easy way to
          end up matching against the short form and marking every mode
@@ -2678,12 +2783,15 @@
       this._paintCountdown();
     }
 
+    /* The sheet stays up until the backend answers. Closing it on submit put
+       the "wrong code" message on the card *behind* the sheet, where the
+       person who had just typed the code was not looking — from the front it
+       looked like nothing happened at all. It is closed from the arm/disarm
+       event instead, once the code is known to have been accepted. */
     _submitSheet() {
       const mode = this._sheetMode;
-      this._sheetOpen = false;
-      this._sheetMode = null;
-      if (mode) this._handleMode(mode);
-      else this._render();
+      if (!mode) { this._closeSheet(); return; }
+      this._handleMode(mode);
     }
 
     _closeSheet() {
@@ -2807,6 +2915,11 @@
           { name: 'fill_container', selector: { boolean: {} } }
         ] },
         { name: '', type: 'expandable', icon: 'mdi:gesture-tap-button', title: this._t('buttons'), schema: [
+          { name: 'button_content', selector: { select: { mode: 'dropdown', options: [
+            { value: 'icon_and_name', label: this._t('button_content_both') },
+            { value: 'icon', label: this._t('button_content_icon') },
+            { value: 'name', label: this._t('button_content_name') }
+          ] } } },
           { name: 'button_scale_actions', selector: {
             number: { min: MIN_SCALE, max: MAX_SCALE, step: 0.1, mode: 'slider' } } },
           { name: 'show_ready_indicator', selector: { boolean: {} } },

@@ -215,7 +215,8 @@ const CASES = [
   ['Horizontal layout', 'disarmed', {}, { config: { layout: 'horizontal' } }],
   ['Vertical layout', 'disarmed', {}, { config: { layout: 'vertical' } }],
   ['Narrow (250px)', 'disarmed', { open_sensors: openMap(['binary_sensor.front_door']) },
-    { failed: 'armed_away', narrow: true }]
+    { failed: 'armed_away', narrow: true }],
+  ['Code sheet', 'armed_away', {}, { keypad: true, sheet: true }]
 ];
 
 const grid = document.getElementById('grid');
@@ -236,7 +237,10 @@ for (const [title, state, attrs, opts] of CASES) {
   card._alarmoConfig = { code_arm_required: !!opts.keypad, code_disarm_required: !!opts.keypad,
     code_format: 'number' };
   card._readyModes = ['armed_home', 'armed_night'];
+  /* Readiness only means anything when Alarmo has sensors to block with. */
+  card._sensorCount = 7;
   if (opts.failed) card._pending = { mode: opts.failed, code: '', at: Date.now() };
+  if (opts.sheet) { card._sheetOpen = true; card._sheetMode = 'disarmed'; card._code = '12'; }
   card._shellSig = null;
   card._render();
   cell.appendChild(card);

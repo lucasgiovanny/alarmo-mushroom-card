@@ -95,6 +95,13 @@ states:
 Upstream accepted this and silently never applied it. This card reports it as a
 configuration error instead.
 
+## `button_order` counts from where the button already is
+
+Upstream sorted every button carrying an order ahead of every button without one, so
+`button_order: 9` on a single mode sent it to the *front*. Here a button without an order
+keeps its natural position, and 9 means ninth. Where the visual editor has written an order
+for every button — which is what upstream's editor always did — the two rules agree.
+
 ## No `button_order` in the visual editor yet
 
 Upstream's drag-to-reorder rewrote absolute indices into *every* state the first time you

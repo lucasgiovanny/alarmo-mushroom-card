@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>alarmo-mushroom-card — options matrix</title>
+<!--
+  Not shipped. Every card option is checked twice: that the visual editor
+  round-trips it, and that setting it visibly changes what the card renders.
+  An option that saves but does nothing is still a broken option.
+-->
+<style>
+ body{font-family:ui-monospace,Menlo,monospace;font-size:12px;margin:0;padding:16px;background:#111;color:#ddd}
+ .pass{color:#7bd88f}.fail{color:#ff6b6b}.head{color:#888;margin-top:12px}
+ #host{position:absolute;left:-9999px;top:0;width:360px}
+</style>
+</head>
+<body>
+<pre id="report">running…</pre>
+<div id="host"></div>
+<script src="../dist/alarmo-mushroom-card.js"></script>
+<script>
+/* ---- Home Assistant element stand-ins ---- */
+class HaIcon extends HTMLElement {}
+customElements.define('ha-icon', HaIcon);
+class HaCard extends HTMLElement {}
+customElements.define('ha-card', HaCard);
+
+/* ha-form stand-in, semantics copied from ha-form.ts */
+const getValue = (o, i) => o ? (!i.name || i.flatten ? o : o[i.name]) : undefined;
+class HaFormStub extends HTMLElement {
+  set schema(v){ this._schema = v; this._render(); }
+  set data(v){ this._data = v; this._render(); }
+  set hass(v){ this._hass = v; }
+  _render(){
+    if (!this._schema || !this._data) return;
+    this.innerHTML = '';
+    this.appendChild(this._build(this._schema, this._data, (p) => {
+      this._data = Object.assign({}, this._data, p);
+      this.dispatchEvent(new CustomEvent('value-changed',
+        { detail: { value: this._data }, bubbles: true, composed: true }));
+    }));
+  }
+  _build(schema, data, emit){
+    const f = document.createDocumentFragment();
+    for (const item of schema) {
+      if (item.type === 'expandable' || item.type === 'grid') {
+        f.appendChild(this._build(item.schema, getValue(data, item) || {},
+          (p) => emit(!item.name || item.flatten ? p : { [item.name]: p })));
+        continue;
+      }
+      const sel = item.selector || {};
+      const el = document.createElement('input');
+      el.id = 'f-' + item.name;
+      el.dataset.kind = 'boolean' in sel ? 'boolean' : ('number' in sel ? 'number' : 'text');
+      el.value = data[item.name] === undefined ? '' : data[item.name];
+      el.checked = !!data[item.name];
+      el.setValue = (v) => emit({ [item.name]: v });
+      f.appendChild(el);
+    }
+    return f;
+  }
+}
+customElements.define('ha-form', HaFormStub);
+
+/* ---- fake hass ---- */
+const SENSORS = {
+  'binary_sensor.s1': ['Front door','door','on'], 'binary_sensor.s2': ['Back door','door','on'],
+  'binary_sensor.s3': ['Window A','window','on'], 'binary_sensor.s4': ['Window B','window','on'],
+  'binary_sensor.s5': ['Window C','window','on'], 'binary_sensor.s6': ['Motion','motion','on'],
+  'binary_sensor.s7': ['Shed','door','on']
+};
+function hassFor(state, attrs, alarmo){
+  const states = { 'alarm_control_panel.alarmo': {
+    entity_id:'alarm_control_panel.alarmo', state, last_changed:new Date().toISOString(),
+    attributes: Object.assign({ friendly_name:'Alarmo', supported_features: 1|2|4|32 }, attrs||{}) } };
+  for (const id in SENSORS) states[id] = { entity_id:id, state:SENSORS[id][2],
+    attributes:{ friendly_name:SENSORS[id][0], device_class:SENSORS[id][1] } };
+  return { states, language:'en', locale:{language:'en'}, themes:{theme:'d',darkMode:false},
+    callWS: async () => ({}), callService: (d,s,p)=>window.__calls.push([d,s,p]),
+    connection:{subscribeMessage: async()=>()=>{}}, localize:()=>'' };
+}
+function card(config, state, attrs, alarmo, pending){
+  const c = document.createElement('alarmo-mushroom-card');
+  document.getElementById('host').appendChild(c);
+  c.setConfig(Object.assign({ type:'custom:alarmo-mushroom-card',
+    entity:'alarm_control_panel.alarmo' }, config));
+  c._backendOk = true; c._areaId = 'home';
+  c._alarmoConfig = Object.assign({ code_arm_required:false, code_disarm_required:false,
+    code_format:'number' }, alarmo||{});
+  c._sensorCount = (alarmo && alarmo.sensorCount !== undefined) ? alarmo.sensorCount : 7;
+  c._readyModes = (alarmo && alarmo.ready !== undefined) ? alarmo.ready : ['armed_home'];
+  if (pending) c._pending = { mode:pending, code:'', at:Date.now() };
+  c.hass = hassFor(state, attrs);
+  c._shellSig = null; c._render();
+  return c;
+}
+const q = (c,s) => c.shadowRoot.querySelector(s);
+const openN = (n) => Object.keys(SENSORS).slice(0,n).reduce((a,i)=>(a[i]='on',a),{});
+
+/* ---- editor round-trip ---- */
+function roundTrip(key, value){
+  const ed = document.createElement('alarmo-mushroom-card-editor');
+  document.getElementById('host').appendChild(ed);
+  ed.setConfig({ type:'custom:alarmo-mushroom-card', entity:'alarm_control_panel.alarmo' });
+  ed.hass = hassFor('disarmed', {});
+  let emitted = null;
+  ed.addEventListener('config-changed', e => { emitted = e.detail.config; });
+  const f = ed.querySelector('#f-' + key);
+  if (!f) return 'no field in editor';
+  f.setValue(value);
+  ed.remove();
+  if (!emitted) return 'emitted nothing';
+  const got = key.includes('__')
+    ? (emitted.states || {})[key.split('__')[0]] &&
+      (emitted.states || {})[key.split('__')[0]][key.split('__')[1]]
+    : emitted[key];
+  if (String(got) !== String(value)) return 'emitted ' + JSON.stringify(emitted);
+  return true;
+}
+
+/* ---- the matrix ---- */
+window.__calls = [];
+const CASES = [
+  ['name', 'Casa', c => q(card({name:'Casa'},'disarmed',{}),'#primary').textContent === 'Casa'],
+  ['language','pt-br', c => q(card({language:'pt-br'},'disarmed',{}),'#secondary').textContent === 'Desarmado'],
+  ['layout','horizontal', () => !!q(card({layout:'horizontal'},'disarmed',{}),'.hrow')],
+  ['layout','vertical', () => !!q(card({layout:'vertical'},'disarmed',{}),'.state-item.vertical')],
+  ['fill_container',true, () => !!q(card({fill_container:true},'disarmed',{}),'ha-card.fill')],
+  ['icon_type','none', () => !q(card({icon_type:'none'},'disarmed',{}),'#hero-shape')],
+  ['button_content','icon', () => !q(card({button_content:'icon'},'disarmed',{}),'#mode-armed_away .label')],
+  ['button_content','name', () => { const b=q(card({button_content:'name'},'disarmed',{}),'#mode-armed_away');
+      /* The readiness badge carries an ha-icon of its own, so only the
+         button's direct children answer "is the mode icon drawn?" */
+      return [...b.children].filter(n=>n.tagName==='HA-ICON').length===0; }],
+  ['button_scale_actions',2, () => card({button_scale_actions:2},'disarmed',{}).style.getPropertyValue('--amc-scale-actions')==='2'],
+  ['button_scale_keypad',2, () => card({button_scale_keypad:2},'disarmed',{}).style.getPropertyValue('--amc-scale-keypad')==='2'],
+  ['hide_keypad',true, () => { const c=card({hide_keypad:true},'disarmed',{},{code_arm_required:true});
+      return !q(c,'.keypad') && !!q(c,'.code'); }],
+  ['keep_keypad_visible',true, () => !!q(card({keep_keypad_visible:true},'disarmed',{}),'.keypad')],
+  ['use_code_dialog',true, () => { const c=card({use_code_dialog:true},'disarmed',{},{code_arm_required:true});
+      if (q(c,'.code')) return 'inline code still drawn';
+      q(c,'#mode-armed_away').click();
+      return !!q(c,'.sheet') || 'sheet did not open'; }],
+  ['show_messages',false, () => { const c=card({show_messages:false},'disarmed',{open_sensors:openN(2)},null,'armed_away');
+      return q(c,'.notice').hasAttribute('data-quiet'); }],
+  ['show_bypass_button',false, () => !q(card({show_bypass_button:false},'disarmed',{open_sensors:openN(2)},null,'armed_away'),'#bypass')],
+  ['confirm_bypass',false, () => { window.__calls=[];
+      const c=card({confirm_bypass:false},'disarmed',{open_sensors:openN(2)},null,'armed_away');
+      q(c,'#bypass').click();
+      return window.__calls.length===1 && window.__calls[0][2].force===true || 'no service call: '+JSON.stringify(window.__calls); }],
+  ['show_ready_indicator',false, () => q(card({show_ready_indicator:false},'disarmed',{},{ready:['armed_home']}),'#ready-armed_away').hasAttribute('hidden')],
+  ['show_bypassed_sensors',false, () => !q(card({show_bypassed_sensors:false},'armed_away',{bypassed_sensors:['binary_sensor.s1']}),'.notice')],
+  ['show_arm_options',false, () => !q(card({show_arm_options:false},'disarmed',{}),'.arm-options')],
+  ['max_sensor_chips',2, () => { const c=card({max_sensor_chips:2},'disarmed',{open_sensors:openN(7)},null,'armed_away');
+      return c.shadowRoot.querySelectorAll('.chip:not(.more)').length===2 && !!q(c,'.chip.more'); }],
+  ['armed_away__button_label','Fora', () => q(card({states:{armed_away:{button_label:'Fora'}}},'disarmed',{}),'#mode-armed_away .label').textContent==='Fora'],
+  ['armed_away__button_icon','mdi:car', () => q(card({states:{armed_away:{button_icon:'mdi:car'}}},'disarmed',{}),'#mode-armed_away ha-icon').getAttribute('icon')==='mdi:car'],
+  ['armed_home__hide','always', () => !q(card({states:{armed_home:{hide:'always'}}},'disarmed',{}),'#mode-armed_home')],
+  ['disarmed__color','red', () => card({states:{disarmed:{color:'red'}}},'disarmed',{}).style.getPropertyValue('--amc-state-rgb').includes('red')],
+  ['triggered__state_label','Intruso', () => q(card({states:{triggered:{state_label:'Intruso'}}},'triggered',{}),'#secondary').textContent==='Intruso'],
+  ['armed_away__button_order',9, () => { const c=card({states:{armed_away:{button_order:9}}},'disarmed',{});
+      const ids=[...c.shadowRoot.querySelectorAll('.button-group .control')].map(b=>b.id);
+      return ids[ids.length-1]==='mode-armed_away' || ids.join(','); }]
+];
+
+const lines = [];
+let pass = 0, fail = 0;
+lines.push('OPTION'.padEnd(28) + 'EDITOR'.padEnd(10) + 'CARD EFFECT');
+for (const [key, value, effect] of CASES) {
+  let ed;
+  try { ed = roundTrip(key, value); } catch (e) { ed = 'threw: ' + e.message; }
+  let fx;
+  try { fx = effect(); } catch (e) { fx = 'threw: ' + e.message; }
+  const edOk = ed === true, fxOk = fx === true;
+  if (edOk && fxOk) pass++; else fail++;
+  lines.push(
+    (key + '=' + JSON.stringify(value)).padEnd(28) +
+    (edOk ? 'ok' : 'FAIL').padEnd(10) +
+    (fxOk ? 'ok' : 'FAIL') +
+    (edOk ? '' : '\n    editor: ' + ed) +
+    (fxOk ? '' : '\n    card:   ' + fx));
+}
+lines.push('');
+lines.push(pass + ' passed, ' + fail + ' failed');
+window.__report = { pass, fail, text: lines.join('\n') };
+document.getElementById('report').textContent = lines.join('\n');
+</script>
+</body>
+</html>
