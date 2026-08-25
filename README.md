@@ -29,7 +29,8 @@ actually read.
   armed *right now* — computed from Alarmo's sensor config and the live entity states, not
   from the aftermath of a failed attempt. The blocking sensors are chips naming the room each
   one is in — *Window* alone says nothing in a house with four of them — which you can scroll
-  and tap to open more-info, and which disappear as you shut the doors
+  and tap to open more-info, and which disappear as you shut the doors. However many there
+  are, the row scrolls rather than hiding any of them
 - A mode that cannot be armed is locked rather than left to fail, and the way past it is a
   key: *Arm anyway* puts every blocked mode back on the row, and the one you then choose is
   the one that arms — two deliberate taps naming exactly what happens, with no guessing
@@ -145,10 +146,10 @@ More in [`examples/`](examples/).
 | `show_bypass_button` | boolean | `true` | Show the arm-anyway key |
 | `blocked_modes` | string | `disable` | What a mode that cannot be armed looks like: `disable` (drawn unavailable) or `hide` (taken off the row) |
 | `show_ready_notice` | boolean | `true` | Show the panel once every blocking sensor has closed again |
+| `show_sensor_count` | boolean | `true` | Show how many sensors are open, beside the headline |
 | `show_ready_indicator` | boolean | `true` | Readiness dot on each arm button |
 | `show_bypassed_sensors` | boolean | `true` | Show bypassed sensors while armed |
 | `show_skip_delay_option` | boolean | `true` | The no-delay shortcut while disarmed |
-| `max_sensor_chips` | number | `6` | Chips shown before `+N more` |
 | `states` | object | `{}` | Per-state overrides, below |
 
 ### `states.<state>`

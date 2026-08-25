@@ -234,8 +234,14 @@ const CASES = [
   [null,'an empty shortcut row is not drawn', () => {
       const c=card({show_skip_delay_option:false,show_bypass_button:false},'disarmed',{});
       return !q(c,'.arm-options') || 'a row with nothing in it should not exist'; }],
-  ['max_sensor_chips',2, () => { const c=card({max_sensor_chips:2},'disarmed',{},null,'armed_away');
-      return c.shadowRoot.querySelectorAll('.chip:not(.more)').length===2 && !!q(c,'.chip.more'); }],
+  ['show_sensor_count',false, () => { const c=card({show_sensor_count:false},'disarmed',{});
+      const n=q(c,'#notice-count');
+      return (n && n.hasAttribute('hidden')) || 'the count must be hideable'; }],
+  [null,'every open sensor gets a chip, and the row scrolls', () => {
+      const c=card({},'disarmed',{});
+      const chips=c.shadowRoot.querySelectorAll('.chip').length;
+      const row=q(c,'.notice-chips');
+      return (chips===7 && !!row) || 'expected one chip per open sensor, got ' + chips; }],
   ['armed_away__button_label','Fora', () => q(card({states:{armed_away:{button_label:'Fora'}}},'disarmed',{}),'#mode-armed_away .label').textContent==='Fora'],
   ['armed_away__button_icon','mdi:car', () => q(card({states:{armed_away:{button_icon:'mdi:car'}}},'disarmed',{}),'#mode-armed_away ha-icon').getAttribute('icon')==='mdi:car'],
   ['armed_home__hide','always', () => !q(card({states:{armed_home:{hide:'always'}}},'disarmed',{}),'#mode-armed_home')],

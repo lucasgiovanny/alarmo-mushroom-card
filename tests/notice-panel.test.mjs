@@ -21,11 +21,15 @@ ok('the key is independent of show_messages');
    performing one, so they read as one row of the same shape. */
 assert.match(armOptions, /class="opt bypass"/,
   'the key takes the same chip shape as the shortcut beside it');
-has(/\.opt\.bypass\{[^}]*rgba\(var\(--amc-rgb-warning\),0\.16\)/,
-  'and keeps the warning colour: a neutral chip beside an amber panel reads as '
-  + 'unrelated to it');
-has(/\.opt\.bypass\[data-on\]\{/, 'turned, it has to look turned');
-ok('the key is a chip in the warning colour');
+/* Both set aside something the alarm would otherwise insist on, so they share
+   one colour and one way of looking turned. */
+assert.ok(!/\.opt\.bypass\{/.test(source),
+  'the key must not carry a colour of its own');
+has(/\.opt\[data-on\]\{[^}]*rgba\(var\(--amc-rgb-warning\),0\.2\)/,
+  'turned is the warning colour, for both chips alike');
+has(/\.opt\[data-on\]\{[^}]*box-shadow:inset 0 0 0 1px/,
+  'and carries a ring, so turned reads as turned rather than merely tinted');
+ok('the two chips share one shape, one colour and one selected state');
 
 has(/\.notice\[data-quiet\] \.notice-chips\{display:none\}/,
   'show_messages:false must hide the sensor list and nothing else');
@@ -81,11 +85,17 @@ ok('cleared and missing sensors have their own treatment');
 
 /* ---- overflow ---- */
 
-has(/\.notice-chips\{[^}]*overflow-x:auto/, 'the chip row must scroll rather than grow the card');
-has(/max_sensor_chips/, 'the visible chip count must be bounded');
+has(/\.notice-chips\{[^}]*overflow-x:auto/,
+  'the chip row must scroll rather than grow the card, and scrolling is what '
+  + 'replaced capping the list: a cap put sensors behind a number that had to '
+  + 'be tapped before it would say which ones they were');
+assert.ok(!/max_sensor_chips: \d/.test(source), 'the cap must not linger as a default');
+assert.match(source, /delete config\.max_sensor_chips/,
+  'a config still naming the cap must load without erroring');
 has(/id="notice-count"/,
   'the total must survive the chips scrolling out of view, or "3 of 7" reads as "3"');
-ok('the chip row is bounded and always reports the true total');
+assert.match(source, /show_sensor_count/, 'and showing it at all is a choice');
+ok('the chip row scrolls, and the total is optional');
 
 /* ---- one force-arm path ---- */
 

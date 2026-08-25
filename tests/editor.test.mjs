@@ -105,14 +105,14 @@ const noticeNames = (config) =>
   noticesSchema.call({ _config: config, _t: (k) => k }).map((f) => f.name);
 
 assert.deepEqual(noticeNames({ show_messages: true }),
-  ['show_messages', 'max_sensor_chips', 'show_ready_notice', 'show_bypass_button',
+  ['show_messages', 'show_sensor_count', 'show_ready_notice', 'show_bypass_button',
    'blocked_modes', 'show_bypassed_sensors'],
-  'read top to bottom: what to show, how much, the all-clear, the way past a '
+  'read top to bottom: what to show, how many, the all-clear, the way past a '
   + 'blocked sensor, what a blocked mode looks like, the armed case');
 ok('the open-sensor section reads in order');
 
-assert.ok(!noticeNames({ show_messages: false }).includes('max_sensor_chips'),
-  'nothing is listed, so there is no length to cap');
+assert.ok(!noticeNames({ show_messages: false }).includes('show_sensor_count'),
+  'nothing is listed, so there is no count beside the list');
 assert.deepEqual(noticeNames({ show_messages: false }),
   ['show_messages', 'show_ready_notice', 'show_bypass_button', 'blocked_modes',
    'show_bypassed_sensors']);

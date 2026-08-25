@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.12 - 2026-08-25
+
+- Added `show_sensor_count`, for hiding the number beside the headline
+- Removed `max_sensor_chips` and the `+N more` chip it produced. Every open sensor gets a chip
+  now and the row scrolls, because capping the list put sensors behind a number that had to be
+  tapped before it would say which ones they were — which is the one question the panel exists
+  to answer. A config still naming the cap loads without complaint
+- Changed the *Arm anyway* key to share the shortcut chip's colour exactly: both are neutral
+  while off and take the warning colour with a ring while on. They set aside the same kind of
+  thing, so they look the same doing it
+
 ## 0.1.11 - 2026-08-25
 
 - Changed the *Arm anyway* key from a full-width button into a chip beside *Arm without

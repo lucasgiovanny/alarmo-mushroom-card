@@ -118,8 +118,9 @@ ok('a real upstream config normalizes without loss');
 
 for (const [key, value] of Object.entries({
   layout: 'default', fill_container: false, icon_type: 'icon',
-  show_bypass_button: true, show_ready_notice: true, blocked_modes: 'disable',
-  show_skip_delay_option: true, button_content: 'icon_and_name'
+  show_bypass_button: true, show_ready_notice: true, show_sensor_count: true,
+  blocked_modes: 'disable', show_skip_delay_option: true,
+  button_content: 'icon_and_name'
 })) {
   assert.equal(DEFAULTS[key], value, `${key} must default to ${value}`);
 }
@@ -143,6 +144,9 @@ assert.equal(normalizeConfig({ ...base, show_force_option: false }).show_force_o
 assert.doesNotThrow(() => normalizeConfig({ ...base, confirm_bypass: false }));
 assert.equal(normalizeConfig({ ...base, confirm_bypass: false }).confirm_bypass, undefined,
   'the retired confirm step must not linger in the config the card reads');
+assert.doesNotThrow(() => normalizeConfig({ ...base, max_sensor_chips: 4 }));
+assert.equal(normalizeConfig({ ...base, max_sensor_chips: 4 }).max_sensor_chips, undefined,
+  'the retired cap must not linger: the row scrolls instead');
 assert.equal(normalizeConfig({ ...base, blocked_modes: 'nonsense' }).blocked_modes, 'disable',
   'an unknown blocked_modes falls back rather than drawing nothing');
 assert.doesNotThrow(() => normalizeConfig({ ...base, language: 'pt-br' }));

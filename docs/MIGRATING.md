@@ -56,6 +56,12 @@ complaint; the option simply does nothing.
 A not-ready arm button is tappable again as a consequence — with no pre-emptive bypass, a
 blocked button meant the arm could not fail, so the bypass button never appeared.
 
+## The open-sensor list is not capped
+
+`max_sensor_chips` is gone. Every open sensor gets a chip and the row scrolls; capping it put
+sensors behind a number you had to tap before it would say which ones they were. A leftover
+`max_sensor_chips:` is ignored rather than an error.
+
 ## The card follows Home Assistant's language
 
 The per-card `language` option is removed. A leftover `language:` in a config is ignored

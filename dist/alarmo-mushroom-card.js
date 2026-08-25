@@ -15,7 +15,7 @@
 
   const CARD_TYPE = 'alarmo-mushroom-card';
   const EDITOR_TYPE = 'alarmo-mushroom-card-editor';
-  const CARD_VERSION = '0.1.11';
+  const CARD_VERSION = '0.1.12';
   const DOCS_URL = 'https://github.com/lucasgiovanny/alarmo-mushroom-card';
 
   /* ------------------------------------------------------------------ */
@@ -155,7 +155,7 @@
         sensor_open: 'Open', sensor_closed: 'Closed', sensor_bypassed: 'Bypassed',
         sensor_missing: 'No longer in Home Assistant',
         action_bypass: 'Arm anyway', action_bypass_on: 'Sensors bypassed',
-        action_retry: 'Arm now', more: '+{n} more'
+        action_retry: 'Arm now'
       },
       sheet: {
         arming: 'Arming {name} · {mode}', disarming: 'Disarming {name}',
@@ -185,11 +185,11 @@
         show_messages: 'List which sensors are open',
         show_messages_help: 'Without it the panel still says the alarm cannot be armed, but not what is in the way. The bypass button has a setting of its own.',
         show_bypass_button: 'Show the arm-anyway button',
+        show_sensor_count: 'Show how many are open',
         show_ready_notice: 'Show the panel when everything is closed',
         blocked_modes: 'Modes that cannot be armed',
         blocked_disable: 'Draw them as unavailable', blocked_hide: 'Take them off the row',
         show_bypassed_sensors: 'List the bypassed sensors while armed',
-        max_sensor_chips: 'Sensors listed before “+N more”',
         state_label: 'State label', button_label: 'Button label', button_icon: 'Button icon',
         color: 'Colour', button_order: 'Order',
         hide: 'Show this button', hide_never: 'Always', hide_always: 'Never',
@@ -233,7 +233,7 @@
         sensor_open: 'Aberto', sensor_closed: 'Fechado', sensor_bypassed: 'Ignorado',
         sensor_missing: 'Não existe mais no Home Assistant',
         action_bypass: 'Armar mesmo assim', action_bypass_on: 'Sensores ignorados',
-        action_retry: 'Armar agora', more: 'mais {n}'
+        action_retry: 'Armar agora'
       },
       sheet: {
         arming: 'Armando {name} · {mode}', disarming: 'Desarmando {name}',
@@ -263,11 +263,11 @@
         show_messages: 'Listar quais sensores estão abertos',
         show_messages_help: 'Sem isso o aviso continua dizendo que o alarme não pode ser armado, mas não o que está no caminho. O botão de armar mesmo assim tem opção própria.',
         show_bypass_button: 'Mostrar o botão de armar mesmo assim',
+        show_sensor_count: 'Mostrar quantos estão abertos',
         show_ready_notice: 'Mostrar o aviso quando estiver tudo fechado',
         blocked_modes: 'Modos que não podem ser armados',
         blocked_disable: 'Deixar como indisponíveis', blocked_hide: 'Tirar da lista',
         show_bypassed_sensors: 'Listar os sensores ignorados enquanto armado',
-        max_sensor_chips: 'Sensores listados antes de “mais N”',
         state_label: 'Rótulo do estado', button_label: 'Rótulo do botão', button_icon: 'Ícone do botão',
         color: 'Cor', button_order: 'Ordem',
         hide: 'Mostrar este botão', hide_never: 'Sempre', hide_always: 'Nunca',
@@ -311,7 +311,7 @@
         sensor_open: 'Aberto', sensor_closed: 'Fechado', sensor_bypassed: 'Ignorado',
         sensor_missing: 'Já não existe no Home Assistant',
         action_bypass: 'Armar mesmo assim', action_bypass_on: 'Sensores ignorados',
-        action_retry: 'Armar agora', more: 'mais {n}'
+        action_retry: 'Armar agora'
       },
       sheet: {
         arming: 'A armar {name} · {mode}', disarming: 'A desarmar {name}',
@@ -341,11 +341,11 @@
         show_messages: 'Listar que sensores estão abertos',
         show_messages_help: 'Sem isso o aviso continua a dizer que o alarme não pode ser armado, mas não o que está no caminho. O botão de armar mesmo assim tem opção própria.',
         show_bypass_button: 'Mostrar o botão de armar mesmo assim',
+        show_sensor_count: 'Mostrar quantos estão abertos',
         show_ready_notice: 'Mostrar o aviso quando estiver tudo fechado',
         blocked_modes: 'Modos que não podem ser armados',
         blocked_disable: 'Deixar como indisponíveis', blocked_hide: 'Retirar da lista',
         show_bypassed_sensors: 'Listar os sensores ignorados enquanto armado',
-        max_sensor_chips: 'Sensores listados antes de “mais N”',
         state_label: 'Rótulo do estado', button_label: 'Rótulo do botão', button_icon: 'Ícone do botão',
         color: 'Cor', button_order: 'Ordem',
         hide: 'Mostrar este botão', hide_never: 'Sempre', hide_always: 'Nunca',
@@ -389,7 +389,7 @@
         sensor_open: 'Abierto', sensor_closed: 'Cerrado', sensor_bypassed: 'Omitido',
         sensor_missing: 'Ya no existe en Home Assistant',
         action_bypass: 'Armar de todos modos', action_bypass_on: 'Sensores omitidos',
-        action_retry: 'Armar ahora', more: '+{n} más'
+        action_retry: 'Armar ahora'
       },
       sheet: {
         arming: 'Armando {name} · {mode}', disarming: 'Desarmando {name}',
@@ -419,11 +419,11 @@
         show_messages: 'Listar qué sensores están abiertos',
         show_messages_help: 'Sin esto el aviso sigue diciendo que la alarma no se puede armar, pero no qué lo impide. El botón de armar igualmente tiene su propia opción.',
         show_bypass_button: 'Mostrar el botón de armar igualmente',
+        show_sensor_count: 'Mostrar cuántos están abiertos',
         show_ready_notice: 'Mostrar el aviso cuando todo esté cerrado',
         blocked_modes: 'Modos que no se pueden armar',
         blocked_disable: 'Dejarlos como no disponibles', blocked_hide: 'Quitarlos de la fila',
         show_bypassed_sensors: 'Listar los sensores omitidos mientras está armada',
-        max_sensor_chips: 'Sensores listados antes de “+N más”',
         state_label: 'Etiqueta del estado', button_label: 'Etiqueta del botón', button_icon: 'Icono del botón',
         color: 'Color', button_order: 'Orden',
         hide: 'Mostrar este botón', hide_never: 'Siempre', hide_always: 'Nunca',
@@ -467,7 +467,7 @@
         sensor_open: 'Ouvert', sensor_closed: 'Fermé', sensor_bypassed: 'Ignoré',
         sensor_missing: "N'existe plus dans Home Assistant",
         action_bypass: 'Armer quand même', action_bypass_on: 'Capteurs ignorés',
-        action_retry: 'Armer maintenant', more: '+{n} autres'
+        action_retry: 'Armer maintenant'
       },
       sheet: {
         arming: 'Armement de {name} · {mode}', disarming: 'Désarmement de {name}',
@@ -497,11 +497,11 @@
         show_messages: 'Lister les capteurs ouverts',
         show_messages_help: "Sans cela le bandeau dit toujours que l'alarme ne peut pas être armée, mais pas ce qui l'en empêche. Le bouton d'armer quand même a son propre réglage.",
         show_bypass_button: "Afficher le bouton d'armer quand même",
+        show_sensor_count: 'Afficher combien sont ouverts',
         show_ready_notice: 'Afficher le bandeau une fois tout refermé',
         blocked_modes: 'Modes qui ne peuvent pas être armés',
         blocked_disable: 'Les montrer indisponibles', blocked_hide: 'Les retirer de la rangée',
         show_bypassed_sensors: 'Lister les capteurs ignorés une fois armé',
-        max_sensor_chips: 'Capteurs listés avant « +N autres »',
         state_label: "Libellé de l'état", button_label: 'Libellé du bouton', button_icon: 'Icône du bouton',
         color: 'Couleur', button_order: 'Ordre',
         hide: 'Afficher ce bouton', hide_never: 'Toujours', hide_always: 'Jamais',
@@ -545,7 +545,7 @@
         sensor_open: 'Offen', sensor_closed: 'Geschlossen', sensor_bypassed: 'Übergangen',
         sensor_missing: 'Existiert nicht mehr in Home Assistant',
         action_bypass: 'Trotzdem aktivieren', action_bypass_on: 'Sensoren übergangen',
-        action_retry: 'Jetzt aktivieren', more: '+{n} weitere'
+        action_retry: 'Jetzt aktivieren'
       },
       sheet: {
         arming: '{name} wird aktiviert · {mode}', disarming: '{name} wird deaktiviert',
@@ -575,11 +575,11 @@
         show_messages: 'Auflisten, welche Sensoren offen sind',
         show_messages_help: 'Ohne dies sagt der Hinweis weiter, dass der Alarm nicht aktiviert werden kann, aber nicht, was im Weg ist. Die Schaltfläche hat eine eigene Einstellung.',
         show_bypass_button: 'Schaltfläche „trotzdem aktivieren“ anzeigen',
+        show_sensor_count: 'Anzeigen, wie viele offen sind',
         show_ready_notice: 'Hinweis anzeigen, sobald wieder alles zu ist',
         blocked_modes: 'Modi, die nicht aktiviert werden können',
         blocked_disable: 'Als nicht verfügbar zeigen', blocked_hide: 'Aus der Reihe nehmen',
         show_bypassed_sensors: 'Übergangene Sensoren im aktivierten Zustand auflisten',
-        max_sensor_chips: 'Sensoren vor „+N weitere“',
         state_label: 'Zustandsbezeichnung', button_label: 'Schaltflächentext', button_icon: 'Schaltflächensymbol',
         color: 'Farbe', button_order: 'Reihenfolge',
         hide: 'Diese Schaltfläche zeigen', hide_never: 'Immer', hide_always: 'Nie',
@@ -623,7 +623,7 @@
         sensor_open: 'Aperto', sensor_closed: 'Chiuso', sensor_bypassed: 'Escluso',
         sensor_missing: 'Non esiste più in Home Assistant',
         action_bypass: 'Inserisci comunque', action_bypass_on: 'Sensori esclusi',
-        action_retry: 'Inserisci ora', more: '+{n} altri'
+        action_retry: 'Inserisci ora'
       },
       sheet: {
         arming: 'Inserimento di {name} · {mode}', disarming: 'Disinserimento di {name}',
@@ -653,11 +653,11 @@
         show_messages: 'Elencare quali sensori sono aperti',
         show_messages_help: "Senza questo l'avviso continua a dire che l'allarme non può essere inserito, ma non che cosa lo impedisce. Il pulsante ha un'opzione sua.",
         show_bypass_button: 'Mostrare il pulsante per inserire comunque',
+        show_sensor_count: 'Mostrare quanti sono aperti',
         show_ready_notice: "Mostrare l'avviso quando è di nuovo tutto chiuso",
         blocked_modes: 'Modi che non possono essere inseriti',
         blocked_disable: 'Mostrarli non disponibili', blocked_hide: 'Toglierli dalla riga',
         show_bypassed_sensors: 'Elencare i sensori esclusi mentre è inserito',
-        max_sensor_chips: 'Sensori elencati prima di “+N altri”',
         state_label: 'Etichetta dello stato', button_label: 'Etichetta del pulsante', button_icon: 'Icona del pulsante',
         color: 'Colore', button_order: 'Ordine',
         hide: 'Mostra questo pulsante', hide_never: 'Sempre', hide_always: 'Mai',
@@ -1147,25 +1147,18 @@
       -webkit-tap-highlight-color:transparent;
     }
     .opt ha-icon{--mdc-icon-size:18px;flex:none;display:flex}
+    /* Both chips set aside something the alarm would otherwise insist on, so
+       they are one shape, one colour, and one way of looking turned: neutral
+       while off, and the warning colour with a ring while on. Turned deepens
+       the tint rather than going solid — a solid fill needs a foreground
+       colour no Home Assistant theme defines, and every fixed guess failed
+       contrast in one mode or the other. */
     .opt[data-on]{
       background-color:rgba(var(--amc-rgb-warning),0.2);
       color:rgb(var(--amc-rgb-warning));
+      box-shadow:inset 0 0 0 1px rgba(var(--amc-rgb-warning),0.45);
     }
-    /* The key wears the warning colour whether or not it is turned: what it
-       sets aside is a warning, and a neutral chip beside an amber panel reads
-       as unrelated to it. Turned, it deepens and gains a ring rather than
-       going solid — a solid fill needs a foreground colour no Home Assistant
-       theme defines, and every fixed guess failed contrast in one mode or the
-       other. */
-    .opt.bypass{
-      background-color:rgba(var(--amc-rgb-warning),0.16);
-      color:rgb(var(--amc-rgb-warning));
-    }
-    .opt.bypass:hover{background-color:rgba(var(--amc-rgb-warning),0.24)}
-    .opt.bypass[data-on]{
-      background-color:rgba(var(--amc-rgb-warning),0.34);
-      box-shadow:inset 0 0 0 1px rgba(var(--amc-rgb-warning),0.5);
-    }
+    .opt[data-on]:hover{background-color:rgba(var(--amc-rgb-warning),0.28)}
 
     /* ---- code entry ---- */
     .code{
@@ -1345,11 +1338,11 @@
     icon_type: 'icon',
     show_bypass_button: true,
     show_ready_notice: true,
+    show_sensor_count: true,
     show_skip_delay_option: true,
     button_content: 'icon_and_name',
     /* Left unset so the default can depend on use_code_dialog — see _tapAction. */
     tap_action: undefined,
-    max_sensor_chips: 6
   });
 
   const MIN_SCALE = 1;
@@ -1372,7 +1365,6 @@
     }
     config.button_scale_actions = clamp(config.button_scale_actions, MIN_SCALE, MAX_SCALE);
     config.button_scale_keypad = clamp(config.button_scale_keypad, MIN_SCALE, MAX_SCALE);
-    config.max_sensor_chips = Math.round(clamp(config.max_sensor_chips, 1, 30));
 
     if (!['default', 'horizontal', 'vertical'].includes(config.layout)) config.layout = 'default';
     if (!['icon', 'none'].includes(config.icon_type)) config.icon_type = 'icon';
@@ -1396,6 +1388,10 @@
       config.show_skip_delay_option = false;
     }
     delete config.show_arm_options;
+    /* Dropped in 0.1.12: the row scrolls, so capping it only hid sensors behind
+       a count that then had to be tapped. Accepted so an existing config does
+       not error, ignored so it does not linger. */
+    delete config.max_sensor_chips;
     /* Dropped in 0.1.6: the card follows Home Assistant's language, like every
        other card on the dashboard. Accepted so an existing config does not
        error, ignored so it does not linger. */
@@ -1550,7 +1546,6 @@
       this._flash = '';
       this._pending = null;     /* {mode, code, at} after a failed arm */
       this._armOptions = { force: false, skip_delay: false };
-      this._expanded = false;
       this._sheetOpen = false;
       this._deadline = 0;
       this._delay = 0;
@@ -1618,7 +1613,6 @@
       this._varCache.clear();
       this._nodeCache.clear();
       this._trackedCache = null;
-      this._expanded = false;
 
       /* Only a different entity invalidates what the backend told us. The
          dashboard editor calls setConfig on every keystroke, and re-running the
@@ -2382,10 +2376,10 @@
       if (!this._noticeVisible()) return '';
       const kind = this._noticeKind();
       const quiet = this._config.show_messages ? '' : ' data-quiet';
-      const sensors = this._noticeSensors();
-      const limit = this._expanded ? sensors.length : this._config.max_sensor_chips;
-      const shown = sensors.slice(0, limit);
-      const hidden = sensors.length - shown.length;
+      /* Every one of them, and the row scrolls. Capping the list put sensors
+         behind a number that had to be tapped before it would say which ones
+         they were — the panel exists to answer exactly that. */
+      const shown = this._noticeSensors();
       const chips = shown.map(function (s, i) {
         const cls = 'chip' + (s.missing ? ' is-missing' : (s.clear ? ' is-clear' : ''));
         return [
@@ -2400,10 +2394,6 @@
           '</button>'
         ].join('');
       }).join('');
-      const more = hidden > 0
-        ? '<button class="chip more" data-act="expand"><span class="chip-text"><span class="chip-label">'
-          + esc(this._t('notice.more').replace('{n}', String(hidden))) + '</span></span></button>'
-        : '';
       return [
         '<div class="notice" id="notice" data-kind="' + esc(kind) + '"' + quiet
           /* Quiet hides the chips with CSS rather than dropping them, so it
@@ -2414,7 +2404,7 @@
         '<span class="notice-title" id="notice-title"></span>',
         '<span class="notice-count" id="notice-count"></span>',
         '</div>',
-        shown.length ? '<div class="notice-chips">' + chips + more + '</div>' : '',
+        shown.length ? '<div class="notice-chips">' + chips + '</div>' : '',
         '</div>'
       ].join('');
     }
@@ -2762,10 +2752,10 @@
          reports the true total rather than what happens to be on screen. */
       const count = sensors.length;
       this._setText('#notice-count', String(count));
-      this._setAttr('#notice-count', 'hidden', count > 0 ? null : '');
+      this._setAttr('#notice-count', 'hidden',
+        count > 0 && this._config.show_sensor_count ? null : '');
 
-      sensors.slice(0, this._expanded ? sensors.length : this._config.max_sensor_chips)
-        .forEach(function (s, i) {
+      sensors.forEach(function (s, i) {
           const chip = this._q('#chip-' + i);
           if (!chip) return;
           chip.classList.toggle('is-clear', s.clear && !s.missing);
@@ -3045,7 +3035,6 @@
 
     _clearPending() {
       this._pending = null;
-      this._expanded = false;
     }
 
     _skipDelay() {
@@ -3139,10 +3128,6 @@
         }
         case 'bypass':
           this._bypass();
-          break;
-        case 'expand':
-          this._expanded = true;
-          this._render();
           break;
         case 'sensor':
           fireEvent(this, 'hass-more-info', { entityId: node.dataset.entity });
@@ -3363,10 +3348,9 @@
        to — the same reason the keypad section is built this way. */
     _noticesSchema() {
       const schema = [{ name: 'show_messages', selector: { boolean: {} } }];
-      /* Nothing is listed, so there is no length to cap. */
+      /* Nothing is listed, so there is no count beside the list. */
       if (this._config.show_messages) {
-        schema.push({ name: 'max_sensor_chips', selector: {
-          number: { min: 1, max: 30, step: 1, mode: 'box' } } });
+        schema.push({ name: 'show_sensor_count', selector: { boolean: {} } });
       }
       schema.push({ name: 'show_ready_notice', selector: { boolean: {} } });
       schema.push({ name: 'show_bypass_button', selector: { boolean: {} } });
