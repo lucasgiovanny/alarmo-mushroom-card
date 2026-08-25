@@ -180,6 +180,15 @@ const CASES = [
   ['show_messages',false, () => { const c=card({show_messages:false},'disarmed',{},null,'armed_away');
       return q(c,'.notice').hasAttribute('data-quiet'); }],
   ['show_bypass_button',false, () => !q(card({show_bypass_button:false},'disarmed',{},null,'armed_away'),'#bypass')],
+  [null,'tapping a blocked mode reveals the bypass button', () => {
+      const c = card({},'disarmed',{});
+      if (q(c,'#bypass')) return 'the button should not be there before the tap';
+      q(c,'#mode-armed_away').click();
+      return !!q(c,'#bypass') || 'the button must appear on the tap, not after the round trip'; }],
+  [null,'one arm mode blocked needs no attempt', () => {
+      const c = card({states:{armed_home:{hide:'always'},armed_night:{hide:'always'},
+        armed_vacation:{hide:'always'}}},'disarmed',{});
+      return !!q(c,'#bypass') || 'a single blocked mode is unambiguous on its own'; }],
   ['confirm_bypass',false, () => { window.__calls=[];
       const c=card({confirm_bypass:false},'disarmed',{},null,'armed_away');
       q(c,'#bypass').click();

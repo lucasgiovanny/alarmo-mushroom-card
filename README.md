@@ -52,7 +52,8 @@ actually read.
 - Seven languages — English, Portuguese (BR and PT), Spanish, French, German, Italian —
   following the Home Assistant profile language, with no picker of its own to keep in step
 - A visual editor that only offers the settings that can do something: the keypad section
-  drops what an overlay or a text code makes meaningless instead of greying it out
+  drops what an overlay or a text code makes meaningless, and the open-sensor section drops
+  the cap when nothing is listed and the confirm step when there is no button to confirm
 - Visual editor covering every state — including `triggered`, `arming` and `pending`, which
   the original editor could not reach at all
 
@@ -137,8 +138,8 @@ More in [`examples/`](examples/).
 | `hide_keypad` | boolean | `false` | Keep the code field, drop the digits |
 | `keep_keypad_visible` | boolean | `false` | Draw the keypad even when no code is needed |
 | `use_code_dialog` | boolean | `false` | Ask for the code in a sheet instead of inline |
-| `show_messages` | boolean | `true` | Show which sensors are open |
-| `show_bypass_button` | boolean | `true` | Show the bypass action |
+| `show_messages` | boolean | `true` | List which sensors are open. Off, the panel still says the alarm cannot be armed — just not what is in the way |
+| `show_bypass_button` | boolean | `true` | Show the arm-anyway action |
 | `show_ready_notice` | boolean | `true` | Show the panel once every blocking sensor has closed again |
 | `confirm_bypass` | boolean | `true` | Require a second tap before bypassing |
 | `show_ready_indicator` | boolean | `true` | Readiness dot on each arm button |

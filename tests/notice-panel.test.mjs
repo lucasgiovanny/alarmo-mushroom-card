@@ -191,4 +191,28 @@ has(/\.chip\{[^}]*min-height:var\(--amc-chip-height\)/,
   'a fixed chip height would clip the line that says which window it is');
 ok('the chip carries the room under the name');
 
+/* ---- the bypass button has to be reachable ---- */
+
+/* It used to require a failed arm to have already happened, because only the
+   failure named a mode to retry. So the button almost never appeared, and the
+   setting that governs it looked broken. A tap on a blocked mode names the
+   target then and there, without waiting for the round trip. */
+const handleMode = sliceFunction('_handleMode');
+assert.ok(/_blockingSensorsFor\(key\)\.length/.test(handleMode),
+  'tapping a blocked mode must name the retry target immediately');
+assert.ok(/this\._pending = \{ mode: key/.test(handleMode),
+  'the target is set locally, not awaited from the backend');
+ok('tapping a blocked mode makes the bypass button appear at once');
+
+const bypassMode = sliceFunction('_bypassMode');
+assert.ok(/arms\.length === 1/.test(bypassMode),
+  'a single arm mode on offer is unambiguous with no attempt behind it');
+const bypassAvail = sliceFunction('_bypassAvailable');
+assert.ok(/show_bypass_button/.test(bypassAvail),
+  'the setting still governs the button');
+assert.ok(/kind === 'ready' && !\(this\._pending/.test(bypassAvail),
+  'an all-clear with nothing attempted needs no action: the mode buttons are '
+  + 'right there and nothing is in the way');
+ok('the button appears when it has something unambiguous to do');
+
 console.log('notice-panel.test.mjs passed');

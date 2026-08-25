@@ -96,11 +96,35 @@ assert.deepEqual(names({}, { code_format: 'text' }),
   'a text code has no keys to hide and none to size');
 ok('a text code drops both key settings');
 
+/* ---- the open-sensor section, same treatment ---- */
+
+const noticesSchema = new Function(
+  'return function ' + sliceFunction('_noticesSchema').trimStart().slice('_noticesSchema'.length)
+)();
+const noticeNames = (config) => noticesSchema.call({ _config: config }).map((f) => f.name);
+
+assert.deepEqual(noticeNames({ show_messages: true, show_bypass_button: true }),
+  ['show_messages', 'max_sensor_chips', 'show_ready_notice', 'show_bypass_button',
+   'confirm_bypass', 'show_bypassed_sensors'],
+  'read top to bottom: what to show, how much, the all-clear, the action, its '
+  + 'safety catch, the armed case');
+ok('the open-sensor section reads in order');
+
+assert.ok(!noticeNames({ show_messages: false, show_bypass_button: true })
+  .includes('max_sensor_chips'), 'nothing is listed, so there is no length to cap');
+assert.ok(!noticeNames({ show_messages: true, show_bypass_button: false })
+  .includes('confirm_bypass'), 'no button, nothing to confirm');
+assert.deepEqual(noticeNames({ show_messages: false, show_bypass_button: false }),
+  ['show_messages', 'show_ready_notice', 'show_bypass_button', 'show_bypassed_sensors']);
+ok('a setting that governs nothing is not offered');
+
 /* The schema now depends on more than the entity and the language. */
 assert.match(update, /use_code_dialog/,
   'the section has to be rebuilt when the setting that shapes it changes');
 assert.match(update, /code_format/,
   'and when the answer about the code format finally arrives');
+assert.match(update, /show_messages/,
+  'and when the setting that shapes the open-sensor section changes');
 ok('the section is rebuilt when what shapes it changes');
 
 console.log('editor.test.mjs passed');

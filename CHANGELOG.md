@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.1.9 - 2026-08-25
+
+- Fixed the arm-anyway button almost never appearing, which made the setting that governs it
+  look broken. It required a failed arm to have already happened, because only the failure
+  named a mode to retry. Tapping a blocked mode now names the target then and there, without
+  waiting for the round trip, and a single arm mode on offer is unambiguous with no attempt
+  behind it at all
+- Changed the open-sensor settings to appear only when they can do something, the way the
+  keypad settings already did: the chip cap is gone when nothing is listed, and the confirm
+  step is gone when there is no button to confirm
+- Changed that section to read top to bottom — what to show, how much of it, the all-clear,
+  the action, its safety catch, the armed case — and rewrote its labels to say what each one
+  does. `show_messages` is *List which sensors are open*, with a note that the panel still
+  reports that arming is blocked without it
+
 ## 0.1.8 - 2026-08-25
 
 - Added the room under each sensor's name in the open-sensor chips. *Window* names nothing in

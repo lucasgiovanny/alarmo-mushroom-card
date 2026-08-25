@@ -15,7 +15,7 @@
 
   const CARD_TYPE = 'alarmo-mushroom-card';
   const EDITOR_TYPE = 'alarmo-mushroom-card-editor';
-  const CARD_VERSION = '0.1.8';
+  const CARD_VERSION = '0.1.9';
   const DOCS_URL = 'https://github.com/lucasgiovanny/alarmo-mushroom-card';
 
   /* ------------------------------------------------------------------ */
@@ -182,13 +182,13 @@
         keep_keypad_visible_help: 'Keeps the code entry on screen for actions Alarmo would otherwise let through without one.',
         use_code_dialog: 'Ask for the code in an overlay',
         use_code_dialog_help: "Instead of drawing the keypad inside the card. The overlay is this card's own, not the Home Assistant dialog.",
-        show_messages: 'Show which sensors are open',
-        show_messages_help: 'Turning this off hides the list only. The bypass button has its own setting.',
-        show_bypass_button: 'Show the bypass button',
-        show_ready_notice: 'Show the panel once everything is closed again',
-        confirm_bypass: 'Ask for a second tap before bypassing',
-        show_bypassed_sensors: 'Show bypassed sensors while armed',
-        max_sensor_chips: 'Sensors shown before "+N more"',
+        show_messages: 'List which sensors are open',
+        show_messages_help: 'Without it the panel still says the alarm cannot be armed, but not what is in the way. The bypass button has a setting of its own.',
+        show_bypass_button: 'Show the arm-anyway button',
+        show_ready_notice: 'Show the panel when everything is closed',
+        confirm_bypass: 'Ask for a second tap before arming anyway',
+        show_bypassed_sensors: 'List the bypassed sensors while armed',
+        max_sensor_chips: 'Sensors listed before “+N more”',
         state_label: 'State label', button_label: 'Button label', button_icon: 'Button icon',
         color: 'Colour', button_order: 'Order',
         hide: 'Show this button', hide_never: 'Always', hide_always: 'Never',
@@ -259,13 +259,13 @@
         keep_keypad_visible_help: 'Mantém a entrada de código na tela para ações que o Alarmo deixaria passar sem ela.',
         use_code_dialog: 'Pedir o código em uma janela sobreposta',
         use_code_dialog_help: 'Em vez de desenhar o teclado dentro do card. A janela é do próprio card, não o diálogo do Home Assistant.',
-        show_messages: 'Mostrar quais sensores estão abertos',
-        show_messages_help: 'Desligar esconde só a lista. O botão de ignorar tem opção própria.',
-        show_bypass_button: 'Mostrar o botão de ignorar',
+        show_messages: 'Listar quais sensores estão abertos',
+        show_messages_help: 'Sem isso o aviso continua dizendo que o alarme não pode ser armado, mas não o que está no caminho. O botão de armar mesmo assim tem opção própria.',
+        show_bypass_button: 'Mostrar o botão de armar mesmo assim',
         show_ready_notice: 'Mostrar o aviso quando estiver tudo fechado',
-        confirm_bypass: 'Pedir um segundo toque antes de ignorar',
-        show_bypassed_sensors: 'Mostrar sensores ignorados enquanto armado',
-        max_sensor_chips: 'Sensores mostrados antes de "mais N"',
+        confirm_bypass: 'Pedir um segundo toque antes de armar mesmo assim',
+        show_bypassed_sensors: 'Listar os sensores ignorados enquanto armado',
+        max_sensor_chips: 'Sensores listados antes de “mais N”',
         state_label: 'Rótulo do estado', button_label: 'Rótulo do botão', button_icon: 'Ícone do botão',
         color: 'Cor', button_order: 'Ordem',
         hide: 'Mostrar este botão', hide_never: 'Sempre', hide_always: 'Nunca',
@@ -336,13 +336,13 @@
         keep_keypad_visible_help: 'Mantém a introdução do código no ecrã para ações que o Alarmo deixaria passar sem ela.',
         use_code_dialog: 'Pedir o código numa janela sobreposta',
         use_code_dialog_help: 'Em vez de desenhar o teclado dentro do card. A janela é do próprio card, não o diálogo do Home Assistant.',
-        show_messages: 'Mostrar que sensores estão abertos',
-        show_messages_help: 'Desligar esconde só a lista. O botão de ignorar tem opção própria.',
-        show_bypass_button: 'Mostrar o botão de ignorar',
+        show_messages: 'Listar que sensores estão abertos',
+        show_messages_help: 'Sem isso o aviso continua a dizer que o alarme não pode ser armado, mas não o que está no caminho. O botão de armar mesmo assim tem opção própria.',
+        show_bypass_button: 'Mostrar o botão de armar mesmo assim',
         show_ready_notice: 'Mostrar o aviso quando estiver tudo fechado',
-        confirm_bypass: 'Pedir um segundo toque antes de ignorar',
-        show_bypassed_sensors: 'Mostrar sensores ignorados enquanto armado',
-        max_sensor_chips: 'Sensores mostrados antes de "mais N"',
+        confirm_bypass: 'Pedir um segundo toque antes de armar mesmo assim',
+        show_bypassed_sensors: 'Listar os sensores ignorados enquanto armado',
+        max_sensor_chips: 'Sensores listados antes de “mais N”',
         state_label: 'Rótulo do estado', button_label: 'Rótulo do botão', button_icon: 'Ícone do botão',
         color: 'Cor', button_order: 'Ordem',
         hide: 'Mostrar este botão', hide_never: 'Sempre', hide_always: 'Nunca',
@@ -413,13 +413,13 @@
         keep_keypad_visible_help: 'Mantiene la entrada del código en pantalla para acciones que Alarmo dejaría pasar sin ella.',
         use_code_dialog: 'Pedir el código en una ventana superpuesta',
         use_code_dialog_help: 'En lugar de dibujar el teclado dentro de la tarjeta. La ventana es de la propia tarjeta, no el diálogo de Home Assistant.',
-        show_messages: 'Mostrar qué sensores están abiertos',
-        show_messages_help: 'Desactivarlo oculta solo la lista. El botón de omitir tiene su propia opción.',
-        show_bypass_button: 'Mostrar el botón de omitir',
+        show_messages: 'Listar qué sensores están abiertos',
+        show_messages_help: 'Sin esto el aviso sigue diciendo que la alarma no se puede armar, pero no qué lo impide. El botón de armar igualmente tiene su propia opción.',
+        show_bypass_button: 'Mostrar el botón de armar igualmente',
         show_ready_notice: 'Mostrar el aviso cuando todo esté cerrado',
-        confirm_bypass: 'Pedir un segundo toque antes de omitir',
-        show_bypassed_sensors: 'Mostrar sensores omitidos mientras está armado',
-        max_sensor_chips: 'Sensores mostrados antes de "+N más"',
+        confirm_bypass: 'Pedir un segundo toque antes de armar igualmente',
+        show_bypassed_sensors: 'Listar los sensores omitidos mientras está armada',
+        max_sensor_chips: 'Sensores listados antes de “+N más”',
         state_label: 'Etiqueta del estado', button_label: 'Etiqueta del botón', button_icon: 'Icono del botón',
         color: 'Color', button_order: 'Orden',
         hide: 'Mostrar este botón', hide_never: 'Siempre', hide_always: 'Nunca',
@@ -490,13 +490,13 @@
         keep_keypad_visible_help: "Garde la saisie du code à l'écran pour les actions qu'Alarmo laisserait passer sans.",
         use_code_dialog: 'Demander le code dans une surcouche',
         use_code_dialog_help: "Plutôt que de dessiner le clavier dans la carte. La surcouche appartient à la carte, ce n'est pas la boîte de dialogue de Home Assistant.",
-        show_messages: 'Afficher les capteurs ouverts',
-        show_messages_help: "Désactiver masque seulement la liste. Le bouton d'ignorer a son propre réglage.",
-        show_bypass_button: "Afficher le bouton d'ignorer",
+        show_messages: 'Lister les capteurs ouverts',
+        show_messages_help: "Sans cela le bandeau dit toujours que l'alarme ne peut pas être armée, mais pas ce qui l'en empêche. Le bouton d'armer quand même a son propre réglage.",
+        show_bypass_button: "Afficher le bouton d'armer quand même",
         show_ready_notice: 'Afficher le bandeau une fois tout refermé',
-        confirm_bypass: 'Demander un second appui avant de forcer',
-        show_bypassed_sensors: 'Afficher les capteurs ignorés une fois armé',
-        max_sensor_chips: 'Capteurs affichés avant « +N autres »',
+        confirm_bypass: "Demander un second appui avant d'armer quand même",
+        show_bypassed_sensors: 'Lister les capteurs ignorés une fois armé',
+        max_sensor_chips: 'Capteurs listés avant « +N autres »',
         state_label: "Libellé de l'état", button_label: 'Libellé du bouton', button_icon: 'Icône du bouton',
         color: 'Couleur', button_order: 'Ordre',
         hide: 'Afficher ce bouton', hide_never: 'Toujours', hide_always: 'Jamais',
@@ -567,13 +567,13 @@
         keep_keypad_visible_help: 'Hält die Codeeingabe auf dem Schirm für Aktionen, die Alarmo sonst ohne durchließe.',
         use_code_dialog: 'Code in einer Überlagerung abfragen',
         use_code_dialog_help: 'Statt das Tastenfeld in der Karte zu zeichnen. Die Überlagerung gehört der Karte, es ist nicht der Home-Assistant-Dialog.',
-        show_messages: 'Anzeigen, welche Sensoren offen sind',
-        show_messages_help: 'Ausschalten blendet nur die Liste aus. Die Schaltfläche hat eine eigene Option.',
-        show_bypass_button: 'Schaltfläche zum Übergehen anzeigen',
+        show_messages: 'Auflisten, welche Sensoren offen sind',
+        show_messages_help: 'Ohne dies sagt der Hinweis weiter, dass der Alarm nicht aktiviert werden kann, aber nicht, was im Weg ist. Die Schaltfläche hat eine eigene Einstellung.',
+        show_bypass_button: 'Schaltfläche „trotzdem aktivieren“ anzeigen',
         show_ready_notice: 'Hinweis anzeigen, sobald wieder alles zu ist',
-        confirm_bypass: 'Vor dem Übergehen ein zweites Tippen verlangen',
-        show_bypassed_sensors: 'Übergangene Sensoren im aktivierten Zustand anzeigen',
-        max_sensor_chips: 'Sensoren vor „+N weitere"',
+        confirm_bypass: 'Vor dem trotzdem Aktivieren ein zweites Tippen verlangen',
+        show_bypassed_sensors: 'Übergangene Sensoren im aktivierten Zustand auflisten',
+        max_sensor_chips: 'Sensoren vor „+N weitere“',
         state_label: 'Zustandsbezeichnung', button_label: 'Schaltflächentext', button_icon: 'Schaltflächensymbol',
         color: 'Farbe', button_order: 'Reihenfolge',
         hide: 'Diese Schaltfläche zeigen', hide_never: 'Immer', hide_always: 'Nie',
@@ -644,13 +644,13 @@
         keep_keypad_visible_help: "Tiene l'inserimento del codice sullo schermo per azioni che Alarmo lascerebbe passare senza.",
         use_code_dialog: 'Chiedere il codice in una finestra sovrapposta',
         use_code_dialog_help: 'Invece di disegnare il tastierino dentro la scheda. La finestra è della scheda stessa, non la finestra di Home Assistant.',
-        show_messages: 'Mostra quali sensori sono aperti',
-        show_messages_help: "Disattivarlo nasconde solo l'elenco. Il pulsante di esclusione ha una sua opzione.",
-        show_bypass_button: 'Mostra il pulsante di esclusione',
-        show_ready_notice: 'Mostrare l\'avviso quando è di nuovo tutto chiuso',
-        confirm_bypass: 'Chiedi un secondo tocco prima di escludere',
-        show_bypassed_sensors: 'Mostra i sensori esclusi mentre è inserito',
-        max_sensor_chips: 'Sensori mostrati prima di "+N altri"',
+        show_messages: 'Elencare quali sensori sono aperti',
+        show_messages_help: "Senza questo l'avviso continua a dire che l'allarme non può essere inserito, ma non che cosa lo impedisce. Il pulsante ha un'opzione sua.",
+        show_bypass_button: 'Mostrare il pulsante per inserire comunque',
+        show_ready_notice: "Mostrare l'avviso quando è di nuovo tutto chiuso",
+        confirm_bypass: 'Chiedere un secondo tocco prima di inserire comunque',
+        show_bypassed_sensors: 'Elencare i sensori esclusi mentre è inserito',
+        max_sensor_chips: 'Sensori elencati prima di “+N altri”',
         state_label: 'Etichetta dello stato', button_label: 'Etichetta del pulsante', button_icon: 'Icona del pulsante',
         color: 'Colore', button_order: 'Ordine',
         hide: 'Mostra questo pulsante', hide_never: 'Sempre', hide_always: 'Mai',
@@ -2050,7 +2050,7 @@
         this._backendOk,
         family,
         this._visibleModes().map(function (m) { return m.key; }).join(','),
-        this._noticeKind() + ':' + this._noticeVisible(),
+        this._noticeKind() + ':' + this._noticeVisible() + ':' + this._bypassAvailable(),
         this._noticeSensors().map(function (s) { return s.id; }).join(','),
         this._expanded,
         this._config.button_content,
@@ -2398,14 +2398,25 @@
       ].join('');
     }
 
-    /* Only offered once a real arm attempt has told us which mode to retry.
-       Without a target mode the button would have to guess, and guessing which
-       way to arm a house is not a thing a button should do. */
+    /* Which mode the button would arm. A tap on a blocked mode names one
+       outright; failing that, a single arm mode on offer is unambiguous by
+       itself. With several on offer and nothing attempted, the button would
+       have to guess, and guessing which way to arm a house is not a thing a
+       button should do. */
+    _bypassMode() {
+      if (this._pending && this._pending.mode) return this._pending.mode;
+      const arms = this._visibleModes().filter(function (m) { return m.arms; });
+      return arms.length === 1 ? arms[0].key : null;
+    }
+
     _bypassAvailable() {
       if (!this._config.show_bypass_button) return false;
-      if (!this._pending || !this._pending.mode) return false;
       const kind = this._noticeKind();
-      return kind === 'blocked' || kind === 'ready';
+      if (kind !== 'blocked' && kind !== 'ready') return false;
+      /* Nothing is in the way and nothing was attempted, so there is nothing to
+         retry — the mode buttons are right there. */
+      if (kind === 'ready' && !(this._pending && this._pending.mode)) return false;
+      return !!this._bypassMode();
     }
 
     /* ---- code entry ---- */
@@ -2989,9 +3000,15 @@
         if (code) payload.code = code;
         this._hass.callService(DOMAIN, SERVICE.disarm, payload);
       } else {
-        /* Tapping a mode is a fresh intent, so any panel left over from a
-           previous failure stops being the thing the bypass button retries. */
-        this._clearPending();
+        /* Tapping a blocked mode names the retry target then and there, rather
+           than waiting for the arm to fail and the event to come back. Waiting
+           was why the bypass button seemed never to appear, and why the setting
+           that governs it looked inert. */
+        if (this._blockingSensorsFor(key).length) {
+          this._pending = { mode: key, code: code, at: Date.now() };
+        } else {
+          this._clearPending();
+        }
         this._callArm(key, code);
       }
       this._code = '';
@@ -3007,7 +3024,8 @@
     }
 
     _bypass() {
-      if (!this._pending || !this._pending.mode) return;
+      const mode = this._bypassMode();
+      if (!mode) return;
       const retry = this._noticeKind() === 'ready';
       /* Nothing is being bypassed when everything has closed again, so the
          confirm step is skipped and force is not sent — a plain arm. */
@@ -3023,8 +3041,7 @@
       }
       clearTimeout(this._confirmTimer);
       this._confirming = false;
-      const mode = this._pending.mode;
-      const code = this._pending.code;
+      const code = this._pending ? this._pending.code : this._code;
       this._callArm(mode, code, retry ? { force: false } : { force: true });
       /* _pending is deliberately kept until the backend confirms: upstream
          cleared it here, so a second failure left the button a no-op until a
@@ -3322,15 +3339,8 @@
         ] },
         { name: '', type: 'expandable', icon: 'mdi:dialpad', title: this._t('keypad'),
           schema: this._keypadSchema() },
-        { name: '', type: 'expandable', icon: 'mdi:door-open', title: this._t('notices'), schema: [
-          { name: 'show_messages', selector: { boolean: {} } },
-          { name: 'show_bypass_button', selector: { boolean: {} } },
-          { name: 'show_ready_notice', selector: { boolean: {} } },
-          { name: 'confirm_bypass', selector: { boolean: {} } },
-          { name: 'show_bypassed_sensors', selector: { boolean: {} } },
-          { name: 'max_sensor_chips', selector: {
-            number: { min: 1, max: 30, step: 1, mode: 'box' } } }
-        ] }
+        { name: '', type: 'expandable', icon: 'mdi:door-open', title: this._t('notices'),
+          schema: this._noticesSchema() }
       ].concat(this._stateSections());
     }
 
@@ -3353,6 +3363,27 @@
         schema.push({ name: 'button_scale_keypad', selector: {
           number: { min: MIN_SCALE, max: MAX_SCALE, step: 0.1, mode: 'slider' } } });
       }
+      return schema;
+    }
+
+    /* Read top to bottom: what to show, how much of it, the all-clear, the
+       action, its safety catch, and finally the armed case. Two of them govern
+       nothing on their own, so they only appear behind the setting they belong
+       to — the same reason the keypad section is built this way. */
+    _noticesSchema() {
+      const schema = [{ name: 'show_messages', selector: { boolean: {} } }];
+      /* Nothing is listed, so there is no length to cap. */
+      if (this._config.show_messages) {
+        schema.push({ name: 'max_sensor_chips', selector: {
+          number: { min: 1, max: 30, step: 1, mode: 'box' } } });
+      }
+      schema.push({ name: 'show_ready_notice', selector: { boolean: {} } });
+      schema.push({ name: 'show_bypass_button', selector: { boolean: {} } });
+      /* No button, nothing to confirm. */
+      if (this._config.show_bypass_button) {
+        schema.push({ name: 'confirm_bypass', selector: { boolean: {} } });
+      }
+      schema.push({ name: 'show_bypassed_sensors', selector: { boolean: {} } });
       return schema;
     }
 
@@ -3443,6 +3474,7 @@
         this._lang(),
         this._config.entity,
         this._config.use_code_dialog + ':' + this._config.hide_keypad,
+        this._config.show_messages + ':' + this._config.show_bypass_button,
         this._alarmoConfig ? this._alarmoConfig.code_format : '',
         stateObj ? stateObj.attributes.supported_features : '',
         this._alarmoIds ? this._alarmoIds.join(',') : ''
