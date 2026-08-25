@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { sliceFunction, ok } from './_extract.mjs';
+import { source, sliceFunction, ok } from './_extract.mjs';
 
 /* How the card reports its own size to the dashboard. Home Assistant's grid
    section applies a fixed pixel height — the `fit-rows` class — whenever rows
@@ -55,5 +55,32 @@ const size = asFunction('getCardSize').call({});
 assert.ok(Number.isInteger(size) && size >= 3 && size <= 10,
   'getCardSize is the masonry fallback and should be a plausible row count');
 ok('masonry gets a plausible fallback size');
+
+/* ---- the attention ring ---- */
+
+/* An outline rather than a border: a border adds to the box and would shift
+   everything inside it by two pixels the moment the alarm armed, and
+   overriding ha-card's own border would take the theme's with it. Inset so a
+   card at the edge of a grid does not reach over its neighbour. */
+assert.match(source, /ha-card\[data-outline\]\{\s*outline:2px solid rgb\(var\(--amc-state-rgb\)\);\s*outline-offset:-2px;/,
+  'the ring must be an inset outline in the state colour');
+assert.ok(!/ha-card\[data-outline\]\{[^}]*border:/.test(source),
+  'a border would move the contents and fight the theme');
+ok('the ring costs no layout and no theme');
+
+const outlined = asFunction('_outlined');
+const at = (mode, state) => outlined.call({ _config: { state_outline: mode } }, state);
+assert.equal(at('none', 'triggered'), false);
+assert.equal(at('none', 'armed_away'), false);
+assert.equal(at('triggered', 'triggered'), true);
+assert.equal(at('triggered', 'armed_away'), false);
+assert.equal(at('armed', 'armed_away'), true);
+assert.equal(at('armed', 'triggered'), false);
+assert.equal(at('both', 'armed_night'), true);
+assert.equal(at('both', 'triggered'), true);
+assert.equal(at('both', 'disarmed'), false);
+assert.equal(at('both', 'arming'), false,
+  'arming is not armed yet — the ring says what is, not what is being attempted');
+ok('the ring follows the states it was asked for');
 
 console.log('layout.test.mjs passed');

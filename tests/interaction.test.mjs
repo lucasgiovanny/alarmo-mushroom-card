@@ -30,6 +30,13 @@ assert.match(source, /@keyframes amc-shake/, 'the shake keyframes must exist');
 assert.match(source, /id="sheet-hint"/, 'the sheet needs somewhere to show the error');
 ok('the sheet can show the error itself');
 
+/* And having said it there, it must not say it again on the card behind the
+   sheet, where nobody is looking. */
+const paintFn = sliceFunction('_paint');
+assert.ok(/this\._flash && !this\._sheetOpen/.test(paintFn),
+  'the card must not repeat a message the sheet is already showing in place');
+ok('the message is said once, where it was typed');
+
 /* ---- the sheet keypad is a keypad ---- */
 
 const keys = sliceFunction('_keysHtml');

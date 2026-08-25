@@ -42,6 +42,8 @@ actually read.
   no needless bypass
 - Ready-to-arm dots that actually update live, and a not-ready button that cannot be tapped
   into a failed arm
+- An optional ring around the whole card while armed or triggered, in the state colour, so
+  the dashboard says so from across the room
 - Countdown ring driven by an absolute deadline, so a backgrounded tab comes back correct
 - A keypad with backspace instead of clear-everything, and code dots instead of a text field
   that drags up the on-screen keyboard
@@ -135,6 +137,7 @@ More in [`examples/`](examples/).
 | `layout` | string | `default` | `default`, `horizontal`, `vertical` |
 | `fill_container` | boolean | `false` | Stretch to fill a grid or stack cell |
 | `icon_type` | string | `icon` | `icon` or `none` |
+| `state_outline` | string | `none` | Ring the whole card in the state colour: `none`, `triggered`, `armed`, `both` |
 | `tap_action` | string | `code` when `use_code_dialog`, else `none` | What tapping the card body does: `none`, `code` (open the keypad), `more-info` |
 | `button_content` | string | `icon_and_name` | What the mode buttons show: `icon_and_name`, `icon`, `name` |
 | `button_scale_actions` | number | `1` | 1.0 – 2.5 |
@@ -182,6 +185,10 @@ Every option above is read the same way, including the legacy `button_scale`. Th
 behaviours differ on purpose — see [docs/MIGRATING.md](docs/MIGRATING.md).
 
 ## Screenshots
+
+Ringed while armed and while triggered:
+
+![The card ringed in the state colour](docs/screenshots/06-state-ring.png)
 
 Locked, and with the key turned:
 

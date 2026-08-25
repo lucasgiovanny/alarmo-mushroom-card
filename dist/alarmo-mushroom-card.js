@@ -15,7 +15,7 @@
 
   const CARD_TYPE = 'alarmo-mushroom-card';
   const EDITOR_TYPE = 'alarmo-mushroom-card-editor';
-  const CARD_VERSION = '0.1.12';
+  const CARD_VERSION = '0.1.13';
   const DOCS_URL = 'https://github.com/lucasgiovanny/alarmo-mushroom-card';
 
   /* ------------------------------------------------------------------ */
@@ -174,6 +174,9 @@
         layout: 'Layout', layout_default: 'Default', layout_horizontal: 'Horizontal',
         layout_vertical: 'Vertical',
         icon_type: 'Icon', icon_type_icon: 'Show', icon_type_none: 'Hide',
+        state_outline: 'Ring the card when',
+        outline_none: 'Never', outline_triggered: 'Triggered',
+        outline_armed: 'Armed', outline_both: 'Armed or triggered',
         fill_container: 'Fill container',
         button_scale_actions: 'Action button size', button_scale_keypad: 'Key size',
         show_ready_indicator: 'Show a ready-to-arm dot on each button',
@@ -252,6 +255,9 @@
         layout: 'Layout', layout_default: 'Padrão', layout_horizontal: 'Horizontal',
         layout_vertical: 'Vertical',
         icon_type: 'Ícone', icon_type_icon: 'Mostrar', icon_type_none: 'Esconder',
+        state_outline: 'Contornar o card quando',
+        outline_none: 'Nunca', outline_triggered: 'Disparado',
+        outline_armed: 'Armado', outline_both: 'Armado ou disparado',
         fill_container: 'Preencher o espaço',
         button_scale_actions: 'Tamanho dos botões de ação', button_scale_keypad: 'Tamanho das teclas',
         show_ready_indicator: 'Mostrar um ponto de "pronto para armar" em cada botão',
@@ -330,6 +336,9 @@
         layout: 'Disposição', layout_default: 'Predefinida', layout_horizontal: 'Horizontal',
         layout_vertical: 'Vertical',
         icon_type: 'Ícone', icon_type_icon: 'Mostrar', icon_type_none: 'Esconder',
+        state_outline: 'Contornar o card quando',
+        outline_none: 'Nunca', outline_triggered: 'Disparado',
+        outline_armed: 'Armado', outline_both: 'Armado ou disparado',
         fill_container: 'Preencher o espaço',
         button_scale_actions: 'Tamanho dos botões de ação', button_scale_keypad: 'Tamanho das teclas',
         show_ready_indicator: 'Mostrar um ponto de "pronto a armar" em cada botão',
@@ -408,6 +417,9 @@
         layout: 'Diseño', layout_default: 'Predeterminado', layout_horizontal: 'Horizontal',
         layout_vertical: 'Vertical',
         icon_type: 'Icono', icon_type_icon: 'Mostrar', icon_type_none: 'Ocultar',
+        state_outline: 'Bordear la tarjeta cuando',
+        outline_none: 'Nunca', outline_triggered: 'Disparada',
+        outline_armed: 'Armada', outline_both: 'Armada o disparada',
         fill_container: 'Rellenar el contenedor',
         button_scale_actions: 'Tamaño de los botones de acción', button_scale_keypad: 'Tamaño de las teclas',
         show_ready_indicator: 'Mostrar un punto de "listo para armar" en cada botón',
@@ -486,6 +498,9 @@
         layout: 'Disposition', layout_default: 'Par défaut', layout_horizontal: 'Horizontale',
         layout_vertical: 'Verticale',
         icon_type: 'Icône', icon_type_icon: 'Afficher', icon_type_none: 'Masquer',
+        state_outline: 'Encadrer la carte quand',
+        outline_none: 'Jamais', outline_triggered: 'Déclenchée',
+        outline_armed: 'Armée', outline_both: 'Armée ou déclenchée',
         fill_container: 'Remplir le conteneur',
         button_scale_actions: "Taille des boutons d'action", button_scale_keypad: 'Taille des touches',
         show_ready_indicator: 'Afficher un point « prêt à armer » sur chaque bouton',
@@ -564,6 +579,9 @@
         layout: 'Layout', layout_default: 'Standard', layout_horizontal: 'Horizontal',
         layout_vertical: 'Vertikal',
         icon_type: 'Symbol', icon_type_icon: 'Anzeigen', icon_type_none: 'Ausblenden',
+        state_outline: 'Karte umranden, wenn',
+        outline_none: 'Nie', outline_triggered: 'Ausgelöst',
+        outline_armed: 'Aktiviert', outline_both: 'Aktiviert oder ausgelöst',
         fill_container: 'Container füllen',
         button_scale_actions: 'Größe der Aktionsschaltflächen', button_scale_keypad: 'Tastengröße',
         show_ready_indicator: 'Bereitschaftspunkt auf jeder Schaltfläche anzeigen',
@@ -642,6 +660,9 @@
         layout: 'Layout', layout_default: 'Predefinito', layout_horizontal: 'Orizzontale',
         layout_vertical: 'Verticale',
         icon_type: 'Icona', icon_type_icon: 'Mostra', icon_type_none: 'Nascondi',
+        state_outline: 'Contornare la scheda quando',
+        outline_none: 'Mai', outline_triggered: 'Scattato',
+        outline_armed: 'Inserito', outline_both: 'Inserito o scattato',
         fill_container: 'Riempi il contenitore',
         button_scale_actions: 'Dimensione dei pulsanti di azione', button_scale_keypad: 'Dimensione dei tasti',
         show_ready_indicator: 'Mostra un punto "pronto per inserire" su ogni pulsante',
@@ -981,6 +1002,12 @@
       height:auto;overflow:hidden;
     }
     ha-card.fill{height:100%}
+    /* Inset, so it never reaches over a neighbouring card; outline rather than
+       border, so nothing inside the card moves when it appears. */
+    ha-card[data-outline]{
+      outline:2px solid rgb(var(--amc-state-rgb));
+      outline-offset:-2px;
+    }
     :host([data-layout="grid"]) ha-card{height:100%}
 
     /* ---- header ---- */
@@ -1336,6 +1363,7 @@
     layout: 'default',
     fill_container: false,
     icon_type: 'icon',
+    state_outline: 'none',
     show_bypass_button: true,
     show_ready_notice: true,
     show_sensor_count: true,
@@ -1368,6 +1396,9 @@
 
     if (!['default', 'horizontal', 'vertical'].includes(config.layout)) config.layout = 'default';
     if (!['icon', 'none'].includes(config.icon_type)) config.icon_type = 'icon';
+    if (!['none', 'triggered', 'armed', 'both'].includes(config.state_outline)) {
+      config.state_outline = 'none';
+    }
     if (!['icon_and_name', 'icon', 'name'].includes(config.button_content)) {
       config.button_content = 'icon_and_name';
     }
@@ -2639,6 +2670,7 @@
       const block = stateBlock(config, state);
       const rgb = toRgbTriplet(block.color) || stateColorVar(state);
       this.style.setProperty('--amc-state-rgb', rgb);
+      this._setAttr('ha-card', 'data-outline', this._outlined(state) ? '' : null);
 
       /* hero */
       if (config.icon_type !== 'none') {
@@ -2706,8 +2738,12 @@
       this._paintCode();
       this._paintCountdown();
 
-      this._setAttr('#flash', 'hidden', this._flash ? null : '');
-      if (this._flash) this._setText('#flash', this._flash);
+      /* The sheet says it in place, under the dots the code was typed into.
+         Saying it again on the card behind the sheet is the same sentence
+         twice, one of them where nobody is looking. */
+      const showFlash = this._flash && !this._sheetOpen;
+      this._setAttr('#flash', 'hidden', showFlash ? null : '');
+      if (showFlash) this._setText('#flash', this._flash);
     }
 
     /* CSS cannot ask how wide a word is, and the threshold depends on how many
@@ -2814,6 +2850,22 @@
           else hintNode.removeAttribute('data-error');
         }
       }
+    }
+
+    /* A ring around the whole card, in the colour of the state it is calling
+       attention to. An outline rather than a border: a border would add to the
+       box and shift everything inside it by two pixels the moment the alarm
+       armed, and overriding ha-card's own border would take the theme's with
+       it. Drawn inset so a card at the edge of a grid does not overlap its
+       neighbour. */
+    _outlined(state) {
+      const mode = this._config.state_outline;
+      if (mode === 'none') return false;
+      const triggered = state === 'triggered';
+      const armed = String(state).indexOf('armed_') === 0;
+      if (mode === 'triggered') return triggered;
+      if (mode === 'armed') return armed;
+      return triggered || armed;
     }
 
     _shouldPulse(state) {
@@ -3296,6 +3348,12 @@
             ] } } }
           ] },
           { name: 'fill_container', selector: { boolean: {} } },
+          { name: 'state_outline', selector: { select: { mode: 'dropdown', options: [
+            { value: 'none', label: this._t('outline_none') },
+            { value: 'triggered', label: this._t('outline_triggered') },
+            { value: 'armed', label: this._t('outline_armed') },
+            { value: 'both', label: this._t('outline_both') }
+          ] } } },
           { name: 'tap_action', selector: { select: { mode: 'dropdown', options: [
             { value: 'none', label: this._t('tap_none') },
             { value: 'code', label: this._t('tap_code') },

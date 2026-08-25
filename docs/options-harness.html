@@ -153,6 +153,17 @@ const CASES = [
   ['layout','vertical', () => !!q(card({layout:'vertical'},'disarmed',{}),'.state-item.vertical')],
   ['fill_container',true, () => !!q(card({fill_container:true},'disarmed',{}),'ha-card.fill')],
   ['icon_type','none', () => !q(card({icon_type:'none'},'disarmed',{}),'#hero-shape')],
+  ['state_outline','both', () => { const c=card({state_outline:'both'},'armed_away',{},null,null);
+      return q(c,'ha-card').hasAttribute('data-outline') || 'armed must be ringed'; }],
+  [null,'the ring stays off unless asked for', () => {
+      const c=card({},'armed_away',{});
+      return !q(c,'ha-card').hasAttribute('data-outline') || 'the default is no ring'; }],
+  [null,'triggered only rings when triggered', () => {
+      const a=card({state_outline:'triggered'},'armed_away',{});
+      const b=card({state_outline:'triggered'},'triggered',{arm_mode:'armed_away',
+        open_sensors:{'binary_sensor.s1':'on'}});
+      return (!q(a,'ha-card').hasAttribute('data-outline')
+        && q(b,'ha-card').hasAttribute('data-outline')) || 'the ring followed the wrong state'; }],
   ['tap_action','none', () => { const c=card({tap_action:'none',use_code_dialog:true},'armed_away',{},{code_disarm_required:true});
       return !q(c,'.state-item.is-tappable') || 'the header still invites a tap that does nothing'; }],
   ['tap_action','more-info', () => { let fired=false;

@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.1.13 - 2026-08-25
+
+- Added `state_outline`: a ring around the whole card in the state colour while armed,
+  triggered, or either — `none`, `triggered`, `armed`, `both`, off by default. It is an
+  outline rather than a border, so nothing inside the card moves when it appears and the
+  theme's own border is left alone, and it is inset so a card at the edge of a grid does not
+  reach over its neighbour
+- Fixed a wrong code being reported twice when the code is asked for in the overlay: once in
+  the overlay, under the dots it was typed into, and again on the card behind it where nobody
+  is looking. The overlay says it alone while it is up
+
 ## 0.1.12 - 2026-08-25
 
 - Added `show_sensor_count`, for hiding the number beside the headline
