@@ -89,7 +89,14 @@ function card(config, state, attrs, alarmo, pending){
   c._backendOk = true; c._areaId = 'home';
   c._alarmoConfig = Object.assign({ code_arm_required:false, code_disarm_required:false,
     code_format:'number' }, alarmo||{});
-  c._sensorCount = (alarmo && alarmo.sensorCount !== undefined) ? alarmo.sensorCount : 7;
+  /* The sensor config, the way alarmo/sensors answers it. Everything is armed
+     in away and home, so opening one blocks arming. */
+  c._sensors = (alarmo && alarmo.sensors !== undefined) ? alarmo.sensors
+    : Object.keys(SENSORS).reduce((all, id) => (all[id] = {
+        entity_id: id, enabled: true, area: 'home',
+        modes: ['armed_away', 'armed_home', 'armed_night'] }, all), {});
+  c._sensorCount = (alarmo && alarmo.sensorCount !== undefined)
+    ? alarmo.sensorCount : Object.keys(c._sensors).length;
   c._readyModes = (alarmo && alarmo.ready !== undefined) ? alarmo.ready : ['armed_home'];
   if (pending) c._pending = { mode:pending, code:'', at:Date.now() };
   c.hass = hassFor(state, attrs);
@@ -170,31 +177,41 @@ const CASES = [
       if (q(c,'.code')) return 'inline code still drawn';
       q(c,'#mode-armed_away').click();
       return !!q(c,'.sheet') || 'sheet did not open'; }],
-  ['show_messages',false, () => { const c=card({show_messages:false},'disarmed',{open_sensors:openN(2)},null,'armed_away');
+  ['show_messages',false, () => { const c=card({show_messages:false},'disarmed',{},null,'armed_away');
       return q(c,'.notice').hasAttribute('data-quiet'); }],
-  ['show_bypass_button',false, () => !q(card({show_bypass_button:false},'disarmed',{open_sensors:openN(2)},null,'armed_away'),'#bypass')],
+  ['show_bypass_button',false, () => !q(card({show_bypass_button:false},'disarmed',{},null,'armed_away'),'#bypass')],
   ['confirm_bypass',false, () => { window.__calls=[];
-      const c=card({confirm_bypass:false},'disarmed',{open_sensors:openN(2)},null,'armed_away');
+      const c=card({confirm_bypass:false},'disarmed',{},null,'armed_away');
       q(c,'#bypass').click();
       return window.__calls.length===1 && window.__calls[0][2].force===true || 'no service call: '+JSON.stringify(window.__calls); }],
   ['show_ready_indicator',false, () => q(card({show_ready_indicator:false},'disarmed',{},{ready:['armed_home']}),'#ready-armed_away').hasAttribute('hidden')],
   ['show_bypassed_sensors',false, () => !q(card({show_bypassed_sensors:false},'armed_away',{bypassed_sensors:['binary_sensor.s1']}),'.notice')],
-  ['show_ready_notice',false, () => { const c=card({show_ready_notice:false},'disarmed',
-        {open_sensors:{'binary_sensor.s8':'on'}},null,'armed_away');
-      /* s8 is closed in the fake states, so every sensor named as open has
-         shut again — the all-clear panel is exactly what this hides. */
+  ['show_ready_notice',false, () => { const c=card({show_ready_notice:false},'disarmed',{},
+        {sensors:{'binary_sensor.s8':{entity_id:'binary_sensor.s8',enabled:true,area:'home',
+          modes:['armed_away']}}},'armed_away');
+      /* s8 is the closed one, so nothing is in the way and the all-clear panel
+         is exactly what this hides. */
       return (!q(c,'.notice') && !!q(c,'#bypass'))
         || 'the panel must go without taking the arm action with it'; }],
   /* A default value is never written to the config, so this half is the card
      only — the false case above covers the editor round-trip. */
-  [null,'all-clear panel shown by default', () => { const c=card({},'disarmed',
-        {open_sensors:{'binary_sensor.s8':'on'}},null,'armed_away');
+  [null,'all-clear panel shown by default', () => { const c=card({},'disarmed',{},
+        {sensors:{'binary_sensor.s8':{entity_id:'binary_sensor.s8',enabled:true,area:'home',
+          modes:['armed_away']}}},'armed_away');
       return q(c,'.notice') && q(c,'.notice').dataset.kind === 'ready'
         || 'the all-clear panel should be shown by default'; }],
+  [null,'an open sensor is reported before any attempt', () => { const c=card({},'disarmed',{});
+      /* No failed arm, no open_sensors attribute — just a door standing open. */
+      const n = q(c,'.notice');
+      return (n && n.dataset.kind === 'blocked' && !c._pending)
+        || 'a door standing open must be reported without waiting for a failure'; }],
+  [null,'nothing registered in Alarmo reports nothing', () => { const c=card({},'disarmed',{},
+        {sensors:{}, sensorCount:0});
+      return !q(c,'.notice') || 'an empty sensor list has nothing to say'; }],
   ['show_skip_delay_option',false, () => { const c=card({show_skip_delay_option:false},'disarmed',{});
       return (!q(c,'#opt-skip') && !q(c,'.arm-options'))
         || 'the empty shortcut row should not be drawn at all'; }],
-  ['max_sensor_chips',2, () => { const c=card({max_sensor_chips:2},'disarmed',{open_sensors:openN(7)},null,'armed_away');
+  ['max_sensor_chips',2, () => { const c=card({max_sensor_chips:2},'disarmed',{},null,'armed_away');
       return c.shadowRoot.querySelectorAll('.chip:not(.more)').length===2 && !!q(c,'.chip.more'); }],
   ['armed_away__button_label','Fora', () => q(card({states:{armed_away:{button_label:'Fora'}}},'disarmed',{}),'#mode-armed_away .label').textContent==='Fora'],
   ['armed_away__button_icon','mdi:car', () => q(card({states:{armed_away:{button_icon:'mdi:car'}}},'disarmed',{}),'#mode-armed_away ha-icon').getAttribute('icon')==='mdi:car'],

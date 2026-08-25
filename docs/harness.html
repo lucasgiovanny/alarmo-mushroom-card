@@ -145,7 +145,7 @@ const SENSORS = {
   'binary_sensor.shed':         ['Shed door', 'door', 'off']
 };
 
-function makeHass(state, attrs){
+function makeHass(state, attrs, allClosed, openIds){
   const states = {
     'alarm_control_panel.alarmo': {
       entity_id: 'alarm_control_panel.alarmo',
@@ -160,7 +160,8 @@ function makeHass(state, attrs){
   };
   for (const id of Object.keys(SENSORS)) {
     states[id] = {
-      entity_id: id, state: SENSORS[id][2],
+      entity_id: id,
+      state: allClosed ? 'off' : (openIds ? (openIds.includes(id) ? 'on' : 'off') : SENSORS[id][2]),
       attributes: { friendly_name: SENSORS[id][0], device_class: SENSORS[id][1] }
     };
   }
@@ -179,7 +180,12 @@ function makeHass(state, attrs){
       if (msg.type === 'alarmo/countdown') return { delay: 30, remaining: 21 };
       if (msg.type === 'alarmo/ready_to_arm_modes') return { modes: ['armed_home', 'armed_night'] };
       if (msg.type === 'alarmo/sensors') {
-        return Object.keys(SENSORS).reduce((all, id) => (all[id] = { entity_id: id }, all), {});
+        /* The shape alarmo/sensors answers with: what each sensor is armed for
+           is what decides whether an open door is in anyone's way. */
+        return Object.keys(SENSORS).reduce((all, id) => (all[id] = {
+          entity_id: id, enabled: true, area: 'home',
+          modes: ['armed_away', 'armed_home', 'armed_night']
+        }, all), {});
       }
       if (msg.type === 'alarmo/areas') {
         return { home: { modes: {
@@ -201,36 +207,37 @@ const openMap = (ids) => ids.reduce((all, id) => (all[id] = 'on', all), {});
 const MANY = Object.keys(SENSORS).slice(0, 7);
 
 const CASES = [
-  ['Disarmed', 'disarmed', {}, {}],
-  ['Arming (countdown)', 'arming', { arm_mode: 'armed_away', delay: 30 }, {}],
-  ['Armed away', 'armed_away', {}, {}],
-  ['Blocked by 2 sensors', 'disarmed',
-    { open_sensors: openMap(['binary_sensor.front_door','binary_sensor.living_window']) },
-    { failed: 'armed_away' }],
-  ['Blocked — one now closed', 'disarmed',
-    { open_sensors: openMap(['binary_sensor.shed','binary_sensor.living_window']) },
-    { failed: 'armed_away' }],
-  ['Blocked — all clear again', 'disarmed',
-    { open_sensors: openMap(['binary_sensor.shed']) },
-    { failed: 'armed_away' }],
-  ['Blocked by 7 sensors', 'disarmed', { open_sensors: openMap(MANY) },
-    { failed: 'armed_away' }],
+  ['Disarmed — all clear', 'disarmed', {}, { allClosed: true }],
+  ['Disarmed — a door is open', 'disarmed', {}, { openIds: ['binary_sensor.front_door'] }],
+  ['Arming (countdown)', 'arming', { arm_mode: 'armed_away', delay: 30 }, { allClosed: true }],
+  ['Armed away', 'armed_away', {}, { allClosed: true }],
+  ['Two sensors open', 'disarmed', {},
+    { openIds: ['binary_sensor.front_door','binary_sensor.living_window'] }],
+  ['Two open, after a failed arm', 'disarmed', {},
+    { openIds: ['binary_sensor.front_door','binary_sensor.living_window'],
+      failed: 'armed_away' }],
+  ['All clear, after a failed arm', 'disarmed', {},
+    { allClosed: true, failed: 'armed_away' }],
+  ['Seven sensors open', 'disarmed', {}, { openIds: MANY }],
   ['Triggered', 'triggered',
-    { arm_mode: 'armed_away', open_sensors: openMap(['binary_sensor.back_door']) }, {}],
+    { arm_mode: 'armed_away', open_sensors: openMap(['binary_sensor.back_door']) },
+    { openIds: ['binary_sensor.back_door'] }],
   ['Armed with bypassed', 'armed_away',
-    { bypassed_sensors: ['binary_sensor.living_window','binary_sensor.garage'] }, {}],
-  ['Disarm with keypad', 'armed_away', {}, { keypad: true }],
-  ['Quiet (show_messages false)', 'disarmed',
-    { open_sensors: openMap(['binary_sensor.front_door']) },
-    { failed: 'armed_away', config: { show_messages: false } }],
-  ['Horizontal layout', 'disarmed', {}, { config: { layout: 'horizontal' } }],
-  ['Vertical layout', 'disarmed', {}, { config: { layout: 'vertical' } }],
-  ['Narrow (250px)', 'disarmed', { open_sensors: openMap(['binary_sensor.front_door']) },
-    { failed: 'armed_away', narrow: true }],
-  ['Code sheet — disarm', 'armed_away', {}, { keypad: true, sheet: true }],
-  ['Code sheet — arming away',
-    'disarmed', { open_sensors: openMap(['binary_sensor.front_door','binary_sensor.living_window']) },
-    { keypad: true, sheet: true, sheetMode: 'armed_away', sheetForce: true }]
+    { bypassed_sensors: ['binary_sensor.living_window','binary_sensor.garage'] },
+    { openIds: ['binary_sensor.living_window','binary_sensor.garage'] }],
+  ['Disarm with keypad', 'armed_away', {}, { keypad: true, allClosed: true }],
+  ['Quiet (show_messages false)', 'disarmed', {},
+    { openIds: ['binary_sensor.front_door'], config: { show_messages: false } }],
+  ['All clear hidden (show_ready_notice false)', 'disarmed', {},
+    { allClosed: true, config: { show_ready_notice: false } }],
+  ['Horizontal layout', 'disarmed', {}, { allClosed: true, config: { layout: 'horizontal' } }],
+  ['Vertical layout', 'disarmed', {}, { allClosed: true, config: { layout: 'vertical' } }],
+  ['Narrow (250px)', 'disarmed', {},
+    { openIds: ['binary_sensor.front_door'], narrow: true }],
+  ['Code sheet — disarm', 'armed_away', {}, { keypad: true, sheet: true, allClosed: true }],
+  ['Code sheet — arming away', 'disarmed', {},
+    { openIds: ['binary_sensor.front_door','binary_sensor.living_window'],
+      keypad: true, sheet: true, sheetMode: 'armed_away', sheetForce: true }]
 ];
 
 const grid = document.getElementById('grid');
@@ -248,7 +255,7 @@ for (const [title, state, attrs, opts] of CASES) {
      the async bootstrap resolved, which hid a missing answer instead of
      showing it. */
   card._codeRequiredOverride = !!opts.keypad;
-  card.hass = makeHass(state, attrs);
+  card.hass = makeHass(state, attrs, opts.allClosed, opts.openIds);
   cell.appendChild(card);
   /* One turn after the handshake resolves, put the card into the state this
      cell is demonstrating and draw it. */

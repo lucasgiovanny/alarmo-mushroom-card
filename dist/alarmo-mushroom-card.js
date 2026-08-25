@@ -15,7 +15,7 @@
 
   const CARD_TYPE = 'alarmo-mushroom-card';
   const EDITOR_TYPE = 'alarmo-mushroom-card-editor';
-  const CARD_VERSION = '0.1.6';
+  const CARD_VERSION = '0.1.7';
   const DOCS_URL = 'https://github.com/lucasgiovanny/alarmo-mushroom-card';
 
   /* ------------------------------------------------------------------ */
@@ -1526,6 +1526,7 @@
       this._alarmoConfig = null;
       this._readyModes = null;
       this._sensorCount = null;
+      this._sensors = null;
       this._modes = null;
       this._unsubs = null;
       this._subscribing = false;
@@ -1741,6 +1742,70 @@
       return (stateObj && stateObj.attributes) || {};
     }
 
+    /* Every sensor Alarmo watches for this area, whether or not anything is
+       wrong with it. The card can then say what would block arming before the
+       attempt rather than after it. */
+    _configuredSensors() {
+      if (!this._sensors) return [];
+      const areaId = this._areaId;
+      const out = [];
+      for (const id of Object.keys(this._sensors)) {
+        const cfg = this._sensors[id] || {};
+        if (cfg.enabled === false) continue;
+        /* A master panel covers every area, so it filters on nothing. */
+        if (areaId && cfg.area && cfg.area !== areaId) continue;
+        out.push({ id: id, cfg: cfg });
+      }
+      return out;
+    }
+
+    _isOpenState(obj) {
+      if (!obj) return false;
+      return obj.state === 'on' || obj.state === 'open'
+        || obj.state === 'unlocked' || obj.state === 'detected';
+    }
+
+    /* Whether this sensor stands in the way of arming into one specific mode.
+       A sensor Alarmo is told to allow open, to bypass by itself, or simply to
+       wait for is not in anyone's way. */
+    _blocksMode(cfg, mode) {
+      if (cfg.allow_open) return false;
+      if (cfg.arm_on_close) return false;   /* Alarmo waits for it, not blocks */
+      if (cfg.always_on) return true;
+      if (!Array.isArray(cfg.modes) || !cfg.modes.includes(mode)) return false;
+      if (cfg.auto_bypass
+          && (!Array.isArray(cfg.auto_bypass_modes) || !cfg.auto_bypass_modes.length
+              || cfg.auto_bypass_modes.includes(mode))) return false;
+      return true;
+    }
+
+    _blockingSensorsFor(mode) {
+      if (!this._hass) return [];
+      return this._configuredSensors().filter(function (entry) {
+        if (!this._isOpenState(this._hass.states[entry.id])) return false;
+        return this._blocksMode(entry.cfg, mode);
+      }.bind(this)).map(function (entry) { return entry.id; });
+    }
+
+    /* Everything standing in the way of any mode this card offers. */
+    _blockingSensors() {
+      const modes = this._offeredModes();
+      if (!modes.length) return [];
+      const seen = [];
+      for (const mode of modes) {
+        for (const id of this._blockingSensorsFor(mode)) {
+          if (!seen.includes(id)) seen.push(id);
+        }
+      }
+      return seen;
+    }
+
+    _offeredModes() {
+      return this._visibleModes()
+        .filter(function (m) { return m.arms; })
+        .map(function (m) { return m.key; });
+    }
+
     /* The sensor ids named by the panel right now. Only the keys are used —
        the state stored alongside each name in open_sensors is a snapshot from
        the moment the arm failed and never updates, so trusting it would freeze
@@ -1751,6 +1816,12 @@
       const bypassed = Array.isArray(attrs.bypassed_sensors) ? attrs.bypassed_sensors : [];
       const all = open.slice();
       for (const id of bypassed) if (!all.includes(id)) all.push(id);
+      /* Every configured sensor is tracked, not only the ones already named by
+         the panel: the card now reports what is open before anything has gone
+         wrong, so it has to notice a door opening with nothing else happening. */
+      for (const entry of this._configuredSensors()) {
+        if (!all.includes(entry.id)) all.push(entry.id);
+      }
       return all;
     }
 
@@ -1801,9 +1872,15 @@
         /* How many sensors Alarmo knows about at all. Without this the
            readiness list below cannot be read — see _modeReady. */
         try {
+          /* The whole sensor config, not just how many. Which sensors would
+             block which mode is knowable right now, from this plus the live
+             entity states — waiting for an arm to fail before saying so made
+             the panel a post-mortem rather than a status. */
           const sensors = await this._hass.callWS({ type: WS.sensors });
-          this._sensorCount = sensors ? Object.keys(sensors).length : 0;
+          this._sensors = sensors || {};
+          this._sensorCount = Object.keys(this._sensors).length;
         } catch (error) {
+          this._sensors = null;
           this._sensorCount = null;
         }
         try {
@@ -2147,22 +2224,29 @@
 
     /* ---- open-sensor notice ---- */
 
+    /* What the panel is reporting, if anything. The first two look backwards
+       at what already happened; the last two are a live answer to "can this be
+       armed right now?", which is the question worth answering before the
+       attempt rather than after it. */
     _noticeKind() {
       const stateObj = this._stateObj();
       if (!stateObj) return null;
       const attrs = stateObj.attributes || {};
-      const open = attrs.open_sensors ? Object.keys(attrs.open_sensors) : [];
       const bypassed = Array.isArray(attrs.bypassed_sensors) ? attrs.bypassed_sensors : [];
-      if (stateObj.state === 'triggered' && open.length) return 'triggered';
-      if (open.length) {
-        /* Every open sensor having closed again turns the panel green and the
-           action into a plain retry. Upstream kept showing a red box listing
-           sensors that were no longer open, which reads as a stuck card. */
-        return this._allClear() ? 'ready' : 'blocked';
-      }
-      if (bypassed.length && this._config.show_bypassed_sensors
-          && String(stateObj.state).startsWith('armed_')) return 'bypassed';
-      return null;
+
+      if (stateObj.state === 'triggered'
+          && attrs.open_sensors && Object.keys(attrs.open_sensors).length) return 'triggered';
+
+      if (String(stateObj.state).startsWith('armed_') && bypassed.length
+          && this._config.show_bypassed_sensors) return 'bypassed';
+
+      /* A house with nothing registered in Alarmo has nothing to report, and a
+         green "ready to arm" panel over an empty sensor list is just noise. */
+      if (!this._sensorCount) return null;
+
+      /* Only while arming is still the thing in front of you. */
+      if (stateObj.state !== 'disarmed') return null;
+      return this._blockingSensors().length ? 'blocked' : 'ready';
     }
 
     _noticeSensors() {
@@ -2170,16 +2254,23 @@
       if (!stateObj) return [];
       const attrs = stateObj.attributes || {};
       const kind = this._noticeKind();
-      const ids = kind === 'bypassed'
-        ? (Array.isArray(attrs.bypassed_sensors) ? attrs.bypassed_sensors : [])
-        : (attrs.open_sensors ? Object.keys(attrs.open_sensors) : []);
+      let ids;
+      if (kind === 'bypassed') {
+        ids = Array.isArray(attrs.bypassed_sensors) ? attrs.bypassed_sensors : [];
+      } else if (kind === 'triggered') {
+        ids = attrs.open_sensors ? Object.keys(attrs.open_sensors) : [];
+      } else if (kind === 'blocked') {
+        ids = this._blockingSensors();
+      } else {
+        /* Nothing is in the way, so there is nothing to name. Listing every
+           quiet sensor as a green chip would bury the one line that matters
+           under a wall of things that are fine. */
+        ids = [];
+      }
       const bypassed = Array.isArray(attrs.bypassed_sensors) ? attrs.bypassed_sensors : [];
       return ids.map(function (id) {
-        /* The live state, never the snapshot stored beside the name in
-           open_sensors — that value is frozen at the moment the arm failed. */
         const obj = this._hass ? this._hass.states[id] : null;
-        const isOpen = obj ? (obj.state === 'on' || obj.state === 'open'
-          || obj.state === 'unlocked' || obj.state === 'detected') : false;
+        const isOpen = this._isOpenState(obj);
         const deviceClass = obj && obj.attributes ? obj.attributes.device_class : null;
         const pair = SENSOR_ICONS[deviceClass] || SENSOR_ICONS._default;
         const isBypassed = bypassed.includes(id);
@@ -2200,22 +2291,7 @@
     }
 
     _allClear() {
-      const sensors = this._openSensorList();
-      return sensors.length > 0 && sensors.every(function (s) { return s.clear; });
-    }
-
-    _openSensorList() {
-      const attrs = this._attrs();
-      const ids = attrs.open_sensors ? Object.keys(attrs.open_sensors) : [];
-      return ids.map(function (id) {
-        const obj = this._hass ? this._hass.states[id] : null;
-        const isOpen = obj ? (obj.state === 'on' || obj.state === 'open'
-          || obj.state === 'unlocked' || obj.state === 'detected') : false;
-        /* A sensor that vanished cannot be confirmed shut, so it does not
-           count towards "all clear" — otherwise a renamed entity silently
-           downgrades the bypass button into a plain arm. */
-        return { id: id, clear: !!obj && !isOpen };
-      }.bind(this));
+      return this._blockingSensors().length === 0;
     }
 
     /* Whether the panel is drawn at all. The kind is still computed when it is
@@ -2224,7 +2300,7 @@
     _noticeVisible() {
       const kind = this._noticeKind();
       if (!kind) return false;
-      /* Nothing is wrong any more, so there may be nothing worth saying. The
+      /* Nothing is in the way, so there may be nothing worth saying. The
          action to arm is governed separately by show_bypass_button. */
       if (kind === 'ready' && !this._config.show_ready_notice) return false;
       return true;
@@ -2409,7 +2485,7 @@
           ? this._t('sheet.no_exit_delay')
           : this._t('sheet.exit_delay').replace('{n}', String(exit)));
       }
-      const open = this._openSensorList().filter(function (x) { return !x.clear; }).length;
+      const open = this._blockingSensors().length;
       if (mode && mode !== 'disarmed' && this._armOptions.force && open) {
         details.push(tCount(this._lang(), 'sheet.bypassing', open));
       }
@@ -2518,8 +2594,13 @@
         this._setAttr('#countdown', 'hidden', counting ? null : '');
         this._setAttr('#ring', 'hidden', counting ? null : '');
 
-        const sensors = this._sensorIds(stateObj);
-        const showBadge = sensors.length > 0 && !this._noticeKind();
+        /* Something is actually wrong — not merely that sensors exist. The
+           tracked list is every configured sensor now, so counting it lit the
+           badge permanently in any house with a sensor in it. */
+        const attrs = stateObj.attributes || {};
+        const bypassed = Array.isArray(attrs.bypassed_sensors) ? attrs.bypassed_sensors : [];
+        const wrong = this._blockingSensors().length + bypassed.length;
+        const showBadge = wrong > 0 && !this._noticeVisible();
         this._setAttr('#hero-badge', 'hidden', showBadge ? null : '');
         this._setVar('#hero-badge', '--amc-badge-color', 'rgb(var(--amc-rgb-warning))');
       }
@@ -2596,9 +2677,6 @@
       if (!this._noticeVisible()) return;
       const kind = this._noticeKind();
       const sensors = this._noticeSensors();
-      const openCount = kind === 'bypassed'
-        ? sensors.length
-        : this._openSensorList().filter(function (s) { return !s.clear; }).length;
 
       const icons = {
         blocked: 'mdi:shield-alert-outline',
@@ -2616,7 +2694,7 @@
       this._setText('#notice-title', titles[kind]);
       /* The count follows the chips out of view when the row scrolls, so it
          reports the true total rather than what happens to be on screen. */
-      const count = kind === 'bypassed' ? sensors.length : openCount;
+      const count = sensors.length;
       this._setText('#notice-count', String(count));
       this._setAttr('#notice-count', 'hidden', count > 0 ? null : '');
 
@@ -2749,8 +2827,13 @@
        cannot arm and will not say why. */
     _modeReady(mode) {
       if (!mode.arms) return null;
-      if (!Array.isArray(this._readyModes) || !this._readyModes.length) return null;
       if (!this._sensorCount) return null;
+      /* The same source as the panel above the buttons. Reading readiness from
+         Alarmo's list while the panel worked it out from the sensors let the
+         two disagree on screen — a green "ready to be armed" over a button
+         wearing an amber dot. */
+      if (this._sensors) return this._blockingSensorsFor(mode.key).length === 0;
+      if (!Array.isArray(this._readyModes) || !this._readyModes.length) return null;
       /* Alarmo reports readiness as full state names — 'armed_away', not
          'away'. Its own debug log strips the prefix, which is an easy way to
          end up matching against the short form and marking every mode

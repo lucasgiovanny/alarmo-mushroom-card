@@ -107,7 +107,7 @@ function summary(over) {
     _modeLabel: (s) => ({ armed_away: 'Away', armed_home: 'Home' })[s] || s,
     _nameText: () => 'Alarmo',
     _stateObj: () => ({ state: 'disarmed', attributes: { friendly_name: 'Alarmo' } }),
-    _openSensorList: () => []
+    _blockingSensors: () => []
   }, over);
   return summaryFn.call(ctx);
 }
@@ -140,11 +140,11 @@ ok('disarming reads as disarming');
 
 out = summary({
   _armOptions: { force: true, skip_delay: false },
-  _openSensorList: () => [{ id: 'a', clear: false }, { id: 'b', clear: false }, { id: 'c', clear: true }]
+  _blockingSensors: () => ['a', 'b']
 });
 assert.match(out, /bypassing 2 sensors/,
-  'only sensors still open are being bypassed; one that closed again is not');
-ok('the summary counts only the sensors still open');
+  'the count is what is standing in the way right now, live');
+ok('the summary counts the sensors actually in the way');
 
 out = summary({ _modes: null });
 assert.match(out, /Arming Alarmo · Away/,

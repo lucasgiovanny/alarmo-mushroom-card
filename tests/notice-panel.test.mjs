@@ -31,6 +31,32 @@ assert.ok(/this\._hass\.states\[id\]/.test(noticeSensors),
 assert.ok(/friendly_name/.test(noticeSensors), 'a sensor should be named, not shown as an id');
 ok('chips read live sensor state');
 
+/* The panel used to exist only after an arm had failed, because open_sensors is
+   only ever populated by a failure. So a door standing open said nothing until
+   you tried, and the all-clear could only appear as the aftermath of a failure
+   — which is a strange thing for "everything is fine" to be. It is a live
+   answer now, computed from the sensor config and the current states. */
+const noticeKind = sliceFunction('_noticeKind');
+assert.ok(/_blockingSensors\(\)/.test(noticeKind),
+  'blocked and ready must be decided from live state, not from a past failure');
+assert.ok(/!this\._sensorCount/.test(noticeKind),
+  'a house with nothing registered in Alarmo has nothing to report');
+const blocks = sliceFunction('_blocksMode') + sliceFunction('_configuredSensors');
+for (const field of ['allow_open', 'arm_on_close', 'auto_bypass', 'always_on', 'enabled']) {
+  assert.ok(new RegExp(field).test(blocks),
+    `${field} changes whether a sensor is in the way, so it has to be read`);
+}
+ok('what blocks arming is computed live from the sensor config');
+
+/* The panel and the per-button dots have to answer from the same place. Taking
+   readiness from Alarmo's mode list while the panel worked it out from the
+   sensors let the two disagree on screen: a green "ready to be armed" sitting
+   over a button wearing an amber dot. */
+const modeReady = sliceFunction('_modeReady');
+assert.ok(/_blockingSensorsFor\(mode\.key\)/.test(modeReady),
+  'the dots must read the same live computation the panel does');
+ok('the dots and the panel cannot disagree');
+
 const trackedChanged = sliceFunction('_trackedChanged');
 assert.ok(/_sensorIds/.test(trackedChanged),
   'the open sensors must be tracked in set hass, or closing a door changes '

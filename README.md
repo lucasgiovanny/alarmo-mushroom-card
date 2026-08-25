@@ -17,7 +17,7 @@ actually read.
 
 [![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=lucasgiovanny&repository=alarmo-mushroom-card&category=dashboard)
 
-![Blocked by open sensors](docs/screenshots/01-blocked.png)
+![The open-sensor panel, blocked and all-clear](docs/screenshots/01-blocked.png)
 
 [Features](#features) • [Installation](#installation) • [Usage](#usage) • [Options](#options) • [Migrating](#migrating-from-alarmo-card) • [Screenshots](#screenshots) • [Development](#development) • [License](#license)
 
@@ -25,12 +25,16 @@ actually read.
 
 - Mushroom's layout, colour formula, control geometry and motion, honoured token for token —
   the card sits beside a Mushroom card without looking almost right
-- **A readable open-sensor panel.** Blocking sensors are chips you can scroll, tap to open
-  more-info, and watch turn green the moment you shut the door
+- **The open-sensor panel is a status, not a post-mortem.** It says whether the alarm can be
+  armed *right now* — computed from Alarmo's sensor config and the live entity states, not
+  from the aftermath of a failed attempt. The blocking sensors are chips you can scroll and
+  tap to open more-info, and they disappear as you shut the doors
+- The per-button readiness dots read the same live answer the panel does, so the two can
+  never disagree on screen
 - The bypass action is **separate from the message**, so `show_messages: false` no longer
   takes away the only way to arm past an open door
-- A sensor that closes while the panel is up flips the panel to *All clear — ready to arm*
-  and the button to a plain arm — no needless bypass
+- Shutting the last open door flips the panel green and turns the button into a plain arm —
+  no needless bypass
 - Ready-to-arm dots that actually update live, and a not-ready button that cannot be tapped
   into a failed arm
 - Countdown ring driven by an absolute deadline, so a backgrounded tab comes back correct

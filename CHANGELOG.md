@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.1.7 - 2026-08-25
+
+- Changed the open-sensor panel from a post-mortem into a status. It used to exist only after
+  an arm had failed, because `open_sensors` is only ever populated by a failure — so a door
+  standing open said nothing until you tried, and the all-clear could only ever appear as the
+  aftermath of a failure, which is a strange thing for *everything is fine* to be. The panel
+  now answers whether the alarm can be armed right now, worked out from Alarmo's sensor
+  config (`alarmo/sensors`) and the live entity states
+- Changed which sensors count as in the way to follow the sensor's own configuration:
+  `enabled`, `always_on`, `modes`, `allow_open`, `arm_on_close`, `auto_bypass` and its
+  per-mode list, and the area. A sensor Alarmo is told to allow open, to bypass by itself, or
+  simply to wait for is not in anyone's way
+- Changed the per-button readiness dots to read that same live answer instead of Alarmo's
+  mode list, so a green *ready to be armed* can no longer sit above a button wearing an amber
+  dot. The dots are per mode, so a sensor armed only for away leaves home and night green
+- Fixed the header badge lighting up merely because sensors exist. It now means something is
+  actually open or bypassed
+- The all-clear panel shows no chips: listing every quiet sensor as a green chip buried the
+  one line that matters under a wall of things that are fine
+
 ## 0.1.6 - 2026-08-25
 
 - Changed the blocked notice to say what is true rather than what is not yet: *The alarm
