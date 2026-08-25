@@ -40,7 +40,8 @@ actually read.
   delay is, and whether anything is being bypassed — before asking for the code
 - Mode buttons stay on one row and drop their labels when the words stop fitting, rather than
   wrapping to a second line or squeezing every label into an ellipsis
-- `default` / `horizontal` / `vertical` layouts, `fill_container`, and grid sizing
+- `default` / `horizontal` / `vertical` layouts, `fill_container`, and a height the sections
+  grid sizes to the card rather than the other way round
 - Seven languages: English, Portuguese (BR and PT), Spanish, French, German, Italian
 - Visual editor covering every state — including `triggered`, `arming` and `pending`, which
   the original editor could not reach at all

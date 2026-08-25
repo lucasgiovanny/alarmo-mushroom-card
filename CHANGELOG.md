@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.1.4 - 2026-08-25
+
+- Fixed the card overflowing its cell in a sections dashboard and drawing on top of the cards
+  around it. Home Assistant pins a card to an exact pixel height whenever `getGridOptions()`
+  reports a numeric `rows` — the `fit-rows` class in `hui-grid-section.ts` — and this card
+  reported 3, which is 184px. Its real height is not knowable in advance: the open-sensor
+  panel, the bypass button, the shortcut chips and the keypad each come and go with state, so
+  it now reports `rows: 'auto'` and the grid takes the height the card actually has
+- Added `getLayoutOptions()`, which Home Assistant before 2024.11 asks instead
+
 ## 0.1.3 - 2026-08-25
 
 - Fixed the card subscribing to a websocket command Alarmo does not serve. Alarmo's only

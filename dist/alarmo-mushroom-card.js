@@ -15,7 +15,7 @@
 
   const CARD_TYPE = 'alarmo-mushroom-card';
   const EDITOR_TYPE = 'alarmo-mushroom-card-editor';
-  const CARD_VERSION = '0.1.3';
+  const CARD_VERSION = '0.1.4';
   const DOCS_URL = 'https://github.com/lucasgiovanny/alarmo-mushroom-card';
 
   /* ------------------------------------------------------------------ */
@@ -1566,16 +1566,34 @@
       return 4;
     }
 
+    /* Called before hass exists on some layout paths, so nothing here may read
+       the entity — a throw at this point drops the card out of a sections view
+       entirely rather than showing an error.
+
+       rows is 'auto', never a number. A numeric rows earns the card the
+       fit-rows class, which pins it to exactly
+       rows * (row-height + row-gap) - row-gap pixels
+       (hui-grid-section.ts). This card's height is not knowable in advance: the
+       open-sensor panel, the bypass button, the shortcut chips and the keypad
+       each appear and disappear with state, and a fixed guess had the card
+       spilling out of its cell and drawing on top of its neighbours in edit
+       mode. 'auto' lets the grid take the height the card actually has. */
     getGridOptions() {
-      /* Called before hass exists on some layout paths, so nothing here may
-         read the entity — a throw at this point drops the card out of a
-         sections view entirely rather than showing an error. */
       const config = this._config;
       if (config && config.layout === 'horizontal') {
-        return { rows: 1, columns: 12, min_columns: 6 };
+        return { rows: 'auto', min_rows: 1, columns: 12, min_columns: 6 };
       }
-      const rows = config && config.layout === 'vertical' ? 4 : 3;
-      return { rows: rows, min_rows: 2, columns: 12, min_columns: 4 };
+      return { rows: 'auto', min_rows: 2, columns: 12, min_columns: 4 };
+    }
+
+    /* Home Assistant before 2024.11 asks this instead, with the same meaning
+       carried under grid_* names. */
+    getLayoutOptions() {
+      const config = this._config;
+      if (config && config.layout === 'horizontal') {
+        return { grid_rows: 'auto', grid_min_rows: 1, grid_columns: 12, grid_min_columns: 6 };
+      }
+      return { grid_rows: 'auto', grid_min_rows: 2, grid_columns: 12, grid_min_columns: 4 };
     }
 
     setConfig(config) {
