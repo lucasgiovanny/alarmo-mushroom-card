@@ -118,7 +118,7 @@ ok('a real upstream config normalizes without loss');
 
 for (const [key, value] of Object.entries({
   layout: 'default', fill_container: false, icon_type: 'icon',
-  show_bypass_button: true, confirm_bypass: true, show_ready_notice: true,
+  show_bypass_button: true, show_ready_notice: true, blocked_modes: 'disable',
   show_skip_delay_option: true, button_content: 'icon_and_name'
 })) {
   assert.equal(DEFAULTS[key], value, `${key} must default to ${value}`);
@@ -140,6 +140,11 @@ ok('show_arm_options migrates into the shortcut that outlived it');
 assert.doesNotThrow(() => normalizeConfig({ ...base, show_force_option: false }));
 assert.equal(normalizeConfig({ ...base, show_force_option: false }).show_force_option,
   undefined, 'the retired key must not linger in the config the card reads');
+assert.doesNotThrow(() => normalizeConfig({ ...base, confirm_bypass: false }));
+assert.equal(normalizeConfig({ ...base, confirm_bypass: false }).confirm_bypass, undefined,
+  'the retired confirm step must not linger in the config the card reads');
+assert.equal(normalizeConfig({ ...base, blocked_modes: 'nonsense' }).blocked_modes, 'disable',
+  'an unknown blocked_modes falls back rather than drawing nothing');
 assert.doesNotThrow(() => normalizeConfig({ ...base, language: 'pt-br' }));
 assert.equal(normalizeConfig({ ...base, language: 'pt-br' }).language, undefined,
   'the card follows Home Assistant now; a leftover language must not shadow it');

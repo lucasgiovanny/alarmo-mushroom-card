@@ -30,6 +30,9 @@ actually read.
   from the aftermath of a failed attempt. The blocking sensors are chips naming the room each
   one is in — *Window* alone says nothing in a house with four of them — which you can scroll
   and tap to open more-info, and which disappear as you shut the doors
+- A mode that cannot be armed is locked rather than left to fail, and the way past it is a
+  key: *Arm anyway* puts every blocked mode back on the row, and the one you then choose is
+  the one that arms — two deliberate taps naming exactly what happens, with no guessing
 - The per-button readiness dots read the same live answer the panel does, so the two can
   never disagree on screen
 - The bypass action is **separate from the message**, so `show_messages: false` no longer
@@ -139,9 +142,9 @@ More in [`examples/`](examples/).
 | `keep_keypad_visible` | boolean | `false` | Draw the keypad even when no code is needed |
 | `use_code_dialog` | boolean | `false` | Ask for the code in a sheet instead of inline |
 | `show_messages` | boolean | `true` | List which sensors are open. Off, the panel still says the alarm cannot be armed — just not what is in the way |
-| `show_bypass_button` | boolean | `true` | Show the arm-anyway action |
+| `show_bypass_button` | boolean | `true` | Show the arm-anyway key |
+| `blocked_modes` | string | `disable` | What a mode that cannot be armed looks like: `disable` (drawn unavailable) or `hide` (taken off the row) |
 | `show_ready_notice` | boolean | `true` | Show the panel once every blocking sensor has closed again |
-| `confirm_bypass` | boolean | `true` | Require a second tap before bypassing |
 | `show_ready_indicator` | boolean | `true` | Readiness dot on each arm button |
 | `show_bypassed_sensors` | boolean | `true` | Show bypassed sensors while armed |
 | `show_skip_delay_option` | boolean | `true` | The no-delay shortcut while disarmed |
@@ -178,6 +181,10 @@ Every option above is read the same way, including the legacy `button_scale`. Th
 behaviours differ on purpose — see [docs/MIGRATING.md](docs/MIGRATING.md).
 
 ## Screenshots
+
+Locked, and with the key turned:
+
+![A blocked mode, and the key that puts it back](docs/screenshots/05-locked-unlocked.png)
 
 Each blocking sensor names its room:
 

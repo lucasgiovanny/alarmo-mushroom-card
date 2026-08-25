@@ -180,28 +180,37 @@ const CASES = [
   ['show_messages',false, () => { const c=card({show_messages:false},'disarmed',{},null,'armed_away');
       return q(c,'.notice').hasAttribute('data-quiet'); }],
   ['show_bypass_button',false, () => !q(card({show_bypass_button:false},'disarmed',{},null,'armed_away'),'#bypass')],
-  [null,'tapping a blocked mode reveals the bypass button', () => {
-      const c = card({},'disarmed',{});
-      if (q(c,'#bypass')) return 'the button should not be there before the tap';
-      q(c,'#mode-armed_away').click();
-      return !!q(c,'#bypass') || 'the button must appear on the tap, not after the round trip'; }],
-  [null,'one arm mode blocked needs no attempt', () => {
-      const c = card({states:{armed_home:{hide:'always'},armed_night:{hide:'always'},
-        armed_vacation:{hide:'always'}}},'disarmed',{});
-      return !!q(c,'#bypass') || 'a single blocked mode is unambiguous on its own'; }],
-  ['confirm_bypass',false, () => { window.__calls=[];
-      const c=card({confirm_bypass:false},'disarmed',{},null,'armed_away');
+
+  ['blocked_modes','hide', () => { const c=card({blocked_modes:'hide'},'disarmed',{});
+      return !q(c,'#mode-armed_away') || 'a blocked mode must be off the row'; }],
+  /* The default is never written to the config, so this half is the card only. */
+  [null,'a blocked mode is drawn unavailable by default', () => { const c=card({},'disarmed',{});
+      const b=q(c,'#mode-armed_away');
+      return (b && b.getAttribute('aria-disabled')==='true')
+        || 'a blocked mode must be drawn as unavailable'; }],
+  [null,'the key puts the blocked modes back', () => {
+      const c=card({blocked_modes:'hide'},'disarmed',{});
+      if (q(c,'#mode-armed_away')) return 'the mode should start off the row';
       q(c,'#bypass').click();
-      return window.__calls.length===1 && window.__calls[0][2].force===true || 'no service call: '+JSON.stringify(window.__calls); }],
+      if (!q(c,'#mode-armed_away')) return 'turning the key must put it back';
+      window.__calls=[];
+      q(c,'#mode-armed_away').click();
+      return (window.__calls.length===1 && window.__calls[0][2].force===true)
+        || 'arming after the key must send force: ' + JSON.stringify(window.__calls); }],
+  [null,'the key is offered without any attempt', () => {
+      const c=card({},'disarmed',{});
+      return (!!q(c,'#bypass') && !c._pending)
+        || 'something is blocked, so the way past it must be on screen'; }],
   ['show_ready_indicator',false, () => q(card({show_ready_indicator:false},'disarmed',{},{ready:['armed_home']}),'#ready-armed_away').hasAttribute('hidden')],
   ['show_bypassed_sensors',false, () => !q(card({show_bypassed_sensors:false},'armed_away',{bypassed_sensors:['binary_sensor.s1']}),'.notice')],
   ['show_ready_notice',false, () => { const c=card({show_ready_notice:false},'disarmed',{},
         {sensors:{'binary_sensor.s8':{entity_id:'binary_sensor.s8',enabled:true,area:'home',
-          modes:['armed_away']}}},'armed_away');
+          modes:['armed_away']}}});
       /* s8 is the closed one, so nothing is in the way and the all-clear panel
-         is exactly what this hides. */
-      return (!q(c,'.notice') && !!q(c,'#bypass'))
-        || 'the panel must go without taking the arm action with it'; }],
+         is exactly what this hides. Nothing is locked either, so there is
+         correctly no key to offer. */
+      return (!q(c,'.notice') && !q(c,'#bypass'))
+        || 'the all-clear panel must go, and with nothing locked there is no key'; }],
   /* A default value is never written to the config, so this half is the card
      only — the false case above covers the editor round-trip. */
   [null,'all-clear panel shown by default', () => { const c=card({},'disarmed',{},

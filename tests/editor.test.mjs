@@ -101,21 +101,21 @@ ok('a text code drops both key settings');
 const noticesSchema = new Function(
   'return function ' + sliceFunction('_noticesSchema').trimStart().slice('_noticesSchema'.length)
 )();
-const noticeNames = (config) => noticesSchema.call({ _config: config }).map((f) => f.name);
+const noticeNames = (config) =>
+  noticesSchema.call({ _config: config, _t: (k) => k }).map((f) => f.name);
 
-assert.deepEqual(noticeNames({ show_messages: true, show_bypass_button: true }),
+assert.deepEqual(noticeNames({ show_messages: true }),
   ['show_messages', 'max_sensor_chips', 'show_ready_notice', 'show_bypass_button',
-   'confirm_bypass', 'show_bypassed_sensors'],
-  'read top to bottom: what to show, how much, the all-clear, the action, its '
-  + 'safety catch, the armed case');
+   'blocked_modes', 'show_bypassed_sensors'],
+  'read top to bottom: what to show, how much, the all-clear, the way past a '
+  + 'blocked sensor, what a blocked mode looks like, the armed case');
 ok('the open-sensor section reads in order');
 
-assert.ok(!noticeNames({ show_messages: false, show_bypass_button: true })
-  .includes('max_sensor_chips'), 'nothing is listed, so there is no length to cap');
-assert.ok(!noticeNames({ show_messages: true, show_bypass_button: false })
-  .includes('confirm_bypass'), 'no button, nothing to confirm');
-assert.deepEqual(noticeNames({ show_messages: false, show_bypass_button: false }),
-  ['show_messages', 'show_ready_notice', 'show_bypass_button', 'show_bypassed_sensors']);
+assert.ok(!noticeNames({ show_messages: false }).includes('max_sensor_chips'),
+  'nothing is listed, so there is no length to cap');
+assert.deepEqual(noticeNames({ show_messages: false }),
+  ['show_messages', 'show_ready_notice', 'show_bypass_button', 'blocked_modes',
+   'show_bypassed_sensors']);
 ok('a setting that governs nothing is not offered');
 
 /* The schema now depends on more than the entity and the language. */

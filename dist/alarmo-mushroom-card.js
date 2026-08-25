@@ -15,7 +15,7 @@
 
   const CARD_TYPE = 'alarmo-mushroom-card';
   const EDITOR_TYPE = 'alarmo-mushroom-card-editor';
-  const CARD_VERSION = '0.1.9';
+  const CARD_VERSION = '0.1.10';
   const DOCS_URL = 'https://github.com/lucasgiovanny/alarmo-mushroom-card';
 
   /* ------------------------------------------------------------------ */
@@ -154,7 +154,7 @@
         bypassed_other: '{n} sensors are not being watched',
         sensor_open: 'Open', sensor_closed: 'Closed', sensor_bypassed: 'Bypassed',
         sensor_missing: 'No longer in Home Assistant',
-        action_bypass: 'Arm anyway', action_bypass_confirm: 'Tap again to confirm',
+        action_bypass: 'Arm anyway', action_bypass_on: 'Bypassing open sensors',
         action_retry: 'Arm now', more: '+{n} more'
       },
       sheet: {
@@ -186,7 +186,8 @@
         show_messages_help: 'Without it the panel still says the alarm cannot be armed, but not what is in the way. The bypass button has a setting of its own.',
         show_bypass_button: 'Show the arm-anyway button',
         show_ready_notice: 'Show the panel when everything is closed',
-        confirm_bypass: 'Ask for a second tap before arming anyway',
+        blocked_modes: 'Modes that cannot be armed',
+        blocked_disable: 'Draw them as unavailable', blocked_hide: 'Take them off the row',
         show_bypassed_sensors: 'List the bypassed sensors while armed',
         max_sensor_chips: 'Sensors listed before “+N more”',
         state_label: 'State label', button_label: 'Button label', button_icon: 'Button icon',
@@ -231,7 +232,7 @@
         bypassed_other: '{n} sensores não estão sendo vigiados',
         sensor_open: 'Aberto', sensor_closed: 'Fechado', sensor_bypassed: 'Ignorado',
         sensor_missing: 'Não existe mais no Home Assistant',
-        action_bypass: 'Armar mesmo assim', action_bypass_confirm: 'Toque de novo para confirmar',
+        action_bypass: 'Armar mesmo assim', action_bypass_on: 'Ignorando sensores abertos',
         action_retry: 'Armar agora', more: 'mais {n}'
       },
       sheet: {
@@ -263,7 +264,8 @@
         show_messages_help: 'Sem isso o aviso continua dizendo que o alarme não pode ser armado, mas não o que está no caminho. O botão de armar mesmo assim tem opção própria.',
         show_bypass_button: 'Mostrar o botão de armar mesmo assim',
         show_ready_notice: 'Mostrar o aviso quando estiver tudo fechado',
-        confirm_bypass: 'Pedir um segundo toque antes de armar mesmo assim',
+        blocked_modes: 'Modos que não podem ser armados',
+        blocked_disable: 'Deixar como indisponíveis', blocked_hide: 'Tirar da lista',
         show_bypassed_sensors: 'Listar os sensores ignorados enquanto armado',
         max_sensor_chips: 'Sensores listados antes de “mais N”',
         state_label: 'Rótulo do estado', button_label: 'Rótulo do botão', button_icon: 'Ícone do botão',
@@ -308,7 +310,7 @@
         bypassed_other: '{n} sensores não estão a ser vigiados',
         sensor_open: 'Aberto', sensor_closed: 'Fechado', sensor_bypassed: 'Ignorado',
         sensor_missing: 'Já não existe no Home Assistant',
-        action_bypass: 'Armar mesmo assim', action_bypass_confirm: 'Toque novamente para confirmar',
+        action_bypass: 'Armar mesmo assim', action_bypass_on: 'A ignorar sensores abertos',
         action_retry: 'Armar agora', more: 'mais {n}'
       },
       sheet: {
@@ -340,7 +342,8 @@
         show_messages_help: 'Sem isso o aviso continua a dizer que o alarme não pode ser armado, mas não o que está no caminho. O botão de armar mesmo assim tem opção própria.',
         show_bypass_button: 'Mostrar o botão de armar mesmo assim',
         show_ready_notice: 'Mostrar o aviso quando estiver tudo fechado',
-        confirm_bypass: 'Pedir um segundo toque antes de armar mesmo assim',
+        blocked_modes: 'Modos que não podem ser armados',
+        blocked_disable: 'Deixar como indisponíveis', blocked_hide: 'Retirar da lista',
         show_bypassed_sensors: 'Listar os sensores ignorados enquanto armado',
         max_sensor_chips: 'Sensores listados antes de “mais N”',
         state_label: 'Rótulo do estado', button_label: 'Rótulo do botão', button_icon: 'Ícone do botão',
@@ -385,7 +388,7 @@
         bypassed_other: '{n} sensores no se están vigilando',
         sensor_open: 'Abierto', sensor_closed: 'Cerrado', sensor_bypassed: 'Omitido',
         sensor_missing: 'Ya no existe en Home Assistant',
-        action_bypass: 'Armar de todos modos', action_bypass_confirm: 'Toca otra vez para confirmar',
+        action_bypass: 'Armar de todos modos', action_bypass_on: 'Omitiendo sensores abiertos',
         action_retry: 'Armar ahora', more: '+{n} más'
       },
       sheet: {
@@ -417,7 +420,8 @@
         show_messages_help: 'Sin esto el aviso sigue diciendo que la alarma no se puede armar, pero no qué lo impide. El botón de armar igualmente tiene su propia opción.',
         show_bypass_button: 'Mostrar el botón de armar igualmente',
         show_ready_notice: 'Mostrar el aviso cuando todo esté cerrado',
-        confirm_bypass: 'Pedir un segundo toque antes de armar igualmente',
+        blocked_modes: 'Modos que no se pueden armar',
+        blocked_disable: 'Dejarlos como no disponibles', blocked_hide: 'Quitarlos de la fila',
         show_bypassed_sensors: 'Listar los sensores omitidos mientras está armada',
         max_sensor_chips: 'Sensores listados antes de “+N más”',
         state_label: 'Etiqueta del estado', button_label: 'Etiqueta del botón', button_icon: 'Icono del botón',
@@ -462,7 +466,7 @@
         bypassed_other: '{n} capteurs ne sont pas surveillés',
         sensor_open: 'Ouvert', sensor_closed: 'Fermé', sensor_bypassed: 'Ignoré',
         sensor_missing: "N'existe plus dans Home Assistant",
-        action_bypass: 'Armer quand même', action_bypass_confirm: 'Touchez à nouveau pour confirmer',
+        action_bypass: 'Armer quand même', action_bypass_on: 'Capteurs ouverts ignorés',
         action_retry: 'Armer maintenant', more: '+{n} autres'
       },
       sheet: {
@@ -494,7 +498,8 @@
         show_messages_help: "Sans cela le bandeau dit toujours que l'alarme ne peut pas être armée, mais pas ce qui l'en empêche. Le bouton d'armer quand même a son propre réglage.",
         show_bypass_button: "Afficher le bouton d'armer quand même",
         show_ready_notice: 'Afficher le bandeau une fois tout refermé',
-        confirm_bypass: "Demander un second appui avant d'armer quand même",
+        blocked_modes: 'Modes qui ne peuvent pas être armés',
+        blocked_disable: 'Les montrer indisponibles', blocked_hide: 'Les retirer de la rangée',
         show_bypassed_sensors: 'Lister les capteurs ignorés une fois armé',
         max_sensor_chips: 'Capteurs listés avant « +N autres »',
         state_label: "Libellé de l'état", button_label: 'Libellé du bouton', button_icon: 'Icône du bouton',
@@ -539,7 +544,7 @@
         bypassed_other: '{n} Sensoren werden nicht überwacht',
         sensor_open: 'Offen', sensor_closed: 'Geschlossen', sensor_bypassed: 'Übergangen',
         sensor_missing: 'Existiert nicht mehr in Home Assistant',
-        action_bypass: 'Trotzdem aktivieren', action_bypass_confirm: 'Zum Bestätigen erneut tippen',
+        action_bypass: 'Trotzdem aktivieren', action_bypass_on: 'Offene Sensoren werden übergangen',
         action_retry: 'Jetzt aktivieren', more: '+{n} weitere'
       },
       sheet: {
@@ -571,7 +576,8 @@
         show_messages_help: 'Ohne dies sagt der Hinweis weiter, dass der Alarm nicht aktiviert werden kann, aber nicht, was im Weg ist. Die Schaltfläche hat eine eigene Einstellung.',
         show_bypass_button: 'Schaltfläche „trotzdem aktivieren“ anzeigen',
         show_ready_notice: 'Hinweis anzeigen, sobald wieder alles zu ist',
-        confirm_bypass: 'Vor dem trotzdem Aktivieren ein zweites Tippen verlangen',
+        blocked_modes: 'Modi, die nicht aktiviert werden können',
+        blocked_disable: 'Als nicht verfügbar zeigen', blocked_hide: 'Aus der Reihe nehmen',
         show_bypassed_sensors: 'Übergangene Sensoren im aktivierten Zustand auflisten',
         max_sensor_chips: 'Sensoren vor „+N weitere“',
         state_label: 'Zustandsbezeichnung', button_label: 'Schaltflächentext', button_icon: 'Schaltflächensymbol',
@@ -616,7 +622,7 @@
         bypassed_other: '{n} sensori non sono sorvegliati',
         sensor_open: 'Aperto', sensor_closed: 'Chiuso', sensor_bypassed: 'Escluso',
         sensor_missing: 'Non esiste più in Home Assistant',
-        action_bypass: 'Inserisci comunque', action_bypass_confirm: 'Tocca di nuovo per confermare',
+        action_bypass: 'Inserisci comunque', action_bypass_on: 'Sensori aperti esclusi',
         action_retry: 'Inserisci ora', more: '+{n} altri'
       },
       sheet: {
@@ -648,7 +654,8 @@
         show_messages_help: "Senza questo l'avviso continua a dire che l'allarme non può essere inserito, ma non che cosa lo impedisce. Il pulsante ha un'opzione sua.",
         show_bypass_button: 'Mostrare il pulsante per inserire comunque',
         show_ready_notice: "Mostrare l'avviso quando è di nuovo tutto chiuso",
-        confirm_bypass: 'Chiedere un secondo tocco prima di inserire comunque',
+        blocked_modes: 'Modi che non possono essere inseriti',
+        blocked_disable: 'Mostrarli non disponibili', blocked_hide: 'Toglierli dalla riga',
         show_bypassed_sensors: 'Elencare i sensori esclusi mentre è inserito',
         max_sensor_chips: 'Sensori elencati prima di “+N altri”',
         state_label: 'Etichetta dello stato', button_label: 'Etichetta del pulsante', button_icon: 'Icona del pulsante',
@@ -962,7 +969,6 @@
       0%{transform:translateX(0)}25%{transform:translateX(-6px)}
       50%{transform:translateX(0)}75%{transform:translateX(6px)}100%{transform:translateX(0)}
     }
-    @keyframes amc-drain{from{transform:scaleX(1)}to{transform:scaleX(0)}}
   `;
 
   /* ------------------------------------------------------------------ */
@@ -1143,14 +1149,13 @@
       overflow:hidden;
     }
     .bypass:hover{background-color:rgba(var(--amc-notice-rgb,var(--amc-rgb-warning)),0.28)}
-    /* The confirm step raises the tint rather than going solid: a solid fill
-       needs a foreground colour no Home Assistant theme defines, and every
-       fixed guess failed contrast in one of the two modes. */
-    .bypass[data-confirm]{background-color:rgba(var(--amc-notice-rgb),0.38)}
-    .bypass[data-confirm]::after{
-      content:"";position:absolute;left:0;bottom:0;height:2px;width:100%;
-      background:rgb(var(--amc-notice-rgb));transform-origin:left;
-      animation:amc-drain 4s linear forwards;
+    /* Turned, the key reads as held down rather than as a fresh invitation.
+       Raising the tint rather than going solid: a solid fill needs a foreground
+       colour no Home Assistant theme defines, and every fixed guess failed
+       contrast in one of the two modes. */
+    .bypass[data-on]{
+      background-color:rgba(var(--amc-notice-rgb),0.38);
+      box-shadow:inset 0 0 0 1px rgba(var(--amc-notice-rgb),0.5);
     }
 
     /* ---- arm options ---- */
@@ -1343,6 +1348,7 @@
     button_scale_keypad: 1,
     show_messages: true,
     show_ready_indicator: true,
+    blocked_modes: 'disable',
     show_bypassed_sensors: true,
     states: {},
     /* --- added by this card --- */
@@ -1351,7 +1357,6 @@
     icon_type: 'icon',
     show_bypass_button: true,
     show_ready_notice: true,
-    confirm_bypass: true,
     show_skip_delay_option: true,
     button_content: 'icon_and_name',
     /* Left unset so the default can depend on use_code_dialog — see _tapAction. */
@@ -1386,6 +1391,12 @@
     if (!['icon_and_name', 'icon', 'name'].includes(config.button_content)) {
       config.button_content = 'icon_and_name';
     }
+    if (!['disable', 'hide'].includes(config.blocked_modes)) config.blocked_modes = 'disable';
+    /* Retired in 0.1.10: arming past a sensor now takes two deliberate taps in
+       two different places — unlock, then choose a mode — which is the second
+       thought this used to ask for. Accepted so an existing config does not
+       error, ignored so it does not linger. */
+    delete config.confirm_bypass;
     if (config.tap_action !== undefined
         && !['none', 'more-info', 'code'].includes(config.tap_action)) {
       config.tap_action = undefined;
@@ -1526,7 +1537,6 @@
   const RING_CIRCUMFERENCE = 138.23; /* 2 * PI * 22, the ring radius below */
   const CODE_IDLE_MS = 120000;
   const FLASH_MS = 4000;
-  const CONFIRM_MS = 4000;
   const PENDING_STALE_MS = 60000;
 
   class AlarmoMushroomCard extends HTMLElement {
@@ -1552,14 +1562,12 @@
       this._flash = '';
       this._pending = null;     /* {mode, code, at} after a failed arm */
       this._armOptions = { force: false, skip_delay: false };
-      this._confirming = false;
       this._expanded = false;
       this._sheetOpen = false;
       this._deadline = 0;
       this._delay = 0;
       this._tickTimer = null;
       this._flashTimer = null;
-      this._confirmTimer = null;
       this._codeTimer = null;
       this._themeKey = '';
       this._offscreen = false;
@@ -1696,7 +1704,6 @@
       if (this._resize) { this._resize.disconnect(); this._resize = null; }
       this._stopTick();
       clearTimeout(this._flashTimer); this._flashTimer = null;
-      clearTimeout(this._confirmTimer); this._confirmTimer = null;
       clearTimeout(this._codeTimer); this._codeTimer = null;
       if (this._unsubs) {
         for (const off of this._unsubs) {
@@ -1835,10 +1842,43 @@
       return seen;
     }
 
+    /* The modes the config puts on offer, blocked or not. This must not be
+       narrowed by what is blocked: it is the input to working out what is
+       blocked, and filtering it first would leave the card concluding that
+       nothing blocks anything. */
     _offeredModes() {
       return this._visibleModes()
         .filter(function (m) { return m.arms; })
         .map(function (m) { return m.key; });
+    }
+
+    /* What actually gets drawn as a button. A mode that cannot be armed right
+       now is not a button anyone can use, and the panel above already says why
+       — the way past it is the arm-anyway action, not a button that fails. */
+    /* Unlocked, everything is on offer again — that is the whole point of the
+       key. Locked, a blocked mode is either taken off the row or drawn as
+       unavailable, depending on which reads better in the house. */
+    _unlocked() {
+      return !!this._armOptions.force;
+    }
+
+    _modeBlocked(mode) {
+      if (!mode.arms) return false;
+      if (this._unlocked()) return false;
+      return this._blockingSensorsFor(mode.key).length > 0;
+    }
+
+    _renderedModes() {
+      const modes = this._visibleModes();
+      if (this._config.blocked_modes !== 'hide') return modes;
+      return modes.filter(function (m) { return !this._modeBlocked(m); }.bind(this));
+    }
+
+    /* Whether anything is being kept from you at all. */
+    _anyBlocked() {
+      return this._visibleModes().some(function (m) {
+        return m.arms && this._blockingSensorsFor(m.key).length > 0;
+      }.bind(this));
     }
 
     /* The sensor ids named by the panel right now. Only the keys are used —
@@ -2054,6 +2094,8 @@
         this._noticeSensors().map(function (s) { return s.id; }).join(','),
         this._expanded,
         this._config.button_content,
+        this._renderedModes().map(function (m) { return m.key; }).join(','),
+        this._unlocked(),
         this._headerTappable(),
         this._codeVisible() + ':' + this._keypadVisible(),
         this._sheetOpen,
@@ -2210,7 +2252,7 @@
     }
 
     _actionsHtml() {
-      const modes = this._visibleModes();
+      const modes = this._renderedModes();
       if (!modes.length) return '';
       const horizontal = this._config.layout === 'horizontal';
       const content = this._config.button_content;
@@ -2389,8 +2431,10 @@
     _noticeActionsHtml() {
       if (!this._bypassAvailable()) return '';
       return [
-        '<div class="notice-actions" data-kind="' + esc(this._noticeKind()) + '">',
-        '<button class="control bypass" id="bypass" data-act="bypass">',
+        '<div class="notice-actions" data-kind="'
+          + esc(this._noticeKind() || 'blocked') + '">',
+        '<button class="control bypass" id="bypass" data-act="bypass"',
+        this._unlocked() ? ' data-on' : '', '>',
         '<ha-icon id="bypass-icon" icon="mdi:shield-off-outline"></ha-icon>',
         '<span class="label" id="bypass-label"></span>',
         '</button>',
@@ -2403,20 +2447,13 @@
        itself. With several on offer and nothing attempted, the button would
        have to guess, and guessing which way to arm a house is not a thing a
        button should do. */
-    _bypassMode() {
-      if (this._pending && this._pending.mode) return this._pending.mode;
-      const arms = this._visibleModes().filter(function (m) { return m.arms; });
-      return arms.length === 1 ? arms[0].key : null;
-    }
-
+    /* The key is offered whenever something is locked, and stays on screen
+       while it is turned so there is a way to put it back. It never guesses a
+       mode: turning it unlocks the buttons and you choose. */
     _bypassAvailable() {
       if (!this._config.show_bypass_button) return false;
-      const kind = this._noticeKind();
-      if (kind !== 'blocked' && kind !== 'ready') return false;
-      /* Nothing is in the way and nothing was attempted, so there is nothing to
-         retry — the mode buttons are right there. */
-      if (kind === 'ready' && !(this._pending && this._pending.mode)) return false;
-      return !!this._bypassMode();
+      if (this._unlocked()) return true;
+      return this._anyBlocked();
     }
 
     /* ---- code entry ---- */
@@ -2665,7 +2702,7 @@
 
       /* mode buttons */
       const activeKey = this._activeModeKey(stateObj);
-      for (const mode of this._visibleModes()) {
+      for (const mode of this._renderedModes()) {
         const selector = '#mode-' + mode.key;
         const isActive = mode.key === activeKey;
         const modeRgb = toRgbTriplet(stateBlock(config, mode.key).color)
@@ -2687,14 +2724,12 @@
           this._setVar('#ready-' + mode.key, '--amc-badge-color',
             ready ? 'rgb(var(--amc-rgb-success))' : 'rgb(var(--amc-rgb-warning))');
         }
-        /* The dot warns; it does not bar the way. Blocking the tap outright
-           left no route to arming past a sensor at all once the pre-emptive
-           bypass chip was removed — the button could not be tapped, so the arm
-           could not fail, so the bypass button never appeared. A tap that fails
-           is not a dead end: it names the open sensors and offers to arm
-           anyway. */
-        this._setAttr(selector, 'aria-disabled', null);
-        this._setAttr(selector, 'title', showDot && !ready
+        /* Locked rather than merely warned: the way past is the key above,
+           which puts every blocked mode back on the row at once. There is no
+           dead end, because the key is on screen whenever anything is locked. */
+        const locked = config.blocked_modes === 'disable' && this._modeBlocked(mode);
+        this._setAttr(selector, 'aria-disabled', locked ? 'true' : null);
+        this._setAttr(selector, 'title', locked
           ? this._t('ready.not_ready') : (mode.label || ''));
       }
 
@@ -2767,12 +2802,11 @@
         }.bind(this));
 
       if (this._bypassAvailable()) {
-        const retry = kind === 'ready';
+        const on = this._unlocked();
         this._setText('#bypass-label',
-          this._confirming ? this._t('notice.action_bypass_confirm')
-            : this._t(retry ? 'notice.action_retry' : 'notice.action_bypass'));
-        this._setAttr('#bypass-icon', 'icon', retry ? 'mdi:shield-check' : 'mdi:shield-off-outline');
-        this._setAttr('#bypass', 'data-confirm', this._confirming ? '' : null);
+          this._t(on ? 'notice.action_bypass_on' : 'notice.action_bypass'));
+        this._setAttr('#bypass-icon', 'icon', on ? 'mdi:shield-off' : 'mdi:shield-off-outline');
+        this._setAttr('#bypass', 'data-on', on ? '' : null);
       }
     }
 
@@ -3018,42 +3052,22 @@
     }
 
     _armReset() {
-      /* The arm options are per-attempt, like upstream's kebab toggles: they
-         describe this arm, not a preference. */
+      /* Per-attempt, not a preference: the key falls back into the lock once
+         it has been used. */
       this._armOptions = { force: false, skip_delay: false };
     }
 
+    /* Turning the key does not arm anything. It puts the blocked modes back on
+       the row, and you choose which one — so arming past a sensor is two
+       deliberate taps in two different places, naming exactly what happens,
+       instead of one button guessing which way to arm the house. */
     _bypass() {
-      const mode = this._bypassMode();
-      if (!mode) return;
-      const retry = this._noticeKind() === 'ready';
-      /* Nothing is being bypassed when everything has closed again, so the
-         confirm step is skipped and force is not sent — a plain arm. */
-      if (this._config.confirm_bypass && !retry && !this._confirming) {
-        this._confirming = true;
-        clearTimeout(this._confirmTimer);
-        this._confirmTimer = setTimeout(function () {
-          this._confirming = false;
-          this._paint();
-        }.bind(this), CONFIRM_MS);
-        this._paint();
-        return;
-      }
-      clearTimeout(this._confirmTimer);
-      this._confirming = false;
-      const code = this._pending ? this._pending.code : this._code;
-      this._callArm(mode, code, retry ? { force: false } : { force: true });
-      /* _pending is deliberately kept until the backend confirms: upstream
-         cleared it here, so a second failure left the button a no-op until a
-         fresh event happened to arrive. */
+      this._armOptions.force = !this._armOptions.force;
       this._render();
     }
 
     _clearPending() {
       this._pending = null;
-      this._confirming = false;
-      clearTimeout(this._confirmTimer);
-      this._confirmTimer = null;
       this._expanded = false;
     }
 
@@ -3379,10 +3393,11 @@
       }
       schema.push({ name: 'show_ready_notice', selector: { boolean: {} } });
       schema.push({ name: 'show_bypass_button', selector: { boolean: {} } });
-      /* No button, nothing to confirm. */
-      if (this._config.show_bypass_button) {
-        schema.push({ name: 'confirm_bypass', selector: { boolean: {} } });
-      }
+      /* Which shape a mode takes while it cannot be armed. */
+      schema.push({ name: 'blocked_modes', selector: { select: { mode: 'dropdown', options: [
+        { value: 'disable', label: this._t('blocked_disable') },
+        { value: 'hide', label: this._t('blocked_hide') }
+      ] } } });
       schema.push({ name: 'show_bypassed_sensors', selector: { boolean: {} } });
       return schema;
     }
@@ -3474,7 +3489,7 @@
         this._lang(),
         this._config.entity,
         this._config.use_code_dialog + ':' + this._config.hide_keypad,
-        this._config.show_messages + ':' + this._config.show_bypass_button,
+        this._config.show_messages,
         this._alarmoConfig ? this._alarmoConfig.code_format : '',
         stateObj ? stateObj.attributes.supported_features : '',
         this._alarmoIds ? this._alarmoIds.join(',') : ''

@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.10 - 2026-08-25
+
+- Changed a mode that cannot be armed to be locked rather than left to fail. `blocked_modes`
+  decides what that looks like: `disable` draws it unavailable, `hide` takes it off the row
+- Changed *Arm anyway* into a key. Turning it arms nothing — it puts every blocked mode back
+  on the row, and the one you then choose is the one that arms. Arming past a sensor is now
+  two deliberate taps in two different places, each naming exactly what happens, instead of
+  one button having to guess which way to arm the house or wait for an attempt to fail first
+- The key is on screen whenever anything is locked, with no failed attempt needed, and stays
+  there while turned so there is always a way to put it back
+- Removed `confirm_bypass`. Unlocking and then choosing a mode is the second thought it asked
+  for. A config still naming it loads without complaint
+
 ## 0.1.9 - 2026-08-25
 
 - Fixed the arm-anyway button almost never appearing, which made the setting that governs it

@@ -79,43 +79,23 @@ ok('the chip row is bounded and always reports the true total');
 
 /* ---- one force-arm path ---- */
 
-const bypass = sliceFunction('_bypass');
-assert.ok(!/_pending = null/.test(bypass),
-  'the retry target must outlive the tap: upstream cleared it here, so a second '
-  + 'failure left the button a no-op until a fresh event happened to arrive');
-assert.ok(/force: true/.test(bypass) && /force: false/.test(bypass),
-  'a retry after everything closed must arm plainly, not force');
-ok('the bypass path keeps its target and stops forcing once all is clear');
-
 const callArm = sliceFunction('_callArm');
 assert.ok(/_armOptions/.test(callArm),
-  'the pre-emptive toggles and the reactive bypass must go through one call site');
+  'the key and the mode buttons must go through one call site, so what is sent '
+  + 'is decided in one place');
 ok('there is a single arm call site');
 
-/* ---- the not-ready button warns without barring the way ---- */
+/* ---- a blocked mode is locked, and the key is the way past ---- */
 
 const paint = sliceFunction('_paint');
-assert.ok(/_setAttr\(selector, 'aria-disabled', null\)/.test(paint),
-  'the readiness dot warns; it must not block the tap. Blocking it left no route '
-  + 'to arming past a sensor once the pre-emptive bypass chip was removed: the '
-  + 'button could not be tapped, so the arm could not fail, so the bypass button '
-  + 'never appeared');
+assert.ok(/_modeBlocked\(mode\)/.test(paint),
+  'the locked look must follow what is actually blocked right now');
 assert.ok(/ready\.not_ready/.test(paint),
-  'a not-ready button still has to say why it is marked');
-ok('a not-ready button warns but still arms');
-
-/* ---- one bypass, not two ---- */
-
-const armOptions = sliceFunction('_armOptionsHtml');
-assert.ok(!/force/.test(armOptions),
-  'the pre-emptive bypass chip was the same intent as the bypass button, one '
-  + 'moment earlier and with less to say — two switches for one idea');
-assert.ok(/skip_delay/.test(armOptions), 'the delay shortcut has no reactive twin and stays');
-assert.ok(!/show_force_option: true/.test(source),
-  'the option that governed the chip must not linger as a default');
-assert.match(source, /delete config\.show_force_option/,
-  'an existing config naming it must be accepted, not made an error');
-ok('bypassing has one switch and one moment');
+  'a locked button still has to say why');
+has(/\.control\[disabled\],\.control\[aria-disabled="true"\]\{[^}]*pointer-events:none/,
+  'locked means locked: a tap that only produces the failure it was warning '
+  + 'about is not an affordance');
+ok('a blocked mode is drawn locked');
 
 /* ---- render-model guards ---- */
 
@@ -191,28 +171,45 @@ has(/\.chip\{[^}]*min-height:var\(--amc-chip-height\)/,
   'a fixed chip height would clip the line that says which window it is');
 ok('the chip carries the room under the name');
 
-/* ---- the bypass button has to be reachable ---- */
+/* ---- the way past a blocked sensor is a key, not a guess ---- */
 
-/* It used to require a failed arm to have already happened, because only the
-   failure named a mode to retry. So the button almost never appeared, and the
-   setting that governs it looked broken. A tap on a blocked mode names the
-   target then and there, without waiting for the round trip. */
-const handleMode = sliceFunction('_handleMode');
-assert.ok(/_blockingSensorsFor\(key\)\.length/.test(handleMode),
-  'tapping a blocked mode must name the retry target immediately');
-assert.ok(/this\._pending = \{ mode: key/.test(handleMode),
-  'the target is set locally, not awaited from the backend');
-ok('tapping a blocked mode makes the bypass button appear at once');
+/* The button used to have to name a mode to arm, which meant either waiting for
+   a failed attempt to name one or guessing between several. Turning it arms
+   nothing: it puts the blocked modes back on the row and you choose. Two
+   deliberate taps in two different places, naming exactly what happens. */
+const bypassFn = sliceFunction('_bypass');
+assert.ok(/_armOptions\.force = !this\._armOptions\.force/.test(bypassFn),
+  'the button must toggle the key rather than arm anything');
+assert.ok(!/_callArm/.test(bypassFn), 'turning a key is not arming');
+ok('the button unlocks instead of guessing a mode');
 
-const bypassMode = sliceFunction('_bypassMode');
-assert.ok(/arms\.length === 1/.test(bypassMode),
-  'a single arm mode on offer is unambiguous with no attempt behind it');
-const bypassAvail = sliceFunction('_bypassAvailable');
-assert.ok(/show_bypass_button/.test(bypassAvail),
-  'the setting still governs the button');
-assert.ok(/kind === 'ready' && !\(this\._pending/.test(bypassAvail),
-  'an all-clear with nothing attempted needs no action: the mode buttons are '
-  + 'right there and nothing is in the way');
-ok('the button appears when it has something unambiguous to do');
+const avail = sliceFunction('_bypassAvailable');
+assert.ok(/_anyBlocked\(\)/.test(avail),
+  'the key is offered whenever something is locked, with no attempt needed');
+assert.ok(/this\._unlocked\(\)/.test(avail),
+  'and stays on screen while turned, so there is a way to put it back');
+ok('the key is on screen whenever something is locked');
+
+const unlocked = sliceFunction('_unlocked');
+assert.ok(/_armOptions\.force/.test(unlocked), 'the key is the force option itself');
+const modeBlocked = sliceFunction('_modeBlocked');
+assert.ok(/this\._unlocked\(\) \) return false|_unlocked\(\)\) return false/.test(modeBlocked),
+  'nothing is blocked once the key is turned — that is the whole point of it');
+ok('turning the key puts every blocked mode back');
+
+const rendered = sliceFunction('_renderedModes');
+assert.ok(/blocked_modes !== 'hide'/.test(rendered),
+  'a blocked mode is either taken off the row or drawn unavailable, by setting');
+const offered = sliceFunction('_offeredModes');
+assert.ok(!/_blockingSensorsFor/.test(offered),
+  'the offered list is the input to working out what is blocked; narrowing it '
+  + 'first would leave the card concluding that nothing blocks anything');
+ok('what is offered and what is drawn are kept apart');
+
+assert.match(source, /delete config\.confirm_bypass/,
+  'the retired confirm step must load without erroring');
+assert.ok(!/confirm_bypass', selector/.test(source),
+  'and must not still be offered in the editor');
+ok('the confirm step retired cleanly');
 
 console.log('notice-panel.test.mjs passed');

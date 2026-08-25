@@ -26,15 +26,16 @@ button too, add:
 show_bypass_button: false
 ```
 
-## Bypassing asks for a second tap
+## A blocked mode is locked, and *Arm anyway* is the key
 
-Force-arming is a deliberate security downgrade, and upstream put it one tap from a fat
-finger. The button now says *Tap again to confirm* for four seconds first. To go back to the
-single tap:
+Upstream let you tap a mode with an open sensor, fail, and then read about it. Here a mode
+that cannot be armed is drawn unavailable (or taken off the row — `blocked_modes: hide`), and
+*Arm anyway* puts every blocked mode back at once. The mode you then choose is the one that
+arms, with the bypass applied.
 
-```yaml
-confirm_bypass: false
-```
+Two deliberate taps in two different places, each naming exactly what happens. `confirm_bypass`
+is gone because that unlocking step is the second thought it used to ask for; a config still
+naming it loads without complaint.
 
 ## `use_code_dialog` opens this card's own sheet
 
