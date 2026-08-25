@@ -1,0 +1,41 @@
+alarmo-mushroom-card — attribution & provenance NOTICE
+======================================================
+
+This project is licensed under the Apache License, Version 2.0 (see LICENSE).
+Two upstream projects are acknowledged below. They are borrowed from in two
+different ways, and this NOTICE keeps that distinction explicit.
+
+Behaviour & configuration schema
+--------------------------------
+The Alarmo websocket protocol, service payloads and the YAML configuration
+surface were reimplemented from **alarmo-card** by **Niels Faber**
+(https://github.com/nielsfaber/alarmo-card), licensed Apache-2.0.
+
+No source code was copied. The upstream card was read as a functional
+reference so that an existing `custom:alarmo-card` configuration keeps
+working here with only the `type:` line changed. Where this card deliberately
+diverges from upstream behaviour, the difference is recorded in
+docs/MIGRATING.md.
+
+Visual design system
+--------------------
+The layout tokens, colour formula, control geometry and animation timings
+reproduce the design system of **lovelace-mushroom** by **Paul Bottein**
+(https://github.com/piitaya/lovelace-mushroom), licensed Apache-2.0.
+
+This is a closer form of borrowing than the above: CSS declarations in the
+"Mushroom primitives" region of dist/alarmo-mushroom-card.js are faithful
+reproductions of Mushroom's own, renamed into an `--amc-*` namespace and
+re-expressed as classes rather than custom elements.
+
+This card does not require, bundle, or modify lovelace-mushroom. It reads
+`--mush-*` custom properties when they are present so that a Mushroom theme
+already installed in Home Assistant themes this card too.
+
+Trademark notice
+----------------
+"Mushroom" is the name of Paul Bottein's project. This card is an independent
+work and is not affiliated with, endorsed by, or supported by that project.
+"Alarmo" is the name of Niels Faber's integration; this card is likewise
+independent of it. Both names are used here only to describe what this card
+is compatible with.

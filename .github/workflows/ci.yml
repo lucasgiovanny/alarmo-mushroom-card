@@ -1,0 +1,27 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Syntax and tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      # The bundle is a DOM-dependent IIFE with no build step, so the syntax
+      # gate is node --check rather than a compiler.
+      - run: node --check dist/alarmo-mushroom-card.js
+      - run: for f in tests/*.test.mjs; do echo "== $f"; node "$f" || exit 1; done

@@ -1,0 +1,19 @@
+# A real nielsfaber/alarmo-card configuration, unchanged except for the type.
+# tests/config-compat.test.mjs pins that this keeps normalizing correctly.
+type: custom:alarmo-mushroom-card
+entity: alarm_control_panel.alarmo
+name: Casa
+button_scale: 1.2          # legacy: seeds both scales, then disappears on save
+hide_keypad: true
+show_messages: false       # hides the list only; the button has its own switch now
+states:
+  disarmed:
+    button_label: Desligar
+    hide: disarmed
+  armed_away:
+    button_label: Fora
+    color: "#f44336"
+    button_order: 1
+  armed_home:
+    hide: false
+    button_order: 2

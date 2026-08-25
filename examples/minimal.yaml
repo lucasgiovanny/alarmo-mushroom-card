@@ -1,0 +1,2 @@
+type: custom:alarmo-mushroom-card
+entity: alarm_control_panel.alarmo

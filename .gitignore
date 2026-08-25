@@ -1,0 +1,4 @@
+.DS_Store
+
+# Pre-compressed dist files — HACS and HA web servers handle gzip on the fly
+dist/*.gz
