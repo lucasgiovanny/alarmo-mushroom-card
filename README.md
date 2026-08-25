@@ -15,6 +15,10 @@ actually read.
 > card. If you *do* have a Mushroom theme installed, the card reads its `--mush-*` tokens and
 > follows it.
 
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=lucasgiovanny&repository=alarmo-mushroom-card&category=dashboard)
+
+![Blocked by open sensors](docs/screenshots/01-blocked.png)
+
 [Features](#features) • [Installation](#installation) • [Usage](#usage) • [Options](#options) • [Migrating](#migrating-from-alarmo-card) • [Screenshots](#screenshots) • [Development](#development) • [License](#license)
 
 ## Features
@@ -157,8 +161,12 @@ behaviours differ on purpose — see [docs/MIGRATING.md](docs/MIGRATING.md).
 
 ## Screenshots
 
-![Blocked by open sensors](docs/screenshots/01-blocked.png)
+States, countdown ring and keypad:
+
 ![States](docs/screenshots/02-states.png)
+
+The open-sensor panel in dark mode — blocked, all-clear, many sensors, triggered:
+
 ![Dark mode](docs/screenshots/03-dark.png)
 
 ## Development
