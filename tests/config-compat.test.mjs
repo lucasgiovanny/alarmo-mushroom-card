@@ -118,9 +118,8 @@ ok('a real upstream config normalizes without loss');
 
 for (const [key, value] of Object.entries({
   layout: 'default', fill_container: false, icon_type: 'icon',
-  show_bypass_button: true, confirm_bypass: true,
-  show_force_option: true, show_skip_delay_option: true,
-  button_content: 'icon_and_name', language: 'auto'
+  show_bypass_button: true, confirm_bypass: true, show_ready_notice: true,
+  show_skip_delay_option: true, button_content: 'icon_and_name'
 })) {
   assert.equal(DEFAULTS[key], value, `${key} must default to ${value}`);
 }
@@ -130,13 +129,21 @@ ok('every added option defaults to the pre-existing behaviour');
    migrated rather than kept, so a config written against it keeps behaving the
    same without the card carrying two ways to say one thing. */
 cfg = normalizeConfig({ ...base, show_arm_options: false });
-assert.equal(cfg.show_force_option, false);
 assert.equal(cfg.show_skip_delay_option, false);
 assert.equal(cfg.show_arm_options, undefined, 'the superseded key must not survive');
 cfg = normalizeConfig({ ...base, show_arm_options: false, show_skip_delay_option: true });
 assert.equal(cfg.show_skip_delay_option, true, 'an explicit new key beats the old one');
-assert.equal(cfg.show_force_option, false);
-ok('show_arm_options migrates into the two independent switches');
+ok('show_arm_options migrates into the shortcut that outlived it');
+
+/* The pre-emptive bypass chip is gone. A config still naming its option has to
+   load without complaint rather than erroring on a key it once accepted. */
+assert.doesNotThrow(() => normalizeConfig({ ...base, show_force_option: false }));
+assert.equal(normalizeConfig({ ...base, show_force_option: false }).show_force_option,
+  undefined, 'the retired key must not linger in the config the card reads');
+assert.doesNotThrow(() => normalizeConfig({ ...base, language: 'pt-br' }));
+assert.equal(normalizeConfig({ ...base, language: 'pt-br' }).language, undefined,
+  'the card follows Home Assistant now; a leftover language must not shadow it');
+ok('a config naming a retired option still loads');
 
 assert.equal(normalizeConfig({ ...base, button_content: 'nonsense' }).button_content,
   'icon_and_name', 'an unknown button_content falls back rather than drawing nothing');

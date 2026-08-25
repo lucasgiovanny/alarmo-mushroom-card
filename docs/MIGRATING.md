@@ -45,6 +45,21 @@ every card that has done so has had to chase a rename roughly once a year.
 The sheet here is the card's own: same keypad, same behaviour, a backdrop you can tap to
 dismiss, and no dependency on a frontend internal.
 
+## The pre-emptive bypass shortcut is gone
+
+`show_force_option` and the chip it governed are removed. Bypassing open sensors now happens
+one way: try to arm, see which sensors blocked it, tap *Arm anyway*. That button names what it
+is about to ignore, which the chip never could. A config still naming the option loads without
+complaint; the option simply does nothing.
+
+A not-ready arm button is tappable again as a consequence — with no pre-emptive bypass, a
+blocked button meant the arm could not fail, so the bypass button never appeared.
+
+## The card follows Home Assistant's language
+
+The per-card `language` option is removed. A leftover `language:` in a config is ignored
+rather than an error.
+
 ## The arm options are two switches
 
 `show_arm_options` switched both shortcuts at once in 0.1.0 and 0.1.1. It is migrated to

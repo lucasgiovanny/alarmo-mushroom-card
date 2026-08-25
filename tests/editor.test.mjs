@@ -64,4 +64,43 @@ assert.match(source, /const SEP = '__'/,
   'the flat key separator must not collide with the single underscores in state names');
 ok('per-state keys round-trip through a safe separator');
 
+/* ---- the keypad section only offers what can do something ---- */
+
+/* Four switches that all mention the keypad, three of which do nothing once
+   the overlay is on, is a section nobody can read. A control with no meaning
+   in the current context is absent rather than present-and-inert. */
+const keypadSchema = new Function('MIN_SCALE', 'MAX_SCALE',
+  'return function ' + sliceFunction('_keypadSchema').trimStart().slice('_keypadSchema'.length)
+)(1, 2.5);
+const names = (config, alarmoConfig) =>
+  keypadSchema.call({ _config: config, _alarmoConfig: alarmoConfig })
+    .map((f) => f.name);
+
+assert.deepEqual(names({}, { code_format: 'number' }),
+  ['use_code_dialog', 'hide_keypad', 'keep_keypad_visible', 'button_scale_keypad']);
+ok('a numeric code in the card offers all four');
+
+assert.deepEqual(names({ use_code_dialog: true }, { code_format: 'number' }),
+  ['use_code_dialog', 'button_scale_keypad'],
+  'an overlay replaces the in-card keypad, so nothing about the in-card one is '
+  + 'left to decide — but its own keys still have a size');
+ok('the overlay hides the settings it makes meaningless');
+
+assert.deepEqual(names({ hide_keypad: true }, { code_format: 'number' }),
+  ['use_code_dialog', 'hide_keypad', 'keep_keypad_visible'],
+  'with no grid of digits there is nothing to size');
+ok('hiding the keys hides their size');
+
+assert.deepEqual(names({}, { code_format: 'text' }),
+  ['use_code_dialog', 'keep_keypad_visible'],
+  'a text code has no keys to hide and none to size');
+ok('a text code drops both key settings');
+
+/* The schema now depends on more than the entity and the language. */
+assert.match(update, /use_code_dialog/,
+  'the section has to be rebuilt when the setting that shapes it changes');
+assert.match(update, /code_format/,
+  'and when the answer about the code format finally arrives');
+ok('the section is rebuilt when what shapes it changes');
+
 console.log('editor.test.mjs passed');

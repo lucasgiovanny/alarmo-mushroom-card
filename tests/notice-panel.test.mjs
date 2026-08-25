@@ -66,13 +66,30 @@ assert.ok(/_armOptions/.test(callArm),
   'the pre-emptive toggles and the reactive bypass must go through one call site');
 ok('there is a single arm call site');
 
-/* ---- the not-ready button ---- */
+/* ---- the not-ready button warns without barring the way ---- */
 
-has(/aria-disabled="true"\]\{/, 'a not-ready mode button must be visibly disabled');
-has(/\.control\[disabled\],\.control\[aria-disabled="true"\]\{[^}]*pointer-events:none/,
-  'upstream greyed the readiness dot but left the button live, so a not-ready '
-  + 'tap still produced a failed arm');
-ok('a not-ready button cannot be tapped');
+const paint = sliceFunction('_paint');
+assert.ok(/_setAttr\(selector, 'aria-disabled', null\)/.test(paint),
+  'the readiness dot warns; it must not block the tap. Blocking it left no route '
+  + 'to arming past a sensor once the pre-emptive bypass chip was removed: the '
+  + 'button could not be tapped, so the arm could not fail, so the bypass button '
+  + 'never appeared');
+assert.ok(/ready\.not_ready/.test(paint),
+  'a not-ready button still has to say why it is marked');
+ok('a not-ready button warns but still arms');
+
+/* ---- one bypass, not two ---- */
+
+const armOptions = sliceFunction('_armOptionsHtml');
+assert.ok(!/force/.test(armOptions),
+  'the pre-emptive bypass chip was the same intent as the bypass button, one '
+  + 'moment earlier and with less to say — two switches for one idea');
+assert.ok(/skip_delay/.test(armOptions), 'the delay shortcut has no reactive twin and stays');
+assert.ok(!/show_force_option: true/.test(source),
+  'the option that governed the chip must not linger as a default');
+assert.match(source, /delete config\.show_force_option/,
+  'an existing config naming it must be accepted, not made an error');
+ok('bypassing has one switch and one moment');
 
 /* ---- render-model guards ---- */
 

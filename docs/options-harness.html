@@ -67,7 +67,9 @@ const SENSORS = {
   'binary_sensor.s1': ['Front door','door','on'], 'binary_sensor.s2': ['Back door','door','on'],
   'binary_sensor.s3': ['Window A','window','on'], 'binary_sensor.s4': ['Window B','window','on'],
   'binary_sensor.s5': ['Window C','window','on'], 'binary_sensor.s6': ['Motion','motion','on'],
-  'binary_sensor.s7': ['Shed','door','on']
+  'binary_sensor.s7': ['Shed','door','on'],
+  /* The one that is closed, so "everything shut again" can be reached. */
+  'binary_sensor.s8': ['Garden door','door','off']
 };
 function hassFor(state, attrs, alarmo){
   const states = { 'alarm_control_panel.alarmo': {
@@ -105,7 +107,14 @@ function roundTrip(key, value){
   ed.hass = hassFor('disarmed', {});
   let emitted = null;
   ed.addEventListener('config-changed', e => { emitted = e.detail.config; });
-  const f = ed.querySelector('#f-' + key);
+  let f = ed.querySelector('#f-' + key);
+  if (!f) {
+    /* Some keypad settings only appear once the overlay is off; turn it off
+       and look again rather than reporting a field that is merely contextual
+       as missing. */
+    const overlay = ed.querySelector('#f-use_code_dialog');
+    if (overlay) { overlay.setValue(false); f = ed.querySelector('#f-' + key); }
+  }
   if (!f) return 'no field in editor';
   f.setValue(value);
   ed.remove();
@@ -122,7 +131,17 @@ function roundTrip(key, value){
 window.__calls = [];
 const CASES = [
   ['name', 'Casa', c => q(card({name:'Casa'},'disarmed',{}),'#primary').textContent === 'Casa'],
-  ['language','pt-br', c => q(card({language:'pt-br'},'disarmed',{}),'#secondary').textContent === 'Desarmado'],
+  [null,'follows Home Assistant', () => {
+      const c = document.createElement('alarmo-mushroom-card');
+      document.getElementById('host').appendChild(c);
+      c.setConfig({type:'custom:alarmo-mushroom-card',entity:'alarm_control_panel.alarmo'});
+      c._backendOk=true; c._areaId='home'; c._sensorCount=7; c._readyModes=['armed_home'];
+      c._alarmoConfig={code_arm_required:false,code_disarm_required:false,code_format:'number'};
+      const h = hassFor('disarmed', {});
+      h.language = 'pt-br'; h.locale = { language: 'pt-br' };
+      c.hass = h; c._shellSig=null; c._render();
+      return q(c,'#secondary').textContent === 'Desarmado'
+        || 'the card must follow the Home Assistant language'; }],
   ['layout','horizontal', () => !!q(card({layout:'horizontal'},'disarmed',{}),'.hrow')],
   ['layout','vertical', () => !!q(card({layout:'vertical'},'disarmed',{}),'.state-item.vertical')],
   ['fill_container',true, () => !!q(card({fill_container:true},'disarmed',{}),'ha-card.fill')],
@@ -160,10 +179,21 @@ const CASES = [
       return window.__calls.length===1 && window.__calls[0][2].force===true || 'no service call: '+JSON.stringify(window.__calls); }],
   ['show_ready_indicator',false, () => q(card({show_ready_indicator:false},'disarmed',{},{ready:['armed_home']}),'#ready-armed_away').hasAttribute('hidden')],
   ['show_bypassed_sensors',false, () => !q(card({show_bypassed_sensors:false},'armed_away',{bypassed_sensors:['binary_sensor.s1']}),'.notice')],
-  ['show_force_option',false, () => !q(card({show_force_option:false},'disarmed',{}),'#opt-force')],
-  ['show_skip_delay_option',false, () => !q(card({show_skip_delay_option:false},'disarmed',{}),'#opt-skip')],
-  ['show_force_option',false, () => { const c=card({show_force_option:false,show_skip_delay_option:false},'disarmed',{});
-      return !q(c,'.arm-options') || 'the empty shortcut row should not be drawn at all'; }],
+  ['show_ready_notice',false, () => { const c=card({show_ready_notice:false},'disarmed',
+        {open_sensors:{'binary_sensor.s8':'on'}},null,'armed_away');
+      /* s8 is closed in the fake states, so every sensor named as open has
+         shut again — the all-clear panel is exactly what this hides. */
+      return (!q(c,'.notice') && !!q(c,'#bypass'))
+        || 'the panel must go without taking the arm action with it'; }],
+  /* A default value is never written to the config, so this half is the card
+     only — the false case above covers the editor round-trip. */
+  [null,'all-clear panel shown by default', () => { const c=card({},'disarmed',
+        {open_sensors:{'binary_sensor.s8':'on'}},null,'armed_away');
+      return q(c,'.notice') && q(c,'.notice').dataset.kind === 'ready'
+        || 'the all-clear panel should be shown by default'; }],
+  ['show_skip_delay_option',false, () => { const c=card({show_skip_delay_option:false},'disarmed',{});
+      return (!q(c,'#opt-skip') && !q(c,'.arm-options'))
+        || 'the empty shortcut row should not be drawn at all'; }],
   ['max_sensor_chips',2, () => { const c=card({max_sensor_chips:2},'disarmed',{open_sensors:openN(7)},null,'armed_away');
       return c.shadowRoot.querySelectorAll('.chip:not(.more)').length===2 && !!q(c,'.chip.more'); }],
   ['armed_away__button_label','Fora', () => q(card({states:{armed_away:{button_label:'Fora'}}},'disarmed',{}),'#mode-armed_away .label').textContent==='Fora'],
@@ -180,15 +210,18 @@ const lines = [];
 let pass = 0, fail = 0;
 lines.push('OPTION'.padEnd(28) + 'EDITOR'.padEnd(10) + 'CARD EFFECT');
 for (const [key, value, effect] of CASES) {
-  let ed;
-  try { ed = roundTrip(key, value); } catch (e) { ed = 'threw: ' + e.message; }
+  /* A null key means the behaviour has no editor field of its own. */
+  let ed = key === null ? true : undefined;
+  if (key !== null) {
+    try { ed = roundTrip(key, value); } catch (e) { ed = 'threw: ' + e.message; }
+  }
   let fx;
   try { fx = effect(); } catch (e) { fx = 'threw: ' + e.message; }
   const edOk = ed === true, fxOk = fx === true;
   if (edOk && fxOk) pass++; else fail++;
   lines.push(
-    (key + '=' + JSON.stringify(value)).padEnd(28) +
-    (edOk ? 'ok' : 'FAIL').padEnd(10) +
+    ((key === null ? 'language' : key) + '=' + JSON.stringify(value)).padEnd(28) +
+    (edOk ? (key === null ? '—' : 'ok') : 'FAIL').padEnd(10) +
     (fxOk ? 'ok' : 'FAIL') +
     (edOk ? '' : '\n    editor: ' + ed) +
     (fxOk ? '' : '\n    card:   ' + fx));

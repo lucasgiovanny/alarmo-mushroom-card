@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { source, sliceBalanced, evaluate, flatten, ok } from './_extract.mjs';
+import { source, sliceBalanced, sliceFunction, evaluate, flatten, ok } from './_extract.mjs';
 
 const I18N = evaluate(sliceBalanced('const I18N = Object.freeze(', '{', '}'));
 const langs = Object.keys(I18N);
@@ -39,11 +39,32 @@ for (const state of evaluate(sliceBalanced('const STATE_KEYS = Object.freeze(', 
 }
 ok('every configurable state has a label');
 
-const options = evaluate(sliceBalanced('const LANGUAGE_OPTIONS = Object.freeze(', '[', ']'));
-for (const option of options) {
-  const key = option.labelKey.split('.').slice(1).join('.');
-  assert.ok(I18N.en.editor[key], `language option ${option.value} has no label key`);
-}
-ok('every language option resolves to a label');
+/* The card follows Home Assistant rather than carrying a picker of its own —
+   every other card on a dashboard does, and a per-card override was one more
+   thing to keep in step with the profile language for no gain. */
+assert.ok(!/LANGUAGE_OPTIONS/.test(source), 'the per-card language picker is gone');
+assert.ok(!/config\.language/.test(source.replace(/delete config\.language;/, '')),
+  'nothing may still read a per-card language');
+assert.match(source, /delete config\.language/,
+  'an existing config naming it must load, not error');
+
+const resolve = new Function(
+  `const SUPPORTED_LANGS = ${JSON.stringify(SUPPORTED)};`
+  + "const LANGUAGE_ALIASES = new Map([['pt','pt-pt']]);"
+  + "const DEFAULT_LANG = 'en';"
+  + sliceFunction('normalizeLanguageCode')
+  + sliceFunction('resolveLanguage')
+  + 'return resolveLanguage;')();
+
+assert.equal(resolve({ locale: { language: 'pt-BR' }, language: 'en' }), 'pt-br',
+  'the profile language wins over the instance language');
+assert.equal(resolve({ language: 'de' }), 'de');
+assert.equal(resolve({ locale: { language: 'sv' }, language: 'sv' }), 'en',
+  'a language this card does not ship falls back to English');
+assert.equal(resolve({ locale: { language: 'pt' } }), 'pt-pt',
+  'a bare pt profile resolves to European Portuguese');
+assert.equal(resolve({ locale: { language: 'en-GB' } }), 'en',
+  'a regional tag with no bundle of its own falls back to its base');
+ok('the language comes from Home Assistant, in the documented order');
 
 console.log('i18n.test.mjs passed');

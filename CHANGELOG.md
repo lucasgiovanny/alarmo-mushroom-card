@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.1.6 - 2026-08-25
+
+- Changed the blocked notice to say what is true rather than what is not yet: *The alarm
+  cannot be armed* in place of *Cannot arm yet*, and *The alarm is ready to be armed* in place
+  of *All clear — ready to arm*. The title wraps now instead of truncating
+- Added `show_ready_notice`, for hiding the panel once every blocking sensor has closed again.
+  The arm action is governed separately by `show_bypass_button`, so hiding the panel does not
+  take the way to arm with it
+- Removed the pre-emptive bypass shortcut and its `show_force_option`. It was the same intent
+  as the bypass button one moment earlier and with less to say — the button names the sensors
+  it is about to ignore, which a chip offered before the attempt never could. A config still
+  naming the option loads without complaint
+- Changed a not-ready arm button back to being tappable. With no pre-emptive bypass left, a
+  blocked button meant the arm could not fail, so the bypass button never appeared and there
+  was no way to arm past a sensor at all. The dot warns; the tap still goes through, and the
+  panel then names what stopped it
+- Removed the per-card `language`. The card follows the Home Assistant profile language, like
+  every other card on the dashboard
+- Changed the keypad settings to appear only when they can do something: an overlay hides the
+  three that describe the in-card keypad, hidden keys hide their own size, and a text code
+  drops both key settings. Their labels now say what each one actually does
+
 ## 0.1.5 - 2026-08-25
 
 - Changed tapping the card so it no longer opens the Home Assistant entity dialog, which is

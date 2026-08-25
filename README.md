@@ -44,7 +44,10 @@ actually read.
   wrapping to a second line or squeezing every label into an ellipsis
 - `default` / `horizontal` / `vertical` layouts, `fill_container`, and a height the sections
   grid sizes to the card rather than the other way round
-- Seven languages: English, Portuguese (BR and PT), Spanish, French, German, Italian
+- Seven languages — English, Portuguese (BR and PT), Spanish, French, German, Italian —
+  following the Home Assistant profile language, with no picker of its own to keep in step
+- A visual editor that only offers the settings that can do something: the keypad section
+  drops what an overlay or a text code makes meaningless instead of greying it out
 - Visual editor covering every state — including `triggered`, `arming` and `pending`, which
   the original editor could not reach at all
 
@@ -119,7 +122,6 @@ More in [`examples/`](examples/).
 |---|---|---|---|
 | `entity` | string | **required** | An `alarm_control_panel` entity created by Alarmo |
 | `name` | string | friendly name | Title beside the icon. `''` draws no name at all |
-| `language` | string | `auto` | `auto`, or one of the seven shipped languages |
 | `layout` | string | `default` | `default`, `horizontal`, `vertical` |
 | `fill_container` | boolean | `false` | Stretch to fill a grid or stack cell |
 | `icon_type` | string | `icon` | `icon` or `none` |
@@ -132,10 +134,10 @@ More in [`examples/`](examples/).
 | `use_code_dialog` | boolean | `false` | Ask for the code in a sheet instead of inline |
 | `show_messages` | boolean | `true` | Show which sensors are open |
 | `show_bypass_button` | boolean | `true` | Show the bypass action |
+| `show_ready_notice` | boolean | `true` | Show the panel once every blocking sensor has closed again |
 | `confirm_bypass` | boolean | `true` | Require a second tap before bypassing |
 | `show_ready_indicator` | boolean | `true` | Readiness dot on each arm button |
 | `show_bypassed_sensors` | boolean | `true` | Show bypassed sensors while armed |
-| `show_force_option` | boolean | `true` | The bypass shortcut while disarmed |
 | `show_skip_delay_option` | boolean | `true` | The no-delay shortcut while disarmed |
 | `max_sensor_chips` | number | `6` | Chips shown before `+N more` |
 | `states` | object | `{}` | Per-state overrides, below |

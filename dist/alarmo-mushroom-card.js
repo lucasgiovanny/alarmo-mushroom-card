@@ -15,7 +15,7 @@
 
   const CARD_TYPE = 'alarmo-mushroom-card';
   const EDITOR_TYPE = 'alarmo-mushroom-card-editor';
-  const CARD_VERSION = '0.1.5';
+  const CARD_VERSION = '0.1.6';
   const DOCS_URL = 'https://github.com/lucasgiovanny/alarmo-mushroom-card';
 
   /* ------------------------------------------------------------------ */
@@ -123,17 +123,6 @@
      more often than the reverse. */
   const LANGUAGE_ALIASES = new Map([['pt', 'pt-pt']]);
 
-  const LANGUAGE_OPTIONS = Object.freeze([
-    { value: 'auto', labelKey: 'editor.lang_auto' },
-    { value: 'en', labelKey: 'editor.lang_en' },
-    { value: 'pt-br', labelKey: 'editor.lang_pt_br' },
-    { value: 'pt-pt', labelKey: 'editor.lang_pt_pt' },
-    { value: 'es', labelKey: 'editor.lang_es' },
-    { value: 'fr', labelKey: 'editor.lang_fr' },
-    { value: 'de', labelKey: 'editor.lang_de' },
-    { value: 'it', labelKey: 'editor.lang_it' }
-  ]);
-
   const I18N = Object.freeze({
     en: {
       card: {
@@ -155,8 +144,8 @@
       countdown: { skip: 'Skip the delay' },
       keypad: { enter_code: 'Enter code', clear: 'Clear', submit: 'Confirm', backspace: 'Delete' },
       notice: {
-        blocked_title: 'Cannot arm yet',
-        blocked_ready: 'All clear — ready to arm',
+        blocked_title: 'The alarm cannot be armed',
+        blocked_ready: 'The alarm is ready to be armed',
         triggered_title: 'Triggered by',
         bypassed_title: 'Armed with bypassed sensors',
         count_one: '{n} sensor open',
@@ -173,33 +162,30 @@
         exit_delay: '{n} s to leave', no_exit_delay: 'No exit delay',
         bypassing_one: 'bypassing {n} sensor', bypassing_other: 'bypassing {n} sensors'
       },
-      arm_options: { force: 'Bypass open sensors', skip_delay: 'Arm without delay' },
+      arm_options: { skip_delay: 'Arm without delay' },
       ready: { ready: 'Ready to arm', not_ready: 'Sensors open' },
       errors: {
         invalid_pin: 'Wrong code', no_code: 'A code is required',
         not_allowed: 'Not allowed', failed_to_arm: 'Could not arm'
       },
       editor: {
-        entity: 'Alarmo entity', name: 'Name', language: 'Language',
-        lang_auto: 'Auto', lang_en: 'English', lang_pt_br: 'Portuguese (Brazil)',
-        lang_pt_pt: 'Portuguese (Portugal)', lang_es: 'Spanish', lang_fr: 'French',
-        lang_de: 'German', lang_it: 'Italian',
+        entity: 'Alarmo entity', name: 'Name',
         appearance: 'Appearance', buttons: 'Buttons', keypad: 'Keypad', notices: 'Open sensors',
         layout: 'Layout', layout_default: 'Default', layout_horizontal: 'Horizontal',
         layout_vertical: 'Vertical',
         icon_type: 'Icon', icon_type_icon: 'Show', icon_type_none: 'Hide',
         fill_container: 'Fill container',
-        button_scale_actions: 'Action button size', button_scale_keypad: 'Keypad size',
+        button_scale_actions: 'Action button size', button_scale_keypad: 'Key size',
         show_ready_indicator: 'Show a ready-to-arm dot on each button',
-        show_force_option: 'Show the bypass shortcut',
         show_skip_delay_option: 'Show the no-delay shortcut',
-        hide_keypad: 'Hide the keypad', keep_keypad_visible: 'Always keep the keypad on screen',
-        keep_keypad_visible_help: 'Draw the keypad even when the current action needs no code.',
-        use_code_dialog: 'Ask for the code in a sheet',
-        use_code_dialog_help: 'This card opens its own sheet rather than the Home Assistant dialog.',
+        hide_keypad: 'Hide the number keys', hide_keypad_help: 'The code field stays; only the grid of digits goes.', keep_keypad_visible: 'Ask for the code even when none is needed',
+        keep_keypad_visible_help: 'Keeps the code entry on screen for actions Alarmo would otherwise let through without one.',
+        use_code_dialog: 'Ask for the code in an overlay',
+        use_code_dialog_help: "Instead of drawing the keypad inside the card. The overlay is this card's own, not the Home Assistant dialog.",
         show_messages: 'Show which sensors are open',
         show_messages_help: 'Turning this off hides the list only. The bypass button has its own setting.',
         show_bypass_button: 'Show the bypass button',
+        show_ready_notice: 'Show the panel once everything is closed again',
         confirm_bypass: 'Ask for a second tap before bypassing',
         show_bypassed_sensors: 'Show bypassed sensors while armed',
         max_sensor_chips: 'Sensors shown before "+N more"',
@@ -235,8 +221,8 @@
       countdown: { skip: 'Pular a espera' },
       keypad: { enter_code: 'Digite o código', clear: 'Limpar', submit: 'Confirmar', backspace: 'Apagar' },
       notice: {
-        blocked_title: 'Ainda não dá para armar',
-        blocked_ready: 'Tudo fechado — pronto para armar',
+        blocked_title: 'O alarme não pode ser armado',
+        blocked_ready: 'O alarme está pronto para ser armado',
         triggered_title: 'Disparado por',
         bypassed_title: 'Armado com sensores ignorados',
         count_one: '{n} sensor aberto',
@@ -253,33 +239,30 @@
         exit_delay: '{n} s para sair', no_exit_delay: 'Sem tempo de saída',
         bypassing_one: 'ignorando {n} sensor', bypassing_other: 'ignorando {n} sensores'
       },
-      arm_options: { force: 'Ignorar sensores abertos', skip_delay: 'Armar sem espera' },
+      arm_options: { skip_delay: 'Armar sem espera' },
       ready: { ready: 'Pronto para armar', not_ready: 'Sensores abertos' },
       errors: {
         invalid_pin: 'Código errado', no_code: 'É preciso informar um código',
         not_allowed: 'Não permitido', failed_to_arm: 'Não foi possível armar'
       },
       editor: {
-        entity: 'Entidade do Alarmo', name: 'Nome', language: 'Idioma',
-        lang_auto: 'Automático', lang_en: 'Inglês', lang_pt_br: 'Português (Brasil)',
-        lang_pt_pt: 'Português (Portugal)', lang_es: 'Espanhol', lang_fr: 'Francês',
-        lang_de: 'Alemão', lang_it: 'Italiano',
+        entity: 'Entidade do Alarmo', name: 'Nome',
         appearance: 'Aparência', buttons: 'Botões', keypad: 'Teclado', notices: 'Sensores abertos',
         layout: 'Layout', layout_default: 'Padrão', layout_horizontal: 'Horizontal',
         layout_vertical: 'Vertical',
         icon_type: 'Ícone', icon_type_icon: 'Mostrar', icon_type_none: 'Esconder',
         fill_container: 'Preencher o espaço',
-        button_scale_actions: 'Tamanho dos botões de ação', button_scale_keypad: 'Tamanho do teclado',
+        button_scale_actions: 'Tamanho dos botões de ação', button_scale_keypad: 'Tamanho das teclas',
         show_ready_indicator: 'Mostrar um ponto de "pronto para armar" em cada botão',
-        show_force_option: 'Mostrar o atalho de ignorar sensores',
         show_skip_delay_option: 'Mostrar o atalho de armar sem espera',
-        hide_keypad: 'Esconder o teclado', keep_keypad_visible: 'Manter o teclado sempre na tela',
-        keep_keypad_visible_help: 'Desenha o teclado mesmo quando a ação atual não pede código.',
-        use_code_dialog: 'Pedir o código em uma folha',
-        use_code_dialog_help: 'Este card abre a própria folha, não o diálogo do Home Assistant.',
+        hide_keypad: 'Esconder as teclas numéricas', hide_keypad_help: 'O campo do código continua; some só a grade de números.', keep_keypad_visible: 'Pedir o código mesmo quando não é necessário',
+        keep_keypad_visible_help: 'Mantém a entrada de código na tela para ações que o Alarmo deixaria passar sem ela.',
+        use_code_dialog: 'Pedir o código em uma janela sobreposta',
+        use_code_dialog_help: 'Em vez de desenhar o teclado dentro do card. A janela é do próprio card, não o diálogo do Home Assistant.',
         show_messages: 'Mostrar quais sensores estão abertos',
         show_messages_help: 'Desligar esconde só a lista. O botão de ignorar tem opção própria.',
         show_bypass_button: 'Mostrar o botão de ignorar',
+        show_ready_notice: 'Mostrar o aviso quando estiver tudo fechado',
         confirm_bypass: 'Pedir um segundo toque antes de ignorar',
         show_bypassed_sensors: 'Mostrar sensores ignorados enquanto armado',
         max_sensor_chips: 'Sensores mostrados antes de "mais N"',
@@ -315,8 +298,8 @@
       countdown: { skip: 'Saltar a espera' },
       keypad: { enter_code: 'Introduza o código', clear: 'Limpar', submit: 'Confirmar', backspace: 'Apagar' },
       notice: {
-        blocked_title: 'Ainda não é possível armar',
-        blocked_ready: 'Tudo fechado — pronto a armar',
+        blocked_title: 'O alarme não pode ser armado',
+        blocked_ready: 'O alarme está pronto para ser armado',
         triggered_title: 'Disparado por',
         bypassed_title: 'Armado com sensores ignorados',
         count_one: '{n} sensor aberto',
@@ -333,33 +316,30 @@
         exit_delay: '{n} s para sair', no_exit_delay: 'Sem tempo de saída',
         bypassing_one: 'a ignorar {n} sensor', bypassing_other: 'a ignorar {n} sensores'
       },
-      arm_options: { force: 'Ignorar sensores abertos', skip_delay: 'Armar sem espera' },
+      arm_options: { skip_delay: 'Armar sem espera' },
       ready: { ready: 'Pronto a armar', not_ready: 'Sensores abertos' },
       errors: {
         invalid_pin: 'Código errado', no_code: 'É necessário um código',
         not_allowed: 'Não permitido', failed_to_arm: 'Não foi possível armar'
       },
       editor: {
-        entity: 'Entidade do Alarmo', name: 'Nome', language: 'Idioma',
-        lang_auto: 'Automático', lang_en: 'Inglês', lang_pt_br: 'Português (Brasil)',
-        lang_pt_pt: 'Português (Portugal)', lang_es: 'Espanhol', lang_fr: 'Francês',
-        lang_de: 'Alemão', lang_it: 'Italiano',
+        entity: 'Entidade do Alarmo', name: 'Nome',
         appearance: 'Aspeto', buttons: 'Botões', keypad: 'Teclado', notices: 'Sensores abertos',
         layout: 'Disposição', layout_default: 'Predefinida', layout_horizontal: 'Horizontal',
         layout_vertical: 'Vertical',
         icon_type: 'Ícone', icon_type_icon: 'Mostrar', icon_type_none: 'Esconder',
         fill_container: 'Preencher o espaço',
-        button_scale_actions: 'Tamanho dos botões de ação', button_scale_keypad: 'Tamanho do teclado',
+        button_scale_actions: 'Tamanho dos botões de ação', button_scale_keypad: 'Tamanho das teclas',
         show_ready_indicator: 'Mostrar um ponto de "pronto a armar" em cada botão',
-        show_force_option: 'Mostrar o atalho de ignorar sensores',
         show_skip_delay_option: 'Mostrar o atalho de armar sem espera',
-        hide_keypad: 'Esconder o teclado', keep_keypad_visible: 'Manter o teclado sempre no ecrã',
-        keep_keypad_visible_help: 'Desenha o teclado mesmo quando a ação atual não pede código.',
-        use_code_dialog: 'Pedir o código numa folha',
-        use_code_dialog_help: 'Este card abre a sua própria folha, não o diálogo do Home Assistant.',
+        hide_keypad: 'Esconder as teclas numéricas', hide_keypad_help: 'O campo do código mantém-se; desaparece só a grelha de números.', keep_keypad_visible: 'Pedir o código mesmo quando não é necessário',
+        keep_keypad_visible_help: 'Mantém a introdução do código no ecrã para ações que o Alarmo deixaria passar sem ela.',
+        use_code_dialog: 'Pedir o código numa janela sobreposta',
+        use_code_dialog_help: 'Em vez de desenhar o teclado dentro do card. A janela é do próprio card, não o diálogo do Home Assistant.',
         show_messages: 'Mostrar que sensores estão abertos',
         show_messages_help: 'Desligar esconde só a lista. O botão de ignorar tem opção própria.',
         show_bypass_button: 'Mostrar o botão de ignorar',
+        show_ready_notice: 'Mostrar o aviso quando estiver tudo fechado',
         confirm_bypass: 'Pedir um segundo toque antes de ignorar',
         show_bypassed_sensors: 'Mostrar sensores ignorados enquanto armado',
         max_sensor_chips: 'Sensores mostrados antes de "mais N"',
@@ -395,8 +375,8 @@
       countdown: { skip: 'Omitir la espera' },
       keypad: { enter_code: 'Introduce el código', clear: 'Borrar', submit: 'Confirmar', backspace: 'Borrar' },
       notice: {
-        blocked_title: 'Todavía no se puede armar',
-        blocked_ready: 'Todo cerrado — listo para armar',
+        blocked_title: 'La alarma no se puede armar',
+        blocked_ready: 'La alarma está lista para armarse',
         triggered_title: 'Disparado por',
         bypassed_title: 'Armado con sensores omitidos',
         count_one: '{n} sensor abierto',
@@ -413,33 +393,30 @@
         exit_delay: '{n} s para salir', no_exit_delay: 'Sin tiempo de salida',
         bypassing_one: 'omitiendo {n} sensor', bypassing_other: 'omitiendo {n} sensores'
       },
-      arm_options: { force: 'Omitir sensores abiertos', skip_delay: 'Armar sin espera' },
+      arm_options: { skip_delay: 'Armar sin espera' },
       ready: { ready: 'Listo para armar', not_ready: 'Sensores abiertos' },
       errors: {
         invalid_pin: 'Código incorrecto', no_code: 'Hace falta un código',
         not_allowed: 'No permitido', failed_to_arm: 'No se pudo armar'
       },
       editor: {
-        entity: 'Entidad de Alarmo', name: 'Nombre', language: 'Idioma',
-        lang_auto: 'Automático', lang_en: 'Inglés', lang_pt_br: 'Portugués (Brasil)',
-        lang_pt_pt: 'Portugués (Portugal)', lang_es: 'Español', lang_fr: 'Francés',
-        lang_de: 'Alemán', lang_it: 'Italiano',
+        entity: 'Entidad de Alarmo', name: 'Nombre',
         appearance: 'Apariencia', buttons: 'Botones', keypad: 'Teclado', notices: 'Sensores abiertos',
         layout: 'Diseño', layout_default: 'Predeterminado', layout_horizontal: 'Horizontal',
         layout_vertical: 'Vertical',
         icon_type: 'Icono', icon_type_icon: 'Mostrar', icon_type_none: 'Ocultar',
         fill_container: 'Rellenar el contenedor',
-        button_scale_actions: 'Tamaño de los botones de acción', button_scale_keypad: 'Tamaño del teclado',
+        button_scale_actions: 'Tamaño de los botones de acción', button_scale_keypad: 'Tamaño de las teclas',
         show_ready_indicator: 'Mostrar un punto de "listo para armar" en cada botón',
-        show_force_option: 'Mostrar el acceso de omitir sensores',
         show_skip_delay_option: 'Mostrar el acceso de armar sin espera',
-        hide_keypad: 'Ocultar el teclado', keep_keypad_visible: 'Mantener el teclado siempre visible',
-        keep_keypad_visible_help: 'Dibuja el teclado aunque la acción actual no pida código.',
-        use_code_dialog: 'Pedir el código en una hoja',
-        use_code_dialog_help: 'Esta tarjeta abre su propia hoja, no el diálogo de Home Assistant.',
+        hide_keypad: 'Ocultar las teclas numéricas', hide_keypad_help: 'El campo del código se queda; solo desaparece la cuadrícula de números.', keep_keypad_visible: 'Pedir el código aunque no haga falta',
+        keep_keypad_visible_help: 'Mantiene la entrada del código en pantalla para acciones que Alarmo dejaría pasar sin ella.',
+        use_code_dialog: 'Pedir el código en una ventana superpuesta',
+        use_code_dialog_help: 'En lugar de dibujar el teclado dentro de la tarjeta. La ventana es de la propia tarjeta, no el diálogo de Home Assistant.',
         show_messages: 'Mostrar qué sensores están abiertos',
         show_messages_help: 'Desactivarlo oculta solo la lista. El botón de omitir tiene su propia opción.',
         show_bypass_button: 'Mostrar el botón de omitir',
+        show_ready_notice: 'Mostrar el aviso cuando todo esté cerrado',
         confirm_bypass: 'Pedir un segundo toque antes de omitir',
         show_bypassed_sensors: 'Mostrar sensores omitidos mientras está armado',
         max_sensor_chips: 'Sensores mostrados antes de "+N más"',
@@ -475,8 +452,8 @@
       countdown: { skip: "Passer le délai" },
       keypad: { enter_code: 'Saisissez le code', clear: 'Effacer', submit: 'Confirmer', backspace: 'Supprimer' },
       notice: {
-        blocked_title: 'Armement impossible pour le moment',
-        blocked_ready: 'Tout est fermé — prêt à armer',
+        blocked_title: "L'alarme ne peut pas être armée",
+        blocked_ready: "L'alarme est prête à être armée",
         triggered_title: 'Déclenché par',
         bypassed_title: 'Armé avec des capteurs ignorés',
         count_one: '{n} capteur ouvert',
@@ -493,33 +470,30 @@
         exit_delay: '{n} s pour sortir', no_exit_delay: 'Sans délai de sortie',
         bypassing_one: '{n} capteur ignoré', bypassing_other: '{n} capteurs ignorés'
       },
-      arm_options: { force: 'Ignorer les capteurs ouverts', skip_delay: 'Armer sans délai' },
+      arm_options: { skip_delay: 'Armer sans délai' },
       ready: { ready: 'Prêt à armer', not_ready: 'Capteurs ouverts' },
       errors: {
         invalid_pin: 'Code incorrect', no_code: 'Un code est requis',
         not_allowed: 'Non autorisé', failed_to_arm: "Impossible d'armer"
       },
       editor: {
-        entity: 'Entité Alarmo', name: 'Nom', language: 'Langue',
-        lang_auto: 'Automatique', lang_en: 'Anglais', lang_pt_br: 'Portugais (Brésil)',
-        lang_pt_pt: 'Portugais (Portugal)', lang_es: 'Espagnol', lang_fr: 'Français',
-        lang_de: 'Allemand', lang_it: 'Italien',
+        entity: 'Entité Alarmo', name: 'Nom',
         appearance: 'Apparence', buttons: 'Boutons', keypad: 'Clavier', notices: 'Capteurs ouverts',
         layout: 'Disposition', layout_default: 'Par défaut', layout_horizontal: 'Horizontale',
         layout_vertical: 'Verticale',
         icon_type: 'Icône', icon_type_icon: 'Afficher', icon_type_none: 'Masquer',
         fill_container: 'Remplir le conteneur',
-        button_scale_actions: "Taille des boutons d'action", button_scale_keypad: 'Taille du clavier',
+        button_scale_actions: "Taille des boutons d'action", button_scale_keypad: 'Taille des touches',
         show_ready_indicator: 'Afficher un point « prêt à armer » sur chaque bouton',
-        show_force_option: 'Afficher le raccourci d\'ignorer',
         show_skip_delay_option: 'Afficher le raccourci sans délai',
-        hide_keypad: 'Masquer le clavier', keep_keypad_visible: 'Toujours garder le clavier affiché',
-        keep_keypad_visible_help: "Dessine le clavier même quand l'action en cours ne demande pas de code.",
-        use_code_dialog: 'Demander le code dans une feuille',
-        use_code_dialog_help: "Cette carte ouvre sa propre feuille, pas la boîte de dialogue de Home Assistant.",
+        hide_keypad: 'Masquer les touches numériques', hide_keypad_help: 'Le champ du code reste ; seule la grille de chiffres disparaît.', keep_keypad_visible: 'Demander le code même quand il est inutile',
+        keep_keypad_visible_help: "Garde la saisie du code à l'écran pour les actions qu'Alarmo laisserait passer sans.",
+        use_code_dialog: 'Demander le code dans une surcouche',
+        use_code_dialog_help: "Plutôt que de dessiner le clavier dans la carte. La surcouche appartient à la carte, ce n'est pas la boîte de dialogue de Home Assistant.",
         show_messages: 'Afficher les capteurs ouverts',
         show_messages_help: "Désactiver masque seulement la liste. Le bouton d'ignorer a son propre réglage.",
         show_bypass_button: "Afficher le bouton d'ignorer",
+        show_ready_notice: 'Afficher le bandeau une fois tout refermé',
         confirm_bypass: 'Demander un second appui avant de forcer',
         show_bypassed_sensors: 'Afficher les capteurs ignorés une fois armé',
         max_sensor_chips: 'Capteurs affichés avant « +N autres »',
@@ -555,8 +529,8 @@
       countdown: { skip: 'Verzögerung überspringen' },
       keypad: { enter_code: 'Code eingeben', clear: 'Löschen', submit: 'Bestätigen', backspace: 'Zurück' },
       notice: {
-        blocked_title: 'Aktivieren noch nicht möglich',
-        blocked_ready: 'Alles zu — bereit zum Aktivieren',
+        blocked_title: 'Alarm kann nicht aktiviert werden',
+        blocked_ready: 'Der Alarm kann aktiviert werden',
         triggered_title: 'Ausgelöst durch',
         bypassed_title: 'Aktiviert mit übergangenen Sensoren',
         count_one: '{n} Sensor offen',
@@ -573,33 +547,30 @@
         exit_delay: '{n} s zum Verlassen', no_exit_delay: 'Ohne Verzögerung',
         bypassing_one: '{n} Sensor übergangen', bypassing_other: '{n} Sensoren übergangen'
       },
-      arm_options: { force: 'Offene Sensoren übergehen', skip_delay: 'Ohne Verzögerung aktivieren' },
+      arm_options: { skip_delay: 'Ohne Verzögerung aktivieren' },
       ready: { ready: 'Bereit zum Aktivieren', not_ready: 'Sensoren offen' },
       errors: {
         invalid_pin: 'Falscher Code', no_code: 'Ein Code ist erforderlich',
         not_allowed: 'Nicht erlaubt', failed_to_arm: 'Aktivieren fehlgeschlagen'
       },
       editor: {
-        entity: 'Alarmo-Entität', name: 'Name', language: 'Sprache',
-        lang_auto: 'Automatisch', lang_en: 'Englisch', lang_pt_br: 'Portugiesisch (Brasilien)',
-        lang_pt_pt: 'Portugiesisch (Portugal)', lang_es: 'Spanisch', lang_fr: 'Französisch',
-        lang_de: 'Deutsch', lang_it: 'Italienisch',
+        entity: 'Alarmo-Entität', name: 'Name',
         appearance: 'Darstellung', buttons: 'Schaltflächen', keypad: 'Tastenfeld', notices: 'Offene Sensoren',
         layout: 'Layout', layout_default: 'Standard', layout_horizontal: 'Horizontal',
         layout_vertical: 'Vertikal',
         icon_type: 'Symbol', icon_type_icon: 'Anzeigen', icon_type_none: 'Ausblenden',
         fill_container: 'Container füllen',
-        button_scale_actions: 'Größe der Aktionsschaltflächen', button_scale_keypad: 'Größe des Tastenfelds',
+        button_scale_actions: 'Größe der Aktionsschaltflächen', button_scale_keypad: 'Tastengröße',
         show_ready_indicator: 'Bereitschaftspunkt auf jeder Schaltfläche anzeigen',
-        show_force_option: 'Kurzbefehl zum Übergehen anzeigen',
         show_skip_delay_option: 'Kurzbefehl ohne Verzögerung anzeigen',
-        hide_keypad: 'Tastenfeld ausblenden', keep_keypad_visible: 'Tastenfeld immer anzeigen',
-        keep_keypad_visible_help: 'Zeichnet das Tastenfeld auch, wenn die aktuelle Aktion keinen Code braucht.',
-        use_code_dialog: 'Code in einem Blatt abfragen',
-        use_code_dialog_help: 'Diese Karte öffnet ihr eigenes Blatt, nicht den Home-Assistant-Dialog.',
+        hide_keypad: 'Zifferntasten ausblenden', hide_keypad_help: 'Das Codefeld bleibt; nur das Raster der Ziffern verschwindet.', keep_keypad_visible: 'Code auch abfragen, wenn keiner nötig ist',
+        keep_keypad_visible_help: 'Hält die Codeeingabe auf dem Schirm für Aktionen, die Alarmo sonst ohne durchließe.',
+        use_code_dialog: 'Code in einer Überlagerung abfragen',
+        use_code_dialog_help: 'Statt das Tastenfeld in der Karte zu zeichnen. Die Überlagerung gehört der Karte, es ist nicht der Home-Assistant-Dialog.',
         show_messages: 'Anzeigen, welche Sensoren offen sind',
         show_messages_help: 'Ausschalten blendet nur die Liste aus. Die Schaltfläche hat eine eigene Option.',
         show_bypass_button: 'Schaltfläche zum Übergehen anzeigen',
+        show_ready_notice: 'Hinweis anzeigen, sobald wieder alles zu ist',
         confirm_bypass: 'Vor dem Übergehen ein zweites Tippen verlangen',
         show_bypassed_sensors: 'Übergangene Sensoren im aktivierten Zustand anzeigen',
         max_sensor_chips: 'Sensoren vor „+N weitere"',
@@ -635,8 +606,8 @@
       countdown: { skip: 'Salta il ritardo' },
       keypad: { enter_code: 'Inserisci il codice', clear: 'Cancella', submit: 'Conferma', backspace: 'Elimina' },
       notice: {
-        blocked_title: 'Non è ancora possibile inserire',
-        blocked_ready: 'Tutto chiuso — pronto per inserire',
+        blocked_title: "L'allarme non può essere inserito",
+        blocked_ready: "L'allarme è pronto per essere inserito",
         triggered_title: 'Scattato da',
         bypassed_title: 'Inserito con sensori esclusi',
         count_one: '{n} sensore aperto',
@@ -653,33 +624,30 @@
         exit_delay: '{n} s per uscire', no_exit_delay: 'Senza ritardo di uscita',
         bypassing_one: '{n} sensore escluso', bypassing_other: '{n} sensori esclusi'
       },
-      arm_options: { force: 'Escludi i sensori aperti', skip_delay: 'Inserisci senza ritardo' },
+      arm_options: { skip_delay: 'Inserisci senza ritardo' },
       ready: { ready: 'Pronto per inserire', not_ready: 'Sensori aperti' },
       errors: {
         invalid_pin: 'Codice errato', no_code: 'Serve un codice',
         not_allowed: 'Non consentito', failed_to_arm: 'Inserimento non riuscito'
       },
       editor: {
-        entity: 'Entità Alarmo', name: 'Nome', language: 'Lingua',
-        lang_auto: 'Automatico', lang_en: 'Inglese', lang_pt_br: 'Portoghese (Brasile)',
-        lang_pt_pt: 'Portoghese (Portogallo)', lang_es: 'Spagnolo', lang_fr: 'Francese',
-        lang_de: 'Tedesco', lang_it: 'Italiano',
+        entity: 'Entità Alarmo', name: 'Nome',
         appearance: 'Aspetto', buttons: 'Pulsanti', keypad: 'Tastierino', notices: 'Sensori aperti',
         layout: 'Layout', layout_default: 'Predefinito', layout_horizontal: 'Orizzontale',
         layout_vertical: 'Verticale',
         icon_type: 'Icona', icon_type_icon: 'Mostra', icon_type_none: 'Nascondi',
         fill_container: 'Riempi il contenitore',
-        button_scale_actions: 'Dimensione dei pulsanti di azione', button_scale_keypad: 'Dimensione del tastierino',
+        button_scale_actions: 'Dimensione dei pulsanti di azione', button_scale_keypad: 'Dimensione dei tasti',
         show_ready_indicator: 'Mostra un punto "pronto per inserire" su ogni pulsante',
-        show_force_option: 'Mostra la scorciatoia di esclusione',
         show_skip_delay_option: 'Mostra la scorciatoia senza ritardo',
-        hide_keypad: 'Nascondi il tastierino', keep_keypad_visible: 'Tieni sempre il tastierino sullo schermo',
-        keep_keypad_visible_help: "Disegna il tastierino anche quando l'azione corrente non chiede il codice.",
-        use_code_dialog: 'Chiedi il codice in un foglio',
-        use_code_dialog_help: 'Questa scheda apre un proprio foglio, non la finestra di Home Assistant.',
+        hide_keypad: 'Nascondere i tasti numerici', hide_keypad_help: 'Il campo del codice resta; sparisce solo la griglia dei numeri.', keep_keypad_visible: 'Chiedere il codice anche quando non serve',
+        keep_keypad_visible_help: "Tiene l'inserimento del codice sullo schermo per azioni che Alarmo lascerebbe passare senza.",
+        use_code_dialog: 'Chiedere il codice in una finestra sovrapposta',
+        use_code_dialog_help: 'Invece di disegnare il tastierino dentro la scheda. La finestra è della scheda stessa, non la finestra di Home Assistant.',
         show_messages: 'Mostra quali sensori sono aperti',
         show_messages_help: "Disattivarlo nasconde solo l'elenco. Il pulsante di esclusione ha una sua opzione.",
         show_bypass_button: 'Mostra il pulsante di esclusione',
+        show_ready_notice: 'Mostrare l\'avviso quando è di nuovo tutto chiuso',
         confirm_bypass: 'Chiedi un secondo tocco prima di escludere',
         show_bypassed_sensors: 'Mostra i sensori esclusi mentre è inserito',
         max_sensor_chips: 'Sensori mostrati prima di "+N altri"',
@@ -709,9 +677,10 @@
     return LANGUAGE_ALIASES.get(base) || base;
   }
 
-  function resolveLanguage(preferred, hass) {
-    const pref = normalizeLanguageCode(preferred);
-    if (pref && pref !== 'auto' && SUPPORTED_LANGS.includes(pref)) return pref;
+  /* The card follows Home Assistant. Every other card in a dashboard does, and
+     a per-card override was one more thing to keep in step with the profile
+     language for no gain. */
+  function resolveLanguage(hass) {
     const candidates = [
       hass && hass.locale ? hass.locale.language : '',
       hass ? hass.language : '',
@@ -1073,15 +1042,20 @@
       --amc-notice-rgb:var(--amc-rgb-success)}
 
     .notice-head{
-      display:flex;align-items:center;gap:6px;
+      display:flex;align-items:flex-start;gap:6px;
       font-size:var(--amc-secondary-size);font-weight:600;
       line-height:var(--amc-secondary-line);
     }
-    .notice-head > ha-icon{--mdc-icon-size:16px;flex:none;display:flex}
+    /* Nudged onto the first line's baseline now that the row aligns to the top
+       for the sake of a title that may take two. */
+    .notice-head > ha-icon{--mdc-icon-size:16px;flex:none;display:flex;margin-top:1px}
     .notice[data-kind="triggered"] .notice-head > ha-icon{
       animation:1s ease 0s infinite normal none running amc-pulse;
     }
-    .notice-title{flex:1;min-width:0;text-overflow:ellipsis;overflow:hidden;white-space:nowrap}
+    /* A headline, not a data value: it wraps rather than truncating. Losing
+       the end of "The alarm cannot be armed" to an ellipsis says less than
+       taking a second line, and rows: auto means the card can afford it. */
+    .notice-title{flex:1;min-width:0}
     /* The count survives the chips scrolling out of view. Without it "3 of 7"
        reads as "3", and the user bypasses believing they closed everything. */
     .notice-count{
@@ -1355,13 +1329,12 @@
     show_bypassed_sensors: true,
     states: {},
     /* --- added by this card --- */
-    language: 'auto',
     layout: 'default',
     fill_container: false,
     icon_type: 'icon',
     show_bypass_button: true,
+    show_ready_notice: true,
     confirm_bypass: true,
-    show_force_option: true,
     show_skip_delay_option: true,
     button_content: 'icon_and_name',
     /* Left unset so the default can depend on use_code_dialog — see _tapAction. */
@@ -1403,11 +1376,18 @@
     /* show_arm_options used to switch both shortcuts at once. It is migrated
        rather than kept, so a config written against it keeps behaving the same
        without the card carrying two ways to say one thing. */
-    if (raw && raw.show_arm_options === false) {
-      if (raw.show_force_option === undefined) config.show_force_option = false;
-      if (raw.show_skip_delay_option === undefined) config.show_skip_delay_option = false;
+    if (raw && raw.show_arm_options === false && raw.show_skip_delay_option === undefined) {
+      config.show_skip_delay_option = false;
     }
     delete config.show_arm_options;
+    /* Dropped in 0.1.6: the card follows Home Assistant's language, like every
+       other card on the dashboard. Accepted so an existing config does not
+       error, ignored so it does not linger. */
+    delete config.language;
+    /* Dropped in 0.1.6: the chip it governed was the same intent as the bypass
+       button, one moment earlier and with less to say. Accepted so an existing
+       config does not error, ignored so it does not linger. */
+    delete config.show_force_option;
 
     /* States are rebuilt rather than passed through: a typo like
        states.armed_hom is silently accepted upstream and simply never applies,
@@ -1715,7 +1695,7 @@
     }
 
     _lang() {
-      return resolveLanguage(this._config ? this._config.language : 'auto', this._hass);
+      return resolveLanguage(this._hass);
     }
 
     _stateObj() {
@@ -1958,15 +1938,14 @@
         this._backendOk,
         family,
         this._visibleModes().map(function (m) { return m.key; }).join(','),
-        this._noticeKind(),
+        this._noticeKind() + ':' + this._noticeVisible(),
         this._noticeSensors().map(function (s) { return s.id; }).join(','),
         this._expanded,
         this._config.button_content,
         this._headerTappable(),
         this._codeVisible() + ':' + this._keypadVisible(),
         this._sheetOpen,
-        this._config.show_force_option + ':' + this._config.show_skip_delay_option
-          + ':' + (state === 'disarmed')
+        this._config.show_skip_delay_option + ':' + (state === 'disarmed')
       ].join('|');
     }
 
@@ -2150,21 +2129,18 @@
     _armOptionsHtml() {
       const stateObj = this._stateObj();
       if (!stateObj || stateObj.state !== 'disarmed') return '';
-      /* While the bypass button is on screen it already offers the force path,
-         and offering it twice invites the user to wonder how the two differ. */
-      const withForce = this._config.show_force_option && !this._bypassAvailable();
-      const withSkip = this._config.show_skip_delay_option;
-      if (!withForce && !withSkip) return '';
+      /* Only the delay shortcut is left. Bypassing open sensors has no
+         pre-emptive form any more: the reactive one names the sensors it is
+         about to ignore, which the chip never could. */
+      if (!this._config.show_skip_delay_option) return '';
       /* Upstream buried these in a kebab menu pinned to the corner, which it
          then had to hide below 250px. Two toggles fit on a line. */
       return [
         '<div class="arm-options">',
-        withForce ? '<button class="opt" id="opt-force" data-act="opt" data-opt="force">'
-          + '<ha-icon icon="mdi:shield-off-outline"></ha-icon>'
-          + '<span>' + esc(this._t('arm_options.force')) + '</span></button>' : '',
-        withSkip ? '<button class="opt" id="opt-skip" data-act="opt" data-opt="skip_delay">'
-          + '<ha-icon icon="mdi:timer-off-outline"></ha-icon>'
-          + '<span>' + esc(this._t('arm_options.skip_delay')) + '</span></button>' : '',
+
+        '<button class="opt" id="opt-skip" data-act="opt" data-opt="skip_delay">',
+        '<ha-icon icon="mdi:timer-off-outline"></ha-icon>',
+        '<span>' + esc(this._t('arm_options.skip_delay')) + '</span></button>',
         '</div>'
       ].join('');
     }
@@ -2242,9 +2218,21 @@
       }.bind(this));
     }
 
-    _noticeHtml() {
+    /* Whether the panel is drawn at all. The kind is still computed when it is
+       not: the retry button reads it, and hiding a panel is not the same as
+       forgetting why it was there. */
+    _noticeVisible() {
       const kind = this._noticeKind();
-      if (!kind) return '';
+      if (!kind) return false;
+      /* Nothing is wrong any more, so there may be nothing worth saying. The
+         action to arm is governed separately by show_bypass_button. */
+      if (kind === 'ready' && !this._config.show_ready_notice) return false;
+      return true;
+    }
+
+    _noticeHtml() {
+      if (!this._noticeVisible()) return '';
+      const kind = this._noticeKind();
       const quiet = this._config.show_messages ? '' : ' data-quiet';
       const sensors = this._noticeSensors();
       const limit = this._expanded ? sensors.length : this._config.max_sensor_chips;
@@ -2564,11 +2552,14 @@
           this._setVar('#ready-' + mode.key, '--amc-badge-color',
             ready ? 'rgb(var(--amc-rgb-success))' : 'rgb(var(--amc-rgb-warning))');
         }
-        /* A mode that is not ready cannot be armed, so the button says so
-           instead of accepting the tap and reporting the failure afterwards. */
-        const blocked = showDot && !ready && !this._armOptions.force;
-        this._setAttr(selector, 'aria-disabled', blocked ? 'true' : null);
-        this._setAttr(selector, 'title', blocked
+        /* The dot warns; it does not bar the way. Blocking the tap outright
+           left no route to arming past a sensor at all once the pre-emptive
+           bypass chip was removed — the button could not be tapped, so the arm
+           could not fail, so the bypass button never appeared. A tap that fails
+           is not a dead end: it names the open sensors and offers to arm
+           anyway. */
+        this._setAttr(selector, 'aria-disabled', null);
+        this._setAttr(selector, 'title', showDot && !ready
           ? this._t('ready.not_ready') : (mode.label || ''));
       }
 
@@ -2602,8 +2593,8 @@
     }
 
     _paintNotice() {
+      if (!this._noticeVisible()) return;
       const kind = this._noticeKind();
-      if (!kind) return;
       const sensors = this._noticeSensors();
       const openCount = kind === 'bypassed'
         ? sensors.length
@@ -2653,9 +2644,6 @@
     }
 
     _paintArmOptions() {
-      if (this._q('#opt-force')) {
-        this._setAttr('#opt-force', 'data-on', this._armOptions.force ? '' : null);
-      }
       if (this._q('#opt-skip')) {
         this._setAttr('#opt-skip', 'data-on', this._armOptions.skip_delay ? '' : null);
       }
@@ -3123,6 +3111,8 @@
       try {
         const entries = await this._hass.callWS({ type: WS.entities });
         this._alarmoIds = (entries || []).map(function (e) { return e.entity_id; });
+        /* Which keypad settings mean anything depends on the code format. */
+        this._alarmoConfig = await this._hass.callWS({ type: WS.config });
       } catch (error) {
         /* Without Alarmo answering, offering every alarm panel is better than
            offering none — the card will say what is wrong once it is placed. */
@@ -3132,7 +3122,7 @@
     }
 
     _lang() {
-      return resolveLanguage(this._config ? this._config.language : 'auto', this._hass);
+      return resolveLanguage(this._hass);
     }
 
     _t(key, fallback) {
@@ -3170,16 +3160,9 @@
       if (this._alarmoIds && this._alarmoIds.length) {
         entitySelector.include_entities = this._alarmoIds;
       }
-      const langOptions = LANGUAGE_OPTIONS.map(function (o) {
-        return { value: o.value, label: tLang(this._lang(), o.labelKey, o.value) };
-      }.bind(this));
-
       return [
         { name: 'entity', required: true, selector: { entity: entitySelector } },
-        { name: '', type: 'grid', schema: [
-          { name: 'name', selector: { text: {} } },
-          { name: 'language', selector: { select: { mode: 'dropdown', options: langOptions } } }
-        ] },
+        { name: 'name', selector: { text: {} } },
         { name: '', type: 'expandable', icon: 'mdi:palette', title: this._t('appearance'), schema: [
           { name: '', type: 'grid', schema: [
             { name: 'layout', selector: { select: { mode: 'dropdown', options: [
@@ -3208,25 +3191,42 @@
           { name: 'button_scale_actions', selector: {
             number: { min: MIN_SCALE, max: MAX_SCALE, step: 0.1, mode: 'slider' } } },
           { name: 'show_ready_indicator', selector: { boolean: {} } },
-          { name: 'show_force_option', selector: { boolean: {} } },
           { name: 'show_skip_delay_option', selector: { boolean: {} } }
         ] },
-        { name: '', type: 'expandable', icon: 'mdi:dialpad', title: this._t('keypad'), schema: [
-          { name: 'hide_keypad', selector: { boolean: {} } },
-          { name: 'keep_keypad_visible', selector: { boolean: {} } },
-          { name: 'use_code_dialog', selector: { boolean: {} } },
-          { name: 'button_scale_keypad', selector: {
-            number: { min: MIN_SCALE, max: MAX_SCALE, step: 0.1, mode: 'slider' } } }
-        ] },
+        { name: '', type: 'expandable', icon: 'mdi:dialpad', title: this._t('keypad'),
+          schema: this._keypadSchema() },
         { name: '', type: 'expandable', icon: 'mdi:door-open', title: this._t('notices'), schema: [
           { name: 'show_messages', selector: { boolean: {} } },
           { name: 'show_bypass_button', selector: { boolean: {} } },
+          { name: 'show_ready_notice', selector: { boolean: {} } },
           { name: 'confirm_bypass', selector: { boolean: {} } },
           { name: 'show_bypassed_sensors', selector: { boolean: {} } },
           { name: 'max_sensor_chips', selector: {
             number: { min: 1, max: 30, step: 1, mode: 'box' } } }
         ] }
       ].concat(this._stateSections());
+    }
+
+    /* Only the settings that can do something here. A switch that is greyed
+       out, or worse simply inert, leaves the reader guessing which of the four
+       is the one that matters; a switch that is absent does not. */
+    _keypadSchema() {
+      const numeric = !this._alarmoConfig || this._alarmoConfig.code_format === 'number';
+      const overlay = !!this._config.use_code_dialog;
+      const schema = [{ name: 'use_code_dialog', selector: { boolean: {} } }];
+      /* An overlay replaces the in-card keypad outright, so nothing about the
+         in-card one is left to decide. */
+      if (!overlay) {
+        if (numeric) schema.push({ name: 'hide_keypad', selector: { boolean: {} } });
+        schema.push({ name: 'keep_keypad_visible', selector: { boolean: {} } });
+      }
+      /* The size applies to whichever keypad is drawn, in the card or in the
+         overlay — but only a numeric code has keys to size. */
+      if (numeric && !(!overlay && this._config.hide_keypad)) {
+        schema.push({ name: 'button_scale_keypad', selector: {
+          number: { min: MIN_SCALE, max: MAX_SCALE, step: 0.1, mode: 'slider' } } });
+      }
+      return schema;
     }
 
     _stateSections() {
@@ -3315,6 +3315,8 @@
       const schemaSig = [
         this._lang(),
         this._config.entity,
+        this._config.use_code_dialog + ':' + this._config.hide_keypad,
+        this._alarmoConfig ? this._alarmoConfig.code_format : '',
         stateObj ? stateObj.attributes.supported_features : '',
         this._alarmoIds ? this._alarmoIds.join(',') : ''
       ].join('|');
