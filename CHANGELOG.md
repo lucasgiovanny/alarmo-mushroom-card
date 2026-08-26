@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.1.15 - 2026-08-26
+
+- Changed each armed mode to carry its own colour — away green, home teal, night violet,
+  vacation cyan, custom indigo — in the hero icon, the selected button and the state ring
+  alike. Mushroom collapses every `armed_*` into one green, which is right for a card that
+  reports only whether an alarm is on; this one is read to find out *which* way the house is
+  armed, and a colour answers that from further away than a word does
+- Triggered stays red everywhere, because that question outranks the others. Disarmed stays
+  blue rather than green: with away in green, green would have to mean both *safe* and *armed
+  away* on the same card. `states.disarmed.color` still overrides it, as does
+  `states.<mode>.color` for any mode
+- Changed the Disarm button to take the colour of the state it leads to. It is the only button
+  on screen while armed, and leaving it neutral made the one thing you came to press the
+  quietest thing on the card
+- Night takes the lighter violet rather than indigo: indigo reads on a light card and goes
+  muddy against a dark one, and night is the mode most likely to be read in the dark
+
 ## 0.1.14 - 2026-08-25
 
 - Fixed a rejected code being reported again after a good one. The flash carries its own

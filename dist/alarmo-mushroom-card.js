@@ -15,7 +15,7 @@
 
   const CARD_TYPE = 'alarmo-mushroom-card';
   const EDITOR_TYPE = 'alarmo-mushroom-card-editor';
-  const CARD_VERSION = '0.1.14';
+  const CARD_VERSION = '0.1.15';
   const DOCS_URL = 'https://github.com/lucasgiovanny/alarmo-mushroom-card';
 
   /* ------------------------------------------------------------------ */
@@ -804,6 +804,10 @@
       --amc-rgb-orange:255,152,0;
       --amc-rgb-green:76,175,80;
       --amc-rgb-blue:33,150,243;
+      --amc-rgb-teal:0,150,136;
+      --amc-rgb-indigo:63,81,181;
+      --amc-rgb-cyan:0,188,212;
+      --amc-rgb-purple:146,107,199;
       --amc-rgb-grey:158,158,158;
       --amc-rgb-disabled:189,189,189;
       /* The theme owns the text colour; the fallback is only for a theme that
@@ -816,9 +820,25 @@
       --amc-rgb-warning:var(--amc-rgb-orange);
       --amc-rgb-danger:var(--amc-rgb-red);
 
-      /* Alarm layer */
+      /* Alarm layer. Mushroom collapses every armed_* into one green, and for
+         a card that only reports whether an alarm is on, that is right. This
+         one is read to find out *which* way the house is armed, and a colour
+         answers that from further away than a word does. Triggered stays red
+         everywhere, because that one question outranks the others.
+
+         Disarmed stays blue rather than green: with away in green, green would
+         have to mean both "safe" and "armed away" on the same card. A house
+         that wants it green can say so with states.disarmed.color. */
       --amc-rgb-disarmed:var(--amc-rgb-info);
-      --amc-rgb-armed:var(--amc-rgb-success);
+      --amc-rgb-armed-away:var(--amc-rgb-success);
+      --amc-rgb-armed-home:var(--amc-rgb-teal);
+      /* Night takes the lighter violet rather than indigo: indigo is legible
+         on a light card and goes muddy against a dark one, and night is the
+         mode most likely to be read in the dark. The custom mode, which most
+         houses never enable, gets indigo instead. */
+      --amc-rgb-armed-night:var(--amc-rgb-purple);
+      --amc-rgb-armed-vacation:var(--amc-rgb-cyan);
+      --amc-rgb-armed-custom:var(--amc-rgb-indigo);
       --amc-rgb-triggered:var(--amc-rgb-danger);
 
       /* Sizing */
@@ -1517,13 +1537,21 @@
     return (config.states && config.states[state]) || {};
   }
 
-  /* Mushroom collapses every armed_* into one colour by taking the segment
-     before the first underscore. Keeping that means a house that arms home in
-     the evening and away in the morning does not change colour between them. */
+  /* One colour per way of being armed, so the icon, the selected button and
+     the ring around the card all say which mode is on without being read. */
   function stateColorVar(state) {
+    switch (state) {
+      case 'armed_away': return 'var(--amc-rgb-armed-away)';
+      case 'armed_home': return 'var(--amc-rgb-armed-home)';
+      case 'armed_night': return 'var(--amc-rgb-armed-night)';
+      case 'armed_vacation': return 'var(--amc-rgb-armed-vacation)';
+      case 'armed_custom_bypass': return 'var(--amc-rgb-armed-custom)';
+      default: break;
+    }
     switch (String(state).split('_')[0]) {
       case 'disarmed': return 'var(--amc-rgb-disarmed)';
-      case 'armed': return 'var(--amc-rgb-armed)';
+      /* An armed_* Alarmo grows later still gets a colour rather than grey. */
+      case 'armed': return 'var(--amc-rgb-armed-away)';
       case 'triggered': return 'var(--amc-rgb-triggered)';
       /* Mushroom drops arming and pending into grey because its map has no
          entry for them. Warning is the truer reading: something is counting
@@ -2742,15 +2770,19 @@
         const isActive = mode.key === activeKey;
         const modeRgb = toRgbTriplet(stateBlock(config, mode.key).color)
           || stateColorVar(mode.key);
-        /* Only the active button takes colour; the rest keep the neutral 5%
-           tint. Colouring them all turns the row into a paint chart and stops
-           the current mode reading as current at a glance. */
+        /* The active button takes colour, and so does Disarm — a button is
+           coloured by the state it leads to, and Disarm is the only one on
+           screen while armed, so leaving it neutral made the one thing you
+           came to press the quietest thing on the card. Every other mode stays
+           at the neutral 5% tint: colouring them all turns the row into a
+           paint chart and stops the current mode reading as current. */
+        const coloured = isActive || !mode.arms;
         this._setVar(selector, '--amc-bg-color',
-          isActive ? 'rgba(' + modeRgb + ',0.2)' : 'rgba(var(--amc-rgb-text),0.05)');
+          coloured ? 'rgba(' + modeRgb + ',0.2)' : 'rgba(var(--amc-rgb-text),0.05)');
         this._setVar(selector, '--amc-bg-hover',
-          isActive ? 'rgba(' + modeRgb + ',0.28)' : 'rgba(var(--amc-rgb-text),0.09)');
+          coloured ? 'rgba(' + modeRgb + ',0.28)' : 'rgba(var(--amc-rgb-text),0.09)');
         this._setVar(selector, '--amc-icon-color',
-          isActive ? 'rgb(' + modeRgb + ')' : 'var(--primary-text-color)');
+          coloured ? 'rgb(' + modeRgb + ')' : 'var(--primary-text-color)');
 
         const ready = this._modeReady(mode);
         const showDot = config.show_ready_indicator && mode.arms && ready !== null;

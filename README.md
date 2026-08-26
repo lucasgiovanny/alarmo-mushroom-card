@@ -42,6 +42,10 @@ actually read.
   no needless bypass
 - Ready-to-arm dots that actually update live, and a not-ready button that cannot be tapped
   into a failed arm
+- **A colour per armed mode** — away green, home teal, night violet, vacation cyan, custom
+  indigo — carried by the icon, the selected button and the ring alike, so the card says which
+  way the house is armed from across the room. Triggered is red everywhere; any of them can be
+  overridden with `states.<state>.color`
 - An optional ring around the whole card while armed or triggered, in the state colour, so
   the dashboard says so from across the room — and, at `animations: full`, breathing while the
   alarm is actually going off
@@ -188,6 +192,10 @@ Every option above is read the same way, including the legacy `button_scale`. Th
 behaviours differ on purpose — see [docs/MIGRATING.md](docs/MIGRATING.md).
 
 ## Screenshots
+
+A colour per mode, carried by the icon and the ring:
+
+![Each armed mode in its own colour](docs/screenshots/07-mode-colours.png)
 
 Ringed while armed and while triggered:
 

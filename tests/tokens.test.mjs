@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { source, ok } from './_extract.mjs';
+import { source, sliceFunction, ok } from './_extract.mjs';
 
 /* Mushroom's real token defaults, read from piitaya/lovelace-mushroom
    src/utils/theme.ts. Drifting from these is what makes a card that "looks
@@ -81,5 +81,46 @@ ok('the shape colour formula matches Mushroom');
 assert.match(source, /CSS\.supports/,
   'theme tokens must be probed before use — an empty one invalidates var() and resets the property');
 ok('theme tokens are validated before being applied');
+
+/* ---- one colour per way of being armed ---- */
+
+/* Mushroom collapses every armed_* into one green, and for a card that only
+   reports whether an alarm is on, that is right. This one is read to find out
+   *which* way the house is armed, and a colour answers that from further away
+   than a word does. */
+const colorFor = new Function(
+  'return ' + sliceFunction('stateColorVar'))();
+const modes = ['armed_away', 'armed_home', 'armed_night', 'armed_vacation',
+               'armed_custom_bypass'];
+const colors = modes.map(colorFor);
+assert.equal(new Set(colors).size, modes.length,
+  'each armed mode needs a colour of its own, or the ring and the icon say only '
+  + 'that the house is armed and not how');
+for (const c of colors) assert.match(c, /^var\(--amc-rgb-armed-/);
+ok('every armed mode has its own colour');
+
+assert.equal(colorFor('triggered'), 'var(--amc-rgb-triggered)',
+  'triggered stays one colour everywhere: that question outranks the others');
+assert.equal(colorFor('disarmed'), 'var(--amc-rgb-disarmed)');
+assert.notEqual(colorFor('disarmed'), colorFor('armed_away'),
+  'with away in green, disarmed in green would make green mean both "safe" and '
+  + '"armed away" on the same card');
+assert.equal(colorFor('armed_something_new'), 'var(--amc-rgb-armed-away)',
+  'an armed_* Alarmo grows later still gets a colour rather than grey');
+ok('triggered and disarmed stay apart from the modes');
+
+/* Night is read in the dark more than any other mode, and indigo goes muddy
+   against a dark card. */
+assert.match(source, /--amc-rgb-armed-night:var\(--amc-rgb-purple\)/,
+  'night takes the lighter violet, not indigo');
+ok('night is legible in the dark');
+
+/* A button is coloured by the state it leads to. Disarm is the only one on
+   screen while armed, so leaving it neutral made the one thing you came to
+   press the quietest thing on the card. */
+const paintFn = sliceFunction('_paint');
+assert.ok(/const coloured = isActive \|\| !mode\.arms;/.test(paintFn),
+  'Disarm must take colour even though it is never the active state');
+ok('Disarm is coloured by the state it leads to');
 
 console.log('tokens.test.mjs passed');
