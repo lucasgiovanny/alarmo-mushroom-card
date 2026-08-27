@@ -15,7 +15,7 @@
 
   const CARD_TYPE = 'alarmo-mushroom-card';
   const EDITOR_TYPE = 'alarmo-mushroom-card-editor';
-  const CARD_VERSION = '0.1.15';
+  const CARD_VERSION = '0.1.16';
   const DOCS_URL = 'https://github.com/lucasgiovanny/alarmo-mushroom-card';
 
   /* ------------------------------------------------------------------ */
@@ -145,9 +145,12 @@
       keypad: { enter_code: 'Enter code', clear: 'Clear', submit: 'Confirm', backspace: 'Delete' },
       notice: {
         blocked_title: 'The alarm cannot be armed',
+        blocked_title_list: 'The alarm cannot be armed. Open sensors:',
         blocked_ready: 'The alarm is ready to be armed',
-        triggered_title: 'Triggered by',
+        triggered_title: 'The alarm was triggered',
+        triggered_title_list: 'The alarm was triggered by:',
         bypassed_title: 'Armed with bypassed sensors',
+        bypassed_title_list: 'Armed, with these sensors bypassed:',
         count_one: '{n} sensor open',
         count_other: '{n} sensors open',
         bypassed_one: '{n} sensor is not being watched',
@@ -228,9 +231,12 @@
       keypad: { enter_code: 'Digite o código', clear: 'Limpar', submit: 'Confirmar', backspace: 'Apagar' },
       notice: {
         blocked_title: 'O alarme não pode ser armado',
+        blocked_title_list: 'O alarme não pode ser armado. Sensores abertos:',
         blocked_ready: 'O alarme está pronto para ser armado',
-        triggered_title: 'Disparado por',
+        triggered_title: 'O alarme foi disparado',
+        triggered_title_list: 'O alarme foi disparado por:',
         bypassed_title: 'Armado com sensores ignorados',
+        bypassed_title_list: 'Armado, com estes sensores ignorados:',
         count_one: '{n} sensor aberto',
         count_other: '{n} sensores abertos',
         bypassed_one: '{n} sensor não está sendo vigiado',
@@ -311,9 +317,12 @@
       keypad: { enter_code: 'Introduza o código', clear: 'Limpar', submit: 'Confirmar', backspace: 'Apagar' },
       notice: {
         blocked_title: 'O alarme não pode ser armado',
+        blocked_title_list: 'O alarme não pode ser armado. Sensores abertos:',
         blocked_ready: 'O alarme está pronto para ser armado',
-        triggered_title: 'Disparado por',
+        triggered_title: 'O alarme foi disparado',
+        triggered_title_list: 'O alarme foi disparado por:',
         bypassed_title: 'Armado com sensores ignorados',
+        bypassed_title_list: 'Armado, com estes sensores ignorados:',
         count_one: '{n} sensor aberto',
         count_other: '{n} sensores abertos',
         bypassed_one: '{n} sensor não está a ser vigiado',
@@ -394,9 +403,12 @@
       keypad: { enter_code: 'Introduce el código', clear: 'Borrar', submit: 'Confirmar', backspace: 'Borrar' },
       notice: {
         blocked_title: 'La alarma no se puede armar',
+        blocked_title_list: 'La alarma no se puede armar. Sensores abiertos:',
         blocked_ready: 'La alarma está lista para armarse',
-        triggered_title: 'Disparado por',
-        bypassed_title: 'Armado con sensores omitidos',
+        triggered_title: 'La alarma se disparó',
+        triggered_title_list: 'La alarma se disparó por:',
+        bypassed_title: 'Armada con sensores omitidos',
+        bypassed_title_list: 'Armada, con estos sensores omitidos:',
         count_one: '{n} sensor abierto',
         count_other: '{n} sensores abiertos',
         bypassed_one: '{n} sensor no se está vigilando',
@@ -477,9 +489,12 @@
       keypad: { enter_code: 'Saisissez le code', clear: 'Effacer', submit: 'Confirmer', backspace: 'Supprimer' },
       notice: {
         blocked_title: "L'alarme ne peut pas être armée",
+        blocked_title_list: "L'alarme ne peut pas être armée. Capteurs ouverts :",
         blocked_ready: "L'alarme est prête à être armée",
-        triggered_title: 'Déclenché par',
-        bypassed_title: 'Armé avec des capteurs ignorés',
+        triggered_title: "L'alarme s'est déclenchée",
+        triggered_title_list: "L'alarme s'est déclenchée à cause de :",
+        bypassed_title: 'Armée avec des capteurs ignorés',
+        bypassed_title_list: 'Armée, ces capteurs étant ignorés :',
         count_one: '{n} capteur ouvert',
         count_other: '{n} capteurs ouverts',
         bypassed_one: "{n} capteur n'est pas surveillé",
@@ -560,9 +575,12 @@
       keypad: { enter_code: 'Code eingeben', clear: 'Löschen', submit: 'Bestätigen', backspace: 'Zurück' },
       notice: {
         blocked_title: 'Alarm kann nicht aktiviert werden',
+        blocked_title_list: 'Alarm kann nicht aktiviert werden. Offene Sensoren:',
         blocked_ready: 'Der Alarm kann aktiviert werden',
-        triggered_title: 'Ausgelöst durch',
+        triggered_title: 'Der Alarm wurde ausgelöst',
+        triggered_title_list: 'Der Alarm wurde ausgelöst durch:',
         bypassed_title: 'Aktiviert mit übergangenen Sensoren',
+        bypassed_title_list: 'Aktiviert, diese Sensoren übergangen:',
         count_one: '{n} Sensor offen',
         count_other: '{n} Sensoren offen',
         bypassed_one: '{n} Sensor wird nicht überwacht',
@@ -643,9 +661,12 @@
       keypad: { enter_code: 'Inserisci il codice', clear: 'Cancella', submit: 'Conferma', backspace: 'Elimina' },
       notice: {
         blocked_title: "L'allarme non può essere inserito",
+        blocked_title_list: "L'allarme non può essere inserito. Sensori aperti:",
         blocked_ready: "L'allarme è pronto per essere inserito",
-        triggered_title: 'Scattato da',
+        triggered_title: "L'allarme è scattato",
+        triggered_title_list: "L'allarme è scattato per:",
         bypassed_title: 'Inserito con sensori esclusi',
+        bypassed_title_list: 'Inserito, con questi sensori esclusi:',
         count_one: '{n} sensore aperto',
         count_other: '{n} sensori aperti',
         bypassed_one: '{n} sensore non è sorvegliato',
@@ -2844,11 +2865,16 @@
         triggered: 'mdi:bell-ring',
         bypassed: 'mdi:shield-off-outline'
       };
+      /* Two forms of each headline: one that introduces the chips under it,
+         and one that stands alone. A title ending in a colon with nothing
+         after it — which is what show_messages:false leaves behind — reads as
+         a sentence that got cut off. */
+      const listed = this._noticeSensors().length > 0 && this._config.show_messages;
       const titles = {
-        blocked: this._t('notice.blocked_title'),
+        blocked: this._t(listed ? 'notice.blocked_title_list' : 'notice.blocked_title'),
         ready: this._t('notice.blocked_ready'),
-        triggered: this._t('notice.triggered_title'),
-        bypassed: this._t('notice.bypassed_title')
+        triggered: this._t(listed ? 'notice.triggered_title_list' : 'notice.triggered_title'),
+        bypassed: this._t(listed ? 'notice.bypassed_title_list' : 'notice.bypassed_title')
       };
       this._setAttr('#notice-icon', 'icon', icons[kind]);
       this._setText('#notice-title', titles[kind]);

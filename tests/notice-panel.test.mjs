@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict';
-import { source, sliceFunction, ok } from './_extract.mjs';
+import { source, sliceBalanced, sliceFunction, evaluate, ok } from './_extract.mjs';
 
 const has = (re, msg) => assert.ok(re.test(source), msg);
 
@@ -231,5 +231,35 @@ assert.match(source, /delete config\.confirm_bypass/,
 assert.ok(!/confirm_bypass', selector/.test(source),
   'and must not still be offered in the editor');
 ok('the confirm step retired cleanly');
+
+/* ---- a headline that introduces its list, or stands alone ---- */
+
+/* A title ending in a colon with nothing after it — which is exactly what
+   show_messages:false leaves behind — reads as a sentence that got cut off. */
+const paintNotice = sliceFunction('_paintNotice');
+assert.ok(/const listed = this\._noticeSensors\(\)\.length > 0 && this\._config\.show_messages;/
+  .test(paintNotice), 'the headline has to know whether anything follows it');
+for (const kind of ['blocked', 'triggered', 'bypassed']) {
+  /* Plain string matching: the escaping needed to build these as regexes is
+     more likely to be wrong than the thing being checked. */
+  assert.ok(paintNotice.includes(
+    `${kind}: this._t(listed ? 'notice.${kind}_title_list'`),
+    `${kind} needs both forms`);
+}
+assert.ok(!/ready: this\._t\(listed/.test(paintNotice),
+  'the all-clear introduces nothing, so it has only the one form');
+ok('each headline has a form that introduces its list and one that does not');
+
+const I18N = evaluate(sliceBalanced('const I18N = Object.freeze(', '{', '}'));
+for (const lang of Object.keys(I18N)) {
+  const n = I18N[lang].notice;
+  for (const kind of ['blocked', 'triggered', 'bypassed']) {
+    assert.ok(n[kind + '_title_list'].endsWith(':'),
+      `${lang}: the introducing form has to read as one, not just be longer`);
+    assert.ok(!n[kind + '_title'].endsWith(':'),
+      `${lang}: the standing-alone form must not trail a colon into nothing`);
+  }
+}
+ok('the introducing form ends in a colon and the standalone one does not');
 
 console.log('notice-panel.test.mjs passed');

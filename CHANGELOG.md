@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.16 - 2026-08-27
+
+- Changed the panel headline to introduce the sensors under it — *The alarm cannot be armed.
+  Open sensors:*, *The alarm was triggered by:*, *Armed, with these sensors bypassed:* — so the
+  chips read as the answer to the line above rather than as a row of names left without one
+- Each headline keeps a second form for when nothing follows it. A title ending in a colon
+  with an empty space after it, which is exactly what `show_messages: false` used to leave
+  behind, reads as a sentence that got cut off
+
 ## 0.1.15 - 2026-08-26
 
 - Changed each armed mode to carry its own colour — away green, home teal, night violet,
