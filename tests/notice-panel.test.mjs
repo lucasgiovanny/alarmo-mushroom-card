@@ -324,6 +324,13 @@ has(/\.sensor-list\{[^}]*flex-direction:column/,
   + 'sideways to hide the names it exists to show');
 has(/\.sensor-list\{[^}]*max-height:min\(/,
   'a house with twenty open sensors still gets an overlay that fits the screen');
+/* The code sheet's title is a two-word prompt for the thing under the thumb.
+   This one is a sentence introducing a list, and at that size and centred it
+   wrapped onto a second line that hung there mid-air. */
+has(/\.sheet-sensors \.sheet-title\{[^}]*text-align:left/,
+  'the overlay headline is a sentence over its list, not a centred prompt');
+has(/\.sheet-sensors \.sheet-title\{[^}]*font-size:16px/,
+  'and is sized like a headline rather than like the code prompt');
 ok('the overlay gives the list the room the card could not');
 
 /* An overlay with no way out but the mouse is a trap on a keyboard, and the

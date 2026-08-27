@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.1.18 - 2026-08-27
+
+- Fixed the sensor overlay's headline wrapping onto a second line that hung there mid-air. It
+  had inherited the code prompt's 20px centred treatment, which is right for *Enter code* and
+  wrong for a sentence — it reads as a headline over its list now, left-aligned and sized to
+  match, so it fits on one line in every shipped language and wraps like a sentence when a
+  narrow phone makes it
+
 ## 0.1.17 - 2026-08-27
 
 - Added `show_sensors_on_tap`, on by default: with `show_messages: false` the panel becomes

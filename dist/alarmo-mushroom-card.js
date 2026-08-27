@@ -15,7 +15,7 @@
 
   const CARD_TYPE = 'alarmo-mushroom-card';
   const EDITOR_TYPE = 'alarmo-mushroom-card-editor';
-  const CARD_VERSION = '0.1.17';
+  const CARD_VERSION = '0.1.18';
   const DOCS_URL = 'https://github.com/lucasgiovanny/alarmo-mushroom-card';
 
   /* ------------------------------------------------------------------ */
@@ -1400,6 +1400,14 @@
        card; on a screen of its own a column reads them all at once, which is
        the point of having asked. */
     .sheet-sensors{padding-left:var(--amc-control-spacing);padding-right:var(--amc-control-spacing)}
+    /* A sentence introducing a list, not a two-word prompt for the thing under
+       the thumb. At the code sheet's 20px centred it wrapped onto a second
+       line and hung there mid-air; sized and aligned like the headline it is,
+       it sits over the rows it belongs to and wraps without looking broken. */
+    .sheet-sensors .sheet-title{
+      font-size:16px;line-height:22px;text-align:left;
+      padding-bottom:var(--amc-spacing);
+    }
     .sheet-sensors[data-kind="blocked"]{--amc-notice-rgb:var(--amc-rgb-warning)}
     .sheet-sensors[data-kind="triggered"]{--amc-notice-rgb:var(--amc-rgb-danger)}
     .sheet-sensors[data-kind="bypassed"]{--amc-notice-rgb:var(--amc-rgb-warning)}
