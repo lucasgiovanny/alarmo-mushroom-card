@@ -113,16 +113,24 @@ function roundTrip(key, value){
   ed.setConfig({ type:'custom:alarmo-mushroom-card', entity:'alarm_control_panel.alarmo' });
   ed.hass = hassFor('disarmed', {});
   let emitted = null;
-  ed.addEventListener('config-changed', e => { emitted = e.detail.config; });
+  /* The dashboard hands the emitted config straight back to the editor, and a
+     setting that only appears behind another one depends on it doing so. */
+  ed.addEventListener('config-changed', e => {
+    emitted = e.detail.config;
+    ed.setConfig(e.detail.config);
+  });
   let f = ed.querySelector('#f-' + key);
-  if (!f) {
-    /* Some keypad settings only appear once the overlay is off; turn it off
-       and look again rather than reporting a field that is merely contextual
-       as missing. */
-    const overlay = ed.querySelector('#f-use_code_dialog');
-    if (overlay) { overlay.setValue(false); f = ed.querySelector('#f-' + key); }
+  /* Several settings only appear behind the one they belong to — the keypad
+     ones once the overlay is off, the tap-to-list one once the list is. Turn
+     the governing switch and look again, rather than reporting a field that is
+     merely contextual as missing. */
+  for (const [governor, setting] of [['use_code_dialog', false], ['show_messages', false]]) {
+    if (f) break;
+    const switchNode = ed.querySelector('#f-' + governor);
+    if (switchNode) { switchNode.setValue(setting); f = ed.querySelector('#f-' + key); }
   }
   if (!f) return 'no field in editor';
+  emitted = null;   /* only the setting under test counts, not the one that revealed it */
   f.setValue(value);
   ed.remove();
   if (!emitted) return 'emitted nothing';
@@ -253,6 +261,27 @@ const CASES = [
   ['show_sensor_count',false, () => { const c=card({show_sensor_count:false},'disarmed',{});
       const n=q(c,'#notice-count');
       return (n && n.hasAttribute('hidden')) || 'the count must be hideable'; }],
+  ['show_sensors_on_tap',false, () => { const c=card({show_messages:false,show_sensors_on_tap:false},'disarmed',{});
+      const n=q(c,'.notice');
+      return (n && !n.hasAttribute('data-tap')) || 'the panel must be inert when this is off'; }],
+  [null,'the quiet panel opens the list on a tap', () => {
+      const c=card({show_messages:false},'disarmed',{});
+      const head=q(c,'.notice-head');
+      if (head.tagName !== 'BUTTON') return 'the tappable headline has to be a button';
+      head.click();
+      const rows=c.shadowRoot.querySelectorAll('.sensor-list .chip').length;
+      return (rows===7 && c.shadowRoot.activeElement === q(c,'.sheet-close'))
+        || 'expected every open sensor in the overlay, with focus on the way out, got ' + rows; }],
+  [null,'the overlay closes and hands focus back', () => {
+      const c=card({show_messages:false},'disarmed',{});
+      q(c,'.notice-head').click();
+      q(c,'.sheet-close').click();
+      return (!q(c,'.sheet-sensors') && c.shadowRoot.activeElement === q(c,'.notice-head'))
+        || 'closing must put focus back where the tap came from'; }],
+  [null,'nothing hides behind a tap while the list is on', () => {
+      const c=card({},'disarmed',{});
+      return !q(c,'.notice').hasAttribute('data-tap')
+        || 'the sensors are already on the card, so there is nothing to open'; }],
   [null,'every open sensor gets a chip, and the row scrolls', () => {
       const c=card({},'disarmed',{});
       const chips=c.shadowRoot.querySelectorAll('.chip').length;

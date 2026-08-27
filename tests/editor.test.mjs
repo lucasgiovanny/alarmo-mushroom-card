@@ -114,9 +114,15 @@ ok('the open-sensor section reads in order');
 assert.ok(!noticeNames({ show_messages: false }).includes('show_sensor_count'),
   'nothing is listed, so there is no count beside the list');
 assert.deepEqual(noticeNames({ show_messages: false }),
-  ['show_messages', 'show_ready_notice', 'show_bypass_button', 'blocked_modes',
-   'show_bypassed_sensors']);
+  ['show_messages', 'show_sensors_on_tap', 'show_ready_notice', 'show_bypass_button',
+   'blocked_modes', 'show_bypassed_sensors']);
 ok('a setting that governs nothing is not offered');
+
+/* The mirror of the count: with the list on there is nothing left behind a
+   tap, so the setting that opens it has nothing to govern either. */
+assert.ok(!noticeNames({ show_messages: true }).includes('show_sensors_on_tap'),
+  'the list is already on screen, so nothing hides behind a tap');
+ok('the two settings take each other\'s place');
 
 /* The schema now depends on more than the entity and the language. */
 assert.match(update, /use_code_dialog/,

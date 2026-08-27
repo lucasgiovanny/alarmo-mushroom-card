@@ -38,6 +38,10 @@ actually read.
   never disagree on screen
 - The bypass action is **separate from the message**, so `show_messages: false` no longer
   takes away the only way to arm past an open door
+- With `show_messages: false` the list is off the card but not out of reach: the panel
+  becomes tappable and opens the same sensors — names, rooms and all — in an overlay of the
+  card's own. A headline saying *3* with no way to find out which three was the one thing
+  switching the list off used to cost you
 - Shutting the last open door flips the panel green and turns the button into a plain arm —
   no needless bypass
 - Ready-to-arm dots that actually update live, and a not-ready button that cannot be tapped
@@ -157,6 +161,7 @@ More in [`examples/`](examples/).
 | `blocked_modes` | string | `disable` | What a mode that cannot be armed looks like: `disable` (drawn unavailable) or `hide` (taken off the row) |
 | `show_ready_notice` | boolean | `true` | Show the panel once every blocking sensor has closed again |
 | `show_sensor_count` | boolean | `true` | Show how many sensors are open, beside the headline |
+| `show_sensors_on_tap` | boolean | `true` | Only with `show_messages: false`: tapping the panel opens the same sensors in an overlay. Nothing to tap when nothing is in the way |
 | `show_ready_indicator` | boolean | `true` | Readiness dot on each arm button |
 | `show_bypassed_sensors` | boolean | `true` | Show bypassed sensors while armed |
 | `show_skip_delay_option` | boolean | `true` | The no-delay shortcut while disarmed |

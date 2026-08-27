@@ -120,6 +120,7 @@ for (const [key, value] of Object.entries({
   layout: 'default', fill_container: false, icon_type: 'icon',
   animations: 'subtle', state_outline: 'none',
   show_bypass_button: true, show_ready_notice: true, show_sensor_count: true,
+  show_sensors_on_tap: true,
   blocked_modes: 'disable', show_skip_delay_option: true,
   button_content: 'icon_and_name'
 })) {

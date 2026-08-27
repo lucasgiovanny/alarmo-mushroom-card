@@ -75,6 +75,7 @@ const MDI = {
 "mdi:bell-ring": "M21,19V20H3V19L5,17V11C5,7.9 7.03,5.17 10,4.29C10,4.19 10,4.1 10,4A2,2 0 0,1 12,2A2,2 0 0,1 14,4C14,4.1 14,4.19 14,4.29C16.97,5.17 19,7.9 19,11V17L21,19M14,21A2,2 0 0,1 12,23A2,2 0 0,1 10,21M19.75,3.19L18.33,4.61C20.04,6.3 21,8.6 21,11H23C23,8.07 21.84,5.25 19.75,3.19M1,11H3C3,8.6 3.96,6.3 5.67,4.61L4.25,3.19C2.16,5.25 1,8.07 1,11Z",
 "mdi:check-circle": "M12 2C6.5 2 2 6.5 2 12S6.5 22 12 22 22 17.5 22 12 17.5 2 12 2M10 17L5 12L6.41 10.59L10 14.17L17.59 6.58L19 8L10 17Z",
 "mdi:check": "M21,7L9,19L3.5,13.5L4.91,12.09L9,16.17L19.59,5.59L21,7Z",
+"mdi:chevron-right": "M8.59,16.58L13.17,12L8.59,7.41L10,6L16,12L10,18L8.59,16.58Z",
 "mdi:circle-medium": "M12,8A4,4 0 0,0 8,12A4,4 0 0,0 12,16A4,4 0 0,0 16,12A4,4 0 0,0 12,8Z",
 "mdi:door-closed": "M16,11H18V13H16V11M12,3H19C20.11,3 21,3.89 21,5V19H22V21H2V19H10V5C10,3.89 10.89,3 12,3M12,5V19H19V5H12Z",
 "mdi:door-open": "M12,3C10.89,3 10,3.89 10,5H3V19H2V21H22V19H21V5C21,3.89 20.11,3 19,3H12M12,5H19V19H12V5M5,11H7V13H5V11Z",
@@ -253,6 +254,17 @@ const CASES = [
   ['Disarm with keypad', 'armed_away', {}, { keypad: true, allClosed: true }],
   ['Quiet (show_messages false)', 'disarmed', {},
     { openIds: ['binary_sensor.front_door'], config: { show_messages: false } }],
+  ['Quiet — three open, tappable', 'disarmed', {},
+    { openIds: ['binary_sensor.front_door','binary_sensor.living_window','binary_sensor.garage'],
+      config: { show_messages: false } }],
+  ['Quiet — the sensor overlay', 'disarmed', {},
+    { openIds: ['binary_sensor.front_door','binary_sensor.living_window','binary_sensor.garage'],
+      config: { show_messages: false }, sensors: true }],
+  ['Quiet — overlay, seven open', 'disarmed', {},
+    { openIds: MANY, config: { show_messages: false }, sensors: true }],
+  ['Quiet — overlay while triggered', 'triggered',
+    { arm_mode: 'armed_away', open_sensors: openMap(['binary_sensor.back_door']) },
+    { openIds: ['binary_sensor.back_door'], config: { show_messages: false }, sensors: true }],
   ['All clear hidden (show_ready_notice false)', 'disarmed', {},
     { allClosed: true, config: { show_ready_notice: false } }],
   ['Horizontal layout', 'disarmed', {}, { allClosed: true, config: { layout: 'horizontal' } }],
@@ -286,6 +298,7 @@ for (const [title, state, attrs, opts] of CASES) {
      cell is demonstrating and draw it. */
   setTimeout(() => {
     if (opts.failed) card._pending = { mode: opts.failed, code: '', at: Date.now() };
+    if (opts.sensors) card._sensorsOpen = true;
     if (opts.sheet) {
       card._sheetOpen = true;
       card._sheetMode = opts.sheetMode || 'disarmed';

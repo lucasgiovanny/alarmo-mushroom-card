@@ -26,6 +26,14 @@ button too, add:
 show_bypass_button: false
 ```
 
+The list is also still reachable: the quiet panel is tappable and opens the same sensors in
+an overlay, so a headline saying *3* never leaves you without a way to find out which three.
+To have the panel say nothing more than it shows, add:
+
+```yaml
+show_sensors_on_tap: false
+```
+
 ## A blocked mode is locked, and *Arm anyway* is the key
 
 Upstream let you tap a mode with an open sensor, fail, and then read about it. Here a mode

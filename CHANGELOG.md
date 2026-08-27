@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.1.17 - 2026-08-27
+
+- Added `show_sensors_on_tap`, on by default: with `show_messages: false` the panel becomes
+  tappable and opens the same sensors — names, rooms, live open/closed state and all — in an
+  overlay of the card's own. Switching the list off used to leave a headline saying *3* with
+  no way to find out which three, which is the one question the panel exists to answer
+- The overlay is a column rather than a scrolling row, because a screen of its own can show
+  every sensor at once; past about six it scrolls inside itself rather than off the bottom of
+  the screen. A row still opens more-info for that entity, exactly as the chips on the card do
+- It follows the house while it is open: a door shutting drops out of the list, and once the
+  last one has the overlay closes, leaving the green all-clear on the card behind it
+- Focus moves with the overlay and back again, so *Escape* closes it on a card that asks for
+  no code at all. The headline is a real button, not a click handler on a div
+- The setting only appears in the editor while the list is off, taking the place of
+  `show_sensor_count` — the mirror of it, and for the same reason: neither governs anything
+  from the other side of `show_messages`
+
 ## 0.1.16 - 2026-08-27
 
 - Changed the panel headline to introduce the sensors under it — *The alarm cannot be armed.

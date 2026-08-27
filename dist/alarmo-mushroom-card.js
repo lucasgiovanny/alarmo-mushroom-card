@@ -15,7 +15,7 @@
 
   const CARD_TYPE = 'alarmo-mushroom-card';
   const EDITOR_TYPE = 'alarmo-mushroom-card-editor';
-  const CARD_VERSION = '0.1.16';
+  const CARD_VERSION = '0.1.17';
   const DOCS_URL = 'https://github.com/lucasgiovanny/alarmo-mushroom-card';
 
   /* ------------------------------------------------------------------ */
@@ -158,12 +158,14 @@
         sensor_open: 'Open', sensor_closed: 'Closed', sensor_bypassed: 'Bypassed',
         sensor_missing: 'No longer in Home Assistant',
         action_bypass: 'Arm anyway', action_bypass_on: 'Sensors bypassed',
-        action_retry: 'Arm now'
+        action_retry: 'Arm now',
+        show_list: 'See which sensors'
       },
       sheet: {
         arming: 'Arming {name} · {mode}', disarming: 'Disarming {name}',
         exit_delay: '{n} s to leave', no_exit_delay: 'No exit delay',
-        bypassing_one: 'bypassing {n} sensor', bypassing_other: 'bypassing {n} sensors'
+        bypassing_one: 'bypassing {n} sensor', bypassing_other: 'bypassing {n} sensors',
+        close: 'Close'
       },
       arm_options: { skip_delay: 'Arm without delay' },
       ready: { ready: 'Ready to arm', not_ready: 'Sensors open' },
@@ -192,6 +194,8 @@
         use_code_dialog_help: "Instead of drawing the keypad inside the card. The overlay is this card's own, not the Home Assistant dialog.",
         show_messages: 'List which sensors are open',
         show_messages_help: 'Without it the panel still says the alarm cannot be armed, but not what is in the way. The bypass button has a setting of its own.',
+        show_sensors_on_tap: 'Show the list when the panel is tapped',
+        show_sensors_on_tap_help: 'The same sensors, in an overlay of the card\'s own. Only where the list is off and something is actually in the way.',
         show_bypass_button: 'Show the arm-anyway button',
         show_sensor_count: 'Show how many are open',
         show_ready_notice: 'Show the panel when everything is closed',
@@ -244,12 +248,14 @@
         sensor_open: 'Aberto', sensor_closed: 'Fechado', sensor_bypassed: 'Ignorado',
         sensor_missing: 'Não existe mais no Home Assistant',
         action_bypass: 'Armar mesmo assim', action_bypass_on: 'Sensores ignorados',
-        action_retry: 'Armar agora'
+        action_retry: 'Armar agora',
+        show_list: 'Ver quais sensores'
       },
       sheet: {
         arming: 'Armando {name} · {mode}', disarming: 'Desarmando {name}',
         exit_delay: '{n} s para sair', no_exit_delay: 'Sem tempo de saída',
-        bypassing_one: 'ignorando {n} sensor', bypassing_other: 'ignorando {n} sensores'
+        bypassing_one: 'ignorando {n} sensor', bypassing_other: 'ignorando {n} sensores',
+        close: 'Fechar'
       },
       arm_options: { skip_delay: 'Armar sem espera' },
       ready: { ready: 'Pronto para armar', not_ready: 'Sensores abertos' },
@@ -278,6 +284,8 @@
         use_code_dialog_help: 'Em vez de desenhar o teclado dentro do card. A janela é do próprio card, não o diálogo do Home Assistant.',
         show_messages: 'Listar quais sensores estão abertos',
         show_messages_help: 'Sem isso o aviso continua dizendo que o alarme não pode ser armado, mas não o que está no caminho. O botão de armar mesmo assim tem opção própria.',
+        show_sensors_on_tap: 'Mostrar a lista ao tocar no aviso',
+        show_sensors_on_tap_help: 'Os mesmos sensores, numa janela sobreposta do próprio card. Só onde a lista está desligada e algo está de fato no caminho.',
         show_bypass_button: 'Mostrar o botão de armar mesmo assim',
         show_sensor_count: 'Mostrar quantos estão abertos',
         show_ready_notice: 'Mostrar o aviso quando estiver tudo fechado',
@@ -330,12 +338,14 @@
         sensor_open: 'Aberto', sensor_closed: 'Fechado', sensor_bypassed: 'Ignorado',
         sensor_missing: 'Já não existe no Home Assistant',
         action_bypass: 'Armar mesmo assim', action_bypass_on: 'Sensores ignorados',
-        action_retry: 'Armar agora'
+        action_retry: 'Armar agora',
+        show_list: 'Ver que sensores'
       },
       sheet: {
         arming: 'A armar {name} · {mode}', disarming: 'A desarmar {name}',
         exit_delay: '{n} s para sair', no_exit_delay: 'Sem tempo de saída',
-        bypassing_one: 'a ignorar {n} sensor', bypassing_other: 'a ignorar {n} sensores'
+        bypassing_one: 'a ignorar {n} sensor', bypassing_other: 'a ignorar {n} sensores',
+        close: 'Fechar'
       },
       arm_options: { skip_delay: 'Armar sem espera' },
       ready: { ready: 'Pronto a armar', not_ready: 'Sensores abertos' },
@@ -364,6 +374,8 @@
         use_code_dialog_help: 'Em vez de desenhar o teclado dentro do card. A janela é do próprio card, não o diálogo do Home Assistant.',
         show_messages: 'Listar que sensores estão abertos',
         show_messages_help: 'Sem isso o aviso continua a dizer que o alarme não pode ser armado, mas não o que está no caminho. O botão de armar mesmo assim tem opção própria.',
+        show_sensors_on_tap: 'Mostrar a lista ao tocar no aviso',
+        show_sensors_on_tap_help: 'Os mesmos sensores, numa janela sobreposta do próprio card. Só onde a lista está desligada e algo está mesmo no caminho.',
         show_bypass_button: 'Mostrar o botão de armar mesmo assim',
         show_sensor_count: 'Mostrar quantos estão abertos',
         show_ready_notice: 'Mostrar o aviso quando estiver tudo fechado',
@@ -416,12 +428,14 @@
         sensor_open: 'Abierto', sensor_closed: 'Cerrado', sensor_bypassed: 'Omitido',
         sensor_missing: 'Ya no existe en Home Assistant',
         action_bypass: 'Armar de todos modos', action_bypass_on: 'Sensores omitidos',
-        action_retry: 'Armar ahora'
+        action_retry: 'Armar ahora',
+        show_list: 'Ver qué sensores'
       },
       sheet: {
         arming: 'Armando {name} · {mode}', disarming: 'Desarmando {name}',
         exit_delay: '{n} s para salir', no_exit_delay: 'Sin tiempo de salida',
-        bypassing_one: 'omitiendo {n} sensor', bypassing_other: 'omitiendo {n} sensores'
+        bypassing_one: 'omitiendo {n} sensor', bypassing_other: 'omitiendo {n} sensores',
+        close: 'Cerrar'
       },
       arm_options: { skip_delay: 'Armar sin espera' },
       ready: { ready: 'Listo para armar', not_ready: 'Sensores abiertos' },
@@ -450,6 +464,8 @@
         use_code_dialog_help: 'En lugar de dibujar el teclado dentro de la tarjeta. La ventana es de la propia tarjeta, no el diálogo de Home Assistant.',
         show_messages: 'Listar qué sensores están abiertos',
         show_messages_help: 'Sin esto el aviso sigue diciendo que la alarma no se puede armar, pero no qué lo impide. El botón de armar igualmente tiene su propia opción.',
+        show_sensors_on_tap: 'Mostrar la lista al tocar el aviso',
+        show_sensors_on_tap_help: 'Los mismos sensores, en una ventana superpuesta de la propia tarjeta. Solo donde la lista está apagada y algo lo impide de verdad.',
         show_bypass_button: 'Mostrar el botón de armar igualmente',
         show_sensor_count: 'Mostrar cuántos están abiertos',
         show_ready_notice: 'Mostrar el aviso cuando todo esté cerrado',
@@ -502,12 +518,14 @@
         sensor_open: 'Ouvert', sensor_closed: 'Fermé', sensor_bypassed: 'Ignoré',
         sensor_missing: "N'existe plus dans Home Assistant",
         action_bypass: 'Armer quand même', action_bypass_on: 'Capteurs ignorés',
-        action_retry: 'Armer maintenant'
+        action_retry: 'Armer maintenant',
+        show_list: 'Voir quels capteurs'
       },
       sheet: {
         arming: 'Armement de {name} · {mode}', disarming: 'Désarmement de {name}',
         exit_delay: '{n} s pour sortir', no_exit_delay: 'Sans délai de sortie',
-        bypassing_one: '{n} capteur ignoré', bypassing_other: '{n} capteurs ignorés'
+        bypassing_one: '{n} capteur ignoré', bypassing_other: '{n} capteurs ignorés',
+        close: 'Fermer'
       },
       arm_options: { skip_delay: 'Armer sans délai' },
       ready: { ready: 'Prêt à armer', not_ready: 'Capteurs ouverts' },
@@ -536,6 +554,8 @@
         use_code_dialog_help: "Plutôt que de dessiner le clavier dans la carte. La surcouche appartient à la carte, ce n'est pas la boîte de dialogue de Home Assistant.",
         show_messages: 'Lister les capteurs ouverts',
         show_messages_help: "Sans cela le bandeau dit toujours que l'alarme ne peut pas être armée, mais pas ce qui l'en empêche. Le bouton d'armer quand même a son propre réglage.",
+        show_sensors_on_tap: 'Afficher la liste en touchant le bandeau',
+        show_sensors_on_tap_help: "Les mêmes capteurs, dans une surcouche propre à la carte. Uniquement là où la liste est désactivée et où quelque chose fait vraiment obstacle.",
         show_bypass_button: "Afficher le bouton d'armer quand même",
         show_sensor_count: 'Afficher combien sont ouverts',
         show_ready_notice: 'Afficher le bandeau une fois tout refermé',
@@ -588,12 +608,14 @@
         sensor_open: 'Offen', sensor_closed: 'Geschlossen', sensor_bypassed: 'Übergangen',
         sensor_missing: 'Existiert nicht mehr in Home Assistant',
         action_bypass: 'Trotzdem aktivieren', action_bypass_on: 'Sensoren übergangen',
-        action_retry: 'Jetzt aktivieren'
+        action_retry: 'Jetzt aktivieren',
+        show_list: 'Zeigen, welche Sensoren'
       },
       sheet: {
         arming: '{name} wird aktiviert · {mode}', disarming: '{name} wird deaktiviert',
         exit_delay: '{n} s zum Verlassen', no_exit_delay: 'Ohne Verzögerung',
-        bypassing_one: '{n} Sensor übergangen', bypassing_other: '{n} Sensoren übergangen'
+        bypassing_one: '{n} Sensor übergangen', bypassing_other: '{n} Sensoren übergangen',
+        close: 'Schließen'
       },
       arm_options: { skip_delay: 'Ohne Verzögerung aktivieren' },
       ready: { ready: 'Bereit zum Aktivieren', not_ready: 'Sensoren offen' },
@@ -622,6 +644,8 @@
         use_code_dialog_help: 'Statt das Tastenfeld in der Karte zu zeichnen. Die Überlagerung gehört der Karte, es ist nicht der Home-Assistant-Dialog.',
         show_messages: 'Auflisten, welche Sensoren offen sind',
         show_messages_help: 'Ohne dies sagt der Hinweis weiter, dass der Alarm nicht aktiviert werden kann, aber nicht, was im Weg ist. Die Schaltfläche hat eine eigene Einstellung.',
+        show_sensors_on_tap: 'Die Liste beim Antippen des Hinweises zeigen',
+        show_sensors_on_tap_help: 'Dieselben Sensoren, in einer karteneigenen Überlagerung. Nur dort, wo die Liste aus ist und wirklich etwas im Weg steht.',
         show_bypass_button: 'Schaltfläche „trotzdem aktivieren“ anzeigen',
         show_sensor_count: 'Anzeigen, wie viele offen sind',
         show_ready_notice: 'Hinweis anzeigen, sobald wieder alles zu ist',
@@ -674,12 +698,14 @@
         sensor_open: 'Aperto', sensor_closed: 'Chiuso', sensor_bypassed: 'Escluso',
         sensor_missing: 'Non esiste più in Home Assistant',
         action_bypass: 'Inserisci comunque', action_bypass_on: 'Sensori esclusi',
-        action_retry: 'Inserisci ora'
+        action_retry: 'Inserisci ora',
+        show_list: 'Vedere quali sensori'
       },
       sheet: {
         arming: 'Inserimento di {name} · {mode}', disarming: 'Disinserimento di {name}',
         exit_delay: '{n} s per uscire', no_exit_delay: 'Senza ritardo di uscita',
-        bypassing_one: '{n} sensore escluso', bypassing_other: '{n} sensori esclusi'
+        bypassing_one: '{n} sensore escluso', bypassing_other: '{n} sensori esclusi',
+        close: 'Chiudi'
       },
       arm_options: { skip_delay: 'Inserisci senza ritardo' },
       ready: { ready: 'Pronto per inserire', not_ready: 'Sensori aperti' },
@@ -708,6 +734,8 @@
         use_code_dialog_help: 'Invece di disegnare il tastierino dentro la scheda. La finestra è della scheda stessa, non la finestra di Home Assistant.',
         show_messages: 'Elencare quali sensori sono aperti',
         show_messages_help: "Senza questo l'avviso continua a dire che l'allarme non può essere inserito, ma non che cosa lo impedisce. Il pulsante ha un'opzione sua.",
+        show_sensors_on_tap: "Mostrare l'elenco toccando l'avviso",
+        show_sensors_on_tap_help: "Gli stessi sensori, in una finestra sovrapposta della scheda stessa. Solo dove l'elenco è spento e qualcosa è davvero d'ostacolo.",
         show_bypass_button: 'Mostrare il pulsante per inserire comunque',
         show_sensor_count: 'Mostrare quanti sono aperti',
         show_ready_notice: "Mostrare l'avviso quando è di nuovo tutto chiuso",
@@ -1166,6 +1194,28 @@
     .notice[data-headline] .notice-title{flex:0 1 auto;text-align:center}
     .notice[data-headline] .notice-head > ha-icon{margin-top:0}
 
+    /* With the list switched off the panel is a headline over an answer that
+       is one tap away, so it has to look like something you can tap. The head
+       carries the whole row's hit area as a real button — keyboard and focus
+       ring included — and the panel around it takes the same tap so the
+       padding is not a dead border. */
+    .notice[data-tap]{cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .notice[data-tap]:hover{background-color:rgba(var(--amc-notice-rgb),0.14)}
+    button.notice-head{
+      width:100%;margin:0;padding:0;border:none;background:none;
+      font:inherit;font-size:var(--amc-secondary-size);font-weight:600;
+      line-height:var(--amc-secondary-line);
+      color:inherit;text-align:left;cursor:pointer;
+      -webkit-tap-highlight-color:transparent;
+    }
+    button.notice-head:focus-visible{
+      outline:2px solid rgb(var(--amc-notice-rgb));outline-offset:3px;border-radius:4px;
+    }
+    /* The chevron says "there is more behind this", which is the whole reason
+       the row is tappable. It sits after the count so the two read as one
+       trailing group rather than as the title being pushed about. */
+    .notice-more{--mdc-icon-size:18px;flex:none;display:flex;opacity:0.8}
+
     .notice-count{
       flex:none;min-width:18px;height:18px;padding:0 5px;border-radius:9px;
       background-color:rgba(var(--amc-notice-rgb),0.18);
@@ -1343,6 +1393,35 @@
       .sheet-panel{border-radius:var(--amc-card-radius);padding-bottom:var(--amc-control-spacing)}
     }
 
+    /* ---- open-sensor overlay ---- */
+
+    /* The same sensors the panel would have listed, given the room the card
+       could not spare. Sideways in a scrolling row is how a chip fits inside a
+       card; on a screen of its own a column reads them all at once, which is
+       the point of having asked. */
+    .sheet-sensors{padding-left:var(--amc-control-spacing);padding-right:var(--amc-control-spacing)}
+    .sheet-sensors[data-kind="blocked"]{--amc-notice-rgb:var(--amc-rgb-warning)}
+    .sheet-sensors[data-kind="triggered"]{--amc-notice-rgb:var(--amc-rgb-danger)}
+    .sheet-sensors[data-kind="bypassed"]{--amc-notice-rgb:var(--amc-rgb-warning)}
+    .sheet-sensors[data-kind="ready"]{--amc-notice-rgb:var(--amc-rgb-success)}
+    .sensor-list{
+      display:flex;flex-direction:column;gap:6px;
+      /* A house with twenty sensors open still gets a panel that fits on the
+         screen, and scrolls inside itself rather than off the bottom of it. */
+      max-height:min(50vh,320px);overflow-y:auto;
+      margin:0 -2px;padding:2px;
+    }
+    .sensor-list .chip{max-width:none;width:100%;padding:8px 12px}
+    .sheet-close{
+      display:block;width:100%;margin-top:var(--amc-spacing);
+      padding:10px 12px;border:none;border-radius:var(--amc-control-radius);
+      background-color:rgba(var(--amc-rgb-text),0.08);
+      color:var(--primary-text-color);
+      font:inherit;font-size:var(--amc-secondary-size);font-weight:500;
+      cursor:pointer;-webkit-tap-highlight-color:transparent;
+    }
+    .sheet-close:hover{background-color:rgba(var(--amc-rgb-text),0.14)}
+
     /* In the sheet the keypad is the whole point of the screen, so the keys
        are sized for a thumb and given a fill of their own. At the card's own
        5% tint they read as empty space with a number floating in it — fine
@@ -1441,6 +1520,7 @@
     show_bypass_button: true,
     show_ready_notice: true,
     show_sensor_count: true,
+    show_sensors_on_tap: true,
     show_skip_delay_option: true,
     button_content: 'icon_and_name',
     /* Left unset so the default can depend on use_code_dialog — see _tapAction. */
@@ -1661,6 +1741,7 @@
       this._pending = null;     /* {mode, code, at} after a failed arm */
       this._armOptions = { force: false, skip_delay: false };
       this._sheetOpen = false;
+      this._sensorsOpen = false;
       this._deadline = 0;
       this._delay = 0;
       this._tickTimer = null;
@@ -2165,6 +2246,10 @@
     _render() {
       if (!this._config) return;
       this._syncTheme();
+      /* Doors close while the overlay is up. Once the last one has, the list
+         it was holding is empty and the card behind it is already saying the
+         all-clear — so the overlay has answered its question and goes. */
+      if (this._sensorsOpen && !this._sensorsTappable()) this._sensorsOpen = false;
       const sig = this._shellSignature();
       if (sig !== this._shellSig) {
         this._shellSig = sig;
@@ -2196,6 +2281,7 @@
         this._headerTappable(),
         this._codeVisible() + ':' + this._keypadVisible(),
         this._sheetOpen,
+        this._sensorsOpen + ':' + this._sensorsTappable(),
         this._config.show_skip_delay_option + ':' + (state === 'disarmed')
       ].join('|');
     }
@@ -2222,7 +2308,8 @@
         '<div class="flash" id="flash" hidden></div>',
         this._codeHtml(),
         this._keypadHtml(),
-        this._sheetHtml()
+        this._sheetHtml(),
+        this._sensorSheetHtml()
       ].join('');
       /* Horizontal means the hero and the buttons share a line, not that every
          section becomes a column of the card — turning ha-card itself into a
@@ -2487,6 +2574,26 @@
       return true;
     }
 
+    /* One row per sensor, built the same way wherever it is read: in the
+       scrolling row inside the card, and in the column the overlay gives them.
+       The ids differ by prefix so both sets can be repainted in place. */
+    _sensorChipsHtml(prefix) {
+      return this._noticeSensors().map(function (s, i) {
+        const cls = 'chip' + (s.missing ? ' is-missing' : (s.clear ? ' is-clear' : ''));
+        return [
+          '<button class="' + cls + '" id="' + prefix + i + '"',
+          ' data-act="sensor" data-entity="' + esc(s.id) + '"',
+          ' title="' + esc((s.area ? s.area + ' · ' : '') + s.name + ' — ' + s.sub) + '">',
+          '<ha-icon id="' + prefix + 'icon-' + i + '" icon="' + esc(s.icon) + '"></ha-icon>',
+          '<span class="chip-text">',
+          '<span class="chip-label">' + esc(s.name) + '</span>',
+          s.area ? '<span class="chip-area">' + esc(s.area) + '</span>' : '',
+          '</span>',
+          '</button>'
+        ].join('');
+      }).join('');
+    }
+
     _noticeHtml() {
       if (!this._noticeVisible()) return '';
       const kind = this._noticeKind();
@@ -2495,33 +2602,84 @@
          behind a number that had to be tapped before it would say which ones
          they were — the panel exists to answer exactly that. */
       const shown = this._noticeSensors();
-      const chips = shown.map(function (s, i) {
-        const cls = 'chip' + (s.missing ? ' is-missing' : (s.clear ? ' is-clear' : ''));
-        return [
-          '<button class="' + cls + '" id="chip-' + i + '"',
-          ' data-act="sensor" data-entity="' + esc(s.id) + '"',
-          ' title="' + esc((s.area ? s.area + ' · ' : '') + s.name + ' — ' + s.sub) + '">',
-          '<ha-icon id="chip-icon-' + i + '" icon="' + esc(s.icon) + '"></ha-icon>',
-          '<span class="chip-text">',
-          '<span class="chip-label">' + esc(s.name) + '</span>',
-          s.area ? '<span class="chip-area">' + esc(s.area) + '</span>' : '',
-          '</span>',
-          '</button>'
-        ].join('');
-      }).join('');
+      const chips = this._sensorChipsHtml('chip-');
+      /* Tapping the panel is an act, not a decoration, so the headline is a
+         real button: it takes focus, answers the keyboard, and carries the
+         label a screen reader needs. The panel around it repeats the act so
+         its padding is not a dead border around a live row. */
+      const tap = this._sensorsTappable();
+      const head = tap
+        ? '<button class="notice-head" data-act="notice-list" aria-label="'
+            + esc(this._t('notice.show_list')) + '">'
+        : '<div class="notice-head">';
       return [
         '<div class="notice" id="notice" data-kind="' + esc(kind) + '"' + quiet
+          + (tap ? ' data-tap data-act="notice-list"' : '')
           /* Quiet hides the chips with CSS rather than dropping them, so it
              leaves the same lone headline over the same empty bar. */
           + (shown.length && this._config.show_messages ? '' : ' data-headline') + '>',
-        '<div class="notice-head">',
+        head,
         '<ha-icon id="notice-icon"></ha-icon>',
         '<span class="notice-title" id="notice-title"></span>',
         '<span class="notice-count" id="notice-count"></span>',
-        '</div>',
+        tap ? '<ha-icon class="notice-more" icon="mdi:chevron-right"></ha-icon>' : '',
+        tap ? '</button>' : '</div>',
         shown.length ? '<div class="notice-chips">' + chips + '</div>' : '',
         '</div>'
       ].join('');
+    }
+
+    /* The one case where the panel has something to say and no room on the
+       card to say it: the list is switched off, yet sensors are exactly what
+       the headline is about. A tap opens them rather than leaving the reader
+       with a count and no names. With the list already on there is nothing
+       behind the tap, and a green all-clear names nobody by design. */
+    _sensorsTappable() {
+      if (!this._config.show_sensors_on_tap) return false;
+      if (this._config.show_messages) return false;
+      if (!this._noticeVisible()) return false;
+      return this._noticeSensors().length > 0;
+    }
+
+    /* Deliberately the card's own overlay rather than the more-info dialog:
+       more-info answers about one entity, and the question here is which of
+       them. The code sheet next door is built the same way, for the same
+       reason. */
+    _sensorSheetHtml() {
+      if (!this._sensorsOpen) return '';
+      const kind = this._noticeKind();
+      return [
+        '<div class="sheet" data-act="sensors-backdrop">',
+        '<div class="sheet-panel sheet-sensors" data-kind="' + esc(kind || '') + '">',
+        '<div class="sheet-title" id="sensors-title"></div>',
+        '<div class="sensor-list">' + this._sensorChipsHtml('sheet-chip-') + '</div>',
+        '<button class="sheet-close" data-act="sensors-close">'
+          + esc(this._t('sheet.close')) + '</button>',
+        '</div></div>'
+      ].join('');
+    }
+
+    /* Focus moves with the overlay, in both directions. The tap that opened it
+       took the headline out of the DOM along with the rest of the shell, so
+       focus would otherwise drop to the page body — and a keydown on the body
+       never reaches a listener on the card, which left Escape doing nothing at
+       all. The way out is also the right thing to land on. */
+    _openSensors() {
+      if (!this._sensorsTappable()) return;
+      this._sensorsOpen = true;
+      this._render();
+      this._focus('.sheet-close');
+    }
+
+    _closeSensors() {
+      this._sensorsOpen = false;
+      this._render();
+      this._focus('button.notice-head');
+    }
+
+    _focus(selector) {
+      const node = this._q(selector);
+      if (node && node.focus) node.focus();
     }
 
     /* Which mode the button would arm. A tap on a blocked mode names one
@@ -2823,6 +2981,7 @@
 
       this._syncDensity();
       this._paintNotice();
+      this._paintSensorSheet();
       this._paintArmOptions();
       this._paintCode();
       this._paintCountdown();
@@ -2865,19 +3024,9 @@
         triggered: 'mdi:bell-ring',
         bypassed: 'mdi:shield-off-outline'
       };
-      /* Two forms of each headline: one that introduces the chips under it,
-         and one that stands alone. A title ending in a colon with nothing
-         after it — which is what show_messages:false leaves behind — reads as
-         a sentence that got cut off. */
-      const listed = this._noticeSensors().length > 0 && this._config.show_messages;
-      const titles = {
-        blocked: this._t(listed ? 'notice.blocked_title_list' : 'notice.blocked_title'),
-        ready: this._t('notice.blocked_ready'),
-        triggered: this._t(listed ? 'notice.triggered_title_list' : 'notice.triggered_title'),
-        bypassed: this._t(listed ? 'notice.bypassed_title_list' : 'notice.bypassed_title')
-      };
       this._setAttr('#notice-icon', 'icon', icons[kind]);
-      this._setText('#notice-title', titles[kind]);
+      this._setText('#notice-title',
+        this._noticeTitle(sensors.length > 0 && this._config.show_messages));
       /* The count follows the chips out of view when the row scrolls, so it
          reports the true total rather than what happens to be on screen. */
       const count = sensors.length;
@@ -2905,6 +3054,35 @@
         this._setAttr('#bypass-icon', 'icon', on ? 'mdi:shield-off' : 'mdi:shield-off-outline');
         this._setAttr('#bypass', 'data-on', on ? '' : null);
       }
+    }
+
+    /* Two forms of each headline: one that introduces the sensors under it,
+       and one that stands alone. A title ending in a colon with nothing after
+       it — which is what show_messages:false leaves behind on the card — reads
+       as a sentence that got cut off. In the overlay the list is always there,
+       so the introducing form is always the right one. */
+    _noticeTitle(listed) {
+      const titles = {
+        blocked: listed ? 'notice.blocked_title_list' : 'notice.blocked_title',
+        ready: 'notice.blocked_ready',
+        triggered: listed ? 'notice.triggered_title_list' : 'notice.triggered_title',
+        bypassed: listed ? 'notice.bypassed_title_list' : 'notice.bypassed_title'
+      };
+      return this._t(titles[this._noticeKind()]);
+    }
+
+    _paintSensorSheet() {
+      if (!this._sensorsOpen) return;
+      this._setText('#sensors-title', this._noticeTitle(true));
+      this._noticeSensors().forEach(function (s, i) {
+        const chip = this._q('#sheet-chip-' + i);
+        if (!chip) return;
+        chip.classList.toggle('is-clear', s.clear && !s.missing);
+        chip.classList.toggle('is-missing', s.missing);
+        chip.setAttribute('title',
+          (s.area ? s.area + ' · ' : '') + s.name + ' — ' + s.sub);
+        this._setAttr('#sheet-chip-icon-' + i, 'icon', s.icon);
+      }.bind(this));
     }
 
     _paintArmOptions() {
@@ -3308,6 +3486,15 @@
         case 'sheet-backdrop':
           if (node === (ev.composedPath ? ev.composedPath()[0] : ev.target)) this._closeSheet();
           break;
+        case 'notice-list':
+          this._openSensors();
+          break;
+        case 'sensors-close':
+          this._closeSensors();
+          break;
+        case 'sensors-backdrop':
+          if (node === (ev.composedPath ? ev.composedPath()[0] : ev.target)) this._closeSensors();
+          break;
         default:
           break;
       }
@@ -3322,6 +3509,10 @@
     }
 
     _onKeydown(ev) {
+      /* Ahead of the code-entry guard below: the sensor overlay is reachable
+         on a card that asks for no code at all, and an overlay with no way out
+         but the mouse is a trap on a keyboard. */
+      if (this._sensorsOpen && ev.key === 'Escape') { this._closeSensors(); return; }
       if (!this._codeVisible() && !this._sheetOpen) return;
       if (/^\d$/.test(ev.key)) { this._handleKey(ev.key); return; }
       if (ev.key === 'Backspace') { this._handleKey('back'); return; }
@@ -3531,6 +3722,10 @@
       /* Nothing is listed, so there is no count beside the list. */
       if (this._config.show_messages) {
         schema.push({ name: 'show_sensor_count', selector: { boolean: {} } });
+      } else {
+        /* The mirror of the count: it governs nothing while the list is on,
+           because then there is nothing left behind a tap. */
+        schema.push({ name: 'show_sensors_on_tap', selector: { boolean: {} } });
       }
       schema.push({ name: 'show_ready_notice', selector: { boolean: {} } });
       schema.push({ name: 'show_bypass_button', selector: { boolean: {} } });

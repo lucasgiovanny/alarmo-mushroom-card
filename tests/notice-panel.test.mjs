@@ -6,6 +6,7 @@ const has = (re, msg) => assert.ok(re.test(source), msg);
 /* ---- the #157 decoupling ---- */
 
 const noticeHtml = sliceFunction('_noticeHtml');
+const sensorChips = sliceFunction('_sensorChipsHtml');
 const armOptions = sliceFunction('_armOptionsHtml');
 const bypassAvailable = sliceFunction('_bypassAvailable');
 
@@ -184,7 +185,7 @@ assert.equal(areaFn.call({ _hass: {} }, 'binary_sensor.a'), null,
   'a Home Assistant too old to publish the registries must not throw');
 ok('the area comes from the entity, then its device, then nothing');
 
-assert.match(noticeHtml, /s\.area \? '<span class="chip-area">/,
+assert.match(sensorChips, /s\.area \? '<span class="chip-area">/,
   'the second line is only drawn when there is a room to name');
 has(/\.chip \.chip-area\{/, 'the area line needs its own quieter treatment');
 has(/\.chip\{[^}]*min-height:var\(--amc-chip-height\)/,
@@ -237,18 +238,26 @@ ok('the confirm step retired cleanly');
 /* A title ending in a colon with nothing after it — which is exactly what
    show_messages:false leaves behind — reads as a sentence that got cut off. */
 const paintNotice = sliceFunction('_paintNotice');
-assert.ok(/const listed = this\._noticeSensors\(\)\.length > 0 && this\._config\.show_messages;/
-  .test(paintNotice), 'the headline has to know whether anything follows it');
+const noticeTitle = sliceFunction('_noticeTitle');
+assert.match(paintNotice,
+  /this\._noticeTitle\(sensors\.length > 0 && this\._config\.show_messages\)/,
+  'on the card the headline has to know whether anything follows it');
 for (const kind of ['blocked', 'triggered', 'bypassed']) {
   /* Plain string matching: the escaping needed to build these as regexes is
      more likely to be wrong than the thing being checked. */
-  assert.ok(paintNotice.includes(
-    `${kind}: this._t(listed ? 'notice.${kind}_title_list'`),
+  assert.ok(noticeTitle.includes(
+    `${kind}: listed ? 'notice.${kind}_title_list'`),
     `${kind} needs both forms`);
 }
-assert.ok(!/ready: this\._t\(listed/.test(paintNotice),
+assert.ok(!/ready: listed/.test(noticeTitle),
   'the all-clear introduces nothing, so it has only the one form');
 ok('each headline has a form that introduces its list and one that does not');
+
+/* In the overlay the list is the whole screen, so the introducing form is
+   always the right one — there is never nothing under it. */
+assert.match(sliceFunction('_paintSensorSheet'), /this\._noticeTitle\(true\)/,
+  'the overlay always has a list under its headline');
+ok('the overlay headline always introduces its list');
 
 const I18N = evaluate(sliceBalanced('const I18N = Object.freeze(', '{', '}'));
 for (const lang of Object.keys(I18N)) {
@@ -261,5 +270,88 @@ for (const lang of Object.keys(I18N)) {
   }
 }
 ok('the introducing form ends in a colon and the standalone one does not');
+
+/* ---- the list the panel could not spare room for ---- */
+
+/* show_messages:false leaves a headline naming a number of sensors and no way
+   to find out which. The count was the whole complaint about max_sensor_chips
+   in 0.1.12; hiding the list outright had left the same hole behind it. */
+const tappable = new Function(
+  'return function ' + sliceFunction('_sensorsTappable').trimStart().slice('_sensorsTappable'.length)
+)();
+const stand = (config, sensors, visible = true) => tappable.call({
+  _config: config,
+  _noticeVisible: () => visible,
+  _noticeSensors: () => sensors
+});
+
+const two = [{ id: 'binary_sensor.a' }, { id: 'binary_sensor.b' }];
+assert.equal(stand({ show_messages: false, show_sensors_on_tap: true }, two), true,
+  'the list is off and sensors are what the headline is about');
+assert.equal(stand({ show_messages: true, show_sensors_on_tap: true }, two), false,
+  'with the list on screen there is nothing left behind a tap');
+assert.equal(stand({ show_messages: false, show_sensors_on_tap: false }, two), false,
+  'the setting has to be able to switch it off');
+assert.equal(stand({ show_messages: false, show_sensors_on_tap: true }, []), false,
+  'a green all-clear names nobody, so a tap would open an empty list');
+assert.equal(stand({ show_messages: false, show_sensors_on_tap: true }, two, false), false,
+  'a panel that is not drawn cannot be tapped');
+ok('the tap is offered exactly where the names are otherwise unreachable');
+
+/* Both lists are built by the same function, so a chip cannot say one thing on
+   the card and another in the overlay. */
+const sheetHtml = sliceFunction('_sensorSheetHtml');
+assert.match(sheetHtml, /_sensorChipsHtml\('sheet-chip-'\)/,
+  'the overlay lists the same chips the card would have');
+assert.match(noticeHtml, /_sensorChipsHtml\('chip-'\)/,
+  'and the card builds its row from the same place');
+assert.match(sensorChips, /id="' \+ prefix \+ i \+ '"/,
+  'the two sets need ids of their own, or repainting one patches the other');
+ok('one builder feeds the row and the overlay alike');
+
+/* A door closing while the overlay is up has to reach it, exactly as it
+   reaches the row on the card. */
+assert.match(sliceFunction('_paintSensorSheet'), /#sheet-chip-icon-/,
+  'the overlay icons swap open for closed in place, like the ones on the card');
+ok('the overlay follows the sensors while it is open');
+
+/* The overlay is the card's own, not more-info: more-info answers about one
+   entity and the question here is which of them. */
+assert.match(sheetHtml, /class="sheet-panel sheet-sensors"/,
+  'the overlay reuses the sheet the code prompt already established');
+has(/\.sensor-list\{[^}]*flex-direction:column/,
+  'on a screen of its own the sensors read as a column, not as a row that scrolls '
+  + 'sideways to hide the names it exists to show');
+has(/\.sensor-list\{[^}]*max-height:min\(/,
+  'a house with twenty open sensors still gets an overlay that fits the screen');
+ok('the overlay gives the list the room the card could not');
+
+/* An overlay with no way out but the mouse is a trap on a keyboard, and the
+   sensor overlay is reachable on a card that asks for no code at all — so the
+   escape has to come before the code-entry guard. */
+const keydown = sliceFunction('_onKeydown');
+assert.ok(keydown.indexOf('_sensorsOpen') < keydown.indexOf('!this._codeVisible()'),
+  'Escape must close the sensor overlay before the code guard turns the key away');
+ok('Escape closes the overlay on any card');
+
+/* Doors close while it is open. Once the last one has, the list is empty and
+   the card behind is already saying the all-clear. */
+assert.match(sliceFunction('_render'),
+  /this\._sensorsOpen && !this\._sensorsTappable\(\)/,
+  'an overlay with nothing left to name closes itself');
+assert.match(sliceFunction('_shellSignature'), /_sensorsOpen/,
+  'opening and closing the overlay changes the shape of the DOM, so the shell '
+  + 'has to be rebuilt for it');
+ok('the overlay opens, follows and ends with the question it answers');
+
+/* The headline is a real button rather than a div wearing a click handler:
+   it takes focus, answers the keyboard and carries a label. */
+assert.match(noticeHtml, /<button class="notice-head" data-act="notice-list" aria-label="/,
+  'the tappable headline is a button, with a name for a screen reader');
+assert.match(noticeHtml, /' data-tap data-act="notice-list"'/,
+  'and the panel around it takes the same tap, so its padding is not a dead border');
+has(/\.notice\[data-tap\]\{cursor:pointer/, 'a panel that can be tapped has to look like it');
+has(/button\.notice-head:focus-visible\{/, 'and has to show where the keyboard is');
+ok('the headline is a button, and reads as one');
 
 console.log('notice-panel.test.mjs passed');

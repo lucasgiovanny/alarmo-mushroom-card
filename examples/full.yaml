@@ -19,6 +19,7 @@ button_scale_keypad: 1
 
 # Open sensors
 show_messages: true
+show_sensors_on_tap: true   # only bites with show_messages: false
 show_bypass_button: true
 confirm_bypass: true
 show_bypassed_sensors: true
